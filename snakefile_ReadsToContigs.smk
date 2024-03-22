@@ -17,7 +17,7 @@ rule fcs_adaptor:
     shell:
         "/project/vpgru/software/fcsadaptor/run_fcsadaptor.sh "
         "--fasta-input {input} "
-        "--output-dir ./fcs-adaptor/{sample}/ "
+        "--output-dir ./fcs-adaptor/{wildcards.sample}/ "
         "--euk --container-engine singularity "
         "--image /project/vpgru/software/fcsadaptor/fcs-adaptor.sif"
 
@@ -27,6 +27,7 @@ rule HiFiAdapterFilt:
         fcs="fcs-adaptor/{sample}/fcs_adaptor_report.txt"
     output:
         "filtered_hifi/{sample}.filt.fastq.gz"
+    threads: 8
     shell:
         "module load bamtools/2.5.2; "
         "module load pigz/2.7; "
