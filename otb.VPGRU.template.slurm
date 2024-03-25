@@ -38,7 +38,9 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
     echo "this might take a minute"
     module load samtools
     for bam_file in $CCS; do
-      samtools fastq $bam_file
+      # use samtools fastq to convert BAMs, then cat loop output to new file
+      # --threads is number of additional, so 2 total
+      samtools fastq --threads 1 $bam_file
     done > $HiFi_fastq
     module unload samtools
     echo "finished! combined reads are in $HiFi_fastq"
