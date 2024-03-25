@@ -42,6 +42,8 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
     module unload samtools
     echo "finished! combined reads are in $HiFi_fastq"
   fi
+  echo "Using $HiFi_fastq as HiFi reads for OTB"
+  CCS=${HiFi_fastq}
 fi
 
 # Singularity path assignment isn't working, pre-installed but need to link them where expected
