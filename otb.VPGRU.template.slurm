@@ -9,6 +9,7 @@
 
 # Modified by DL to incorporate troubleshoot suggestions from DM while OTB still in beta (March 2024)
 # more info at https://github.com/molikd/otb/wiki
+# To use this template first get OTB with `git clone git@github.com:molikd/otb.git` and copy template into new otb/ directory
 
 module load nextflow/22.04.3
 
