@@ -40,11 +40,15 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
       samtools fastq $bam_file
     done > $HiFi_fastq
     module unload samtools
+    echo "finished! combined reads are in $HiFi_fastq"
   fi
 fi
 
-# Singularity path assignment isn't working, so have them pre-installed but need to link them were expected
+# Singularity path assignment isn't working, pre-installed but need to link them where expected
 ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
+
+# HiFiASM can purge duplicate haplotigs to save memory. If trying trio-binning reduce to 1 or 0. See -l parameter in https://hifiasm.readthedocs.io/en/latest/parameter-reference.html#parameter-reference
+PurgeDups=2
 
 #Comment/Uncommment for busco
 #Busco="--busco" #Busco will be run
@@ -75,7 +79,7 @@ Busco_Location="-l /project/ag100pest/software/OTB_test/busco"
 Busco_DB="-p insecta_odb10"
 
 if [[ -z "$BUSCO" ]]; then
-  ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} ${Yahs} ${Busco} --polish_type ${Polish_Type} --runner ${Runner} -c -s
+  ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Busco} --polish_type ${Polish_Type} --runner ${Runner} -c -s
 else
-  ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} ${Yahs} ${Busco} ${Busco_Location} ${Busco_DB} --polish_type ${Polish_Type} --runner ${Runner} -c -s
+  ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Busco} ${Busco_Location} ${Busco_DB} --polish_type ${Polish_Type} --runner ${Runner} -c -s
 fi
