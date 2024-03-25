@@ -50,6 +50,8 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
 fi
 
 # Singularity path assignment isn't working, pre-installed but need to link them where expected
+mkdir work
+mkdir work/singularity
 ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
 
 # HiFiASM can purge duplicate haplotigs to save memory. If trying trio-binning reduce to 1 or 0. See -l parameter in https://hifiasm.readthedocs.io/en/latest/parameter-reference.html#parameter-reference
