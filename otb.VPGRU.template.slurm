@@ -29,6 +29,7 @@ CCS='/project/vpgru/PathToHiFi/AsMuchInfoAsPossible*.bam'
 Forward="/project/vpgru/PathToHiC/*_R1.fastq.gz"
 Reverse="/project/vpgru/PathToHiC/*_R2.fastq.gz"
 
+# PIPELINE OPTIONS
 # hifiasm phasing of diploid genome
 #Comment/Uncomment for Type (only select one of)
 HiFi_Type="default" # only use HiFi reads to generate primary/alternate contigs
@@ -66,6 +67,7 @@ Busco="" #Busco will not be run
 Busco_Location="-l /project/ag100pest/software/OTB_test/busco"
 Busco_DB="-p insecta_odb10"
 
+# RUNNING OTB (NO MORE TEMPLATE EDITS NEEDED BELOW HERE)
 # Modifications by DL 
 # Singularity path assignment isn't working, pre-installed but need to link them where expected
 mkdir work
