@@ -13,20 +13,66 @@
 
 module load nextflow/22.04.3
 
-# need to use an over verion of apptainer (singularity replacement)
+# need to use an older verion of apptainer (singularity replacement)
 module load apptainer/1.1.8
 
-# We need an assembly name, generally this is just the name of the organism"
-Assembly_Name="SpeciesSexOptions"
+# We need an assembly name, generally this is just the name of the organism
+Assembly_Name="Species_Sex-Assembly_Type-N"
 
-# Hi-C Foward and reverse reads
-Forward="RawData/*_R1.fastq.gz"
-Reverse="RawData/*_R2.fastq.gz"
-
-# HiFi Reads, ours are stored as BAM files
+# READS
+# HiFi Reads, ours are stored as BAM files, can use fastq
 # If globbing give as much of the name as possible, the combined read file is named based on this
-CCS='RawData/AsMuchInfoAsPossible*.bam'
+CCS='/project/vpgru/PathToHiFi/AsMuchInfoAsPossible*.bam'
 
+# Hi-C Foward and reverse reads (won't use in Lite mode)
+# 3/26/24 haven't yet checked if globbed Hi-C files are supported
+Forward="/project/vpgru/PathToHiC/*_R1.fastq.gz"
+Reverse="/project/vpgru/PathToHiC/*_R2.fastq.gz"
+
+# hifiasm phasing of diploid genome
+#Comment/Uncomment for Type (only select one of)
+HiFi_Type="default" # only use HiFi reads to generate primary/alternate contigs
+#HiFi_Type="phasing" # attempt to generate haplotigs using Hi-C if available
+#HiFi_Type="trio"    # use maternal/paternal reads to generate maternal/paternal chromosomes
+
+# HiFiASM can purge duplicate haplotigs to save memory. If using trio-binning reduce to 1 or 0. See -l parameter in https://hifiasm.readthedocs.io/en/latest/parameter-reference.html#parameter-reference
+PurgeDups=2
+
+# Lite mode skips all Hi-C steps (phasing, polishing, scaffolding)
+# if set to lite will automatically skip Hi-C read paths and next 2 options
+Lite_Run=""
+#Lite_Run="lite"
+
+#Comment/Uncommment for Yahs scaffolding with Hi-C reads
+#Yahs="" #Yahs will not be run
+Yahs="-y" #Yahs will be run
+
+#Comment/Uncomment for Polishing (only select one of)
+#Polish_Type="" #No polishing
+Polish_Type="--polish_type simple" #Simple Polishing
+#Polish_Type="--polish_type dv" #Deep Variant Polishing
+#Polish_Type="--polish_type merfin" #merfin Polishing
+
+#Comment/Uncomment for Runner (only select one of)
+#Runner="slurm_usda"
+Runner="slurm_usda_mem"
+
+Threads="32"
+
+#Comment/Uncommment for busco quality check for benchmark single copy genes
+#Busco="--busco" #Busco will be run
+Busco="" #Busco will not be run
+
+Busco_Location="-l /project/ag100pest/software/OTB_test/busco"
+Busco_DB="-p insecta_odb10"
+
+# Modifications by DL 
+# Singularity path assignment isn't working, pre-installed but need to link them where expected
+mkdir work
+mkdir work/singularity
+ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
+
+# HiFi read processing pre-OTB
 # Current OTB needs a single HiFi input file, so if there's multiple we need to concatenate
 if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
   HiFi_fastq="${CCS%%\**}.combined.reads.fastq"
@@ -49,44 +95,23 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
   CCS=${HiFi_fastq}
 fi
 
-# Singularity path assignment isn't working, pre-installed but need to link them where expected
-mkdir work
-mkdir work/singularity
-ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
-
-# HiFiASM can purge duplicate haplotigs to save memory. If trying trio-binning reduce to 1 or 0. See -l parameter in https://hifiasm.readthedocs.io/en/latest/parameter-reference.html#parameter-reference
-PurgeDups=2
-
-#Comment/Uncommment for busco
-#Busco="--busco" #Busco will be run
-Busco="" #Busco will not be run
-
-#Comment/Uncommment for Yahs
-Yahs="-y" #Yahs will be run
-#Yahs="" #Yahs will not be run
-
-#Comment/Uncomment for Polishing (only select one of)
-#Polish_Type="" #No polishing
-Polish_Type="simple" #Simple Polishing
-#Polish_Type="dv" #Deep Variant Polishing
-#Polish_Type="merfin" #merfin Polishing
-
-#Comment/Uncomment for Type (only select one of)
-#HiFi_Type="phasing"
-HiFi_Type="default"
-#HiFi_Type="trio"
-
-#Comment/Uncomment for Runner (only select one of)
-#Runner="slurm_usda"
-Runner="slurm_usda_mem"
-
-Threads="32"
-
-Busco_Location="-l /project/ag100pest/software/OTB_test/busco"
-Busco_DB="-p insecta_odb10"
-
-if [[ -z "$BUSCO" ]]; then
-  ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Busco} --polish_type ${Polish_Type} --runner ${Runner} -c -s
+# Call OTB with specified options
+if [[ -z "$Lite_Run" ]]; then
+# normal run (-z checks for empty string)
+  if [[ -z "$Busco" ]]; then
+  # no BUSCO
+    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Busco} ${Polish_Type} --runner ${Runner} -c -s
+  else
+  # include BUSCO
+    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Polish_Type} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
+  fi
 else
-  ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Busco} ${Busco_Location} ${Busco_DB} --polish_type ${Polish_Type} --runner ${Runner} -c -s
+# lite run
+  if [[ -z "$Busco" ]]; then
+  # no BUSCO
+    ./otb.sh --lite -n ${Assembly_Name} -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} --runner ${Runner} -c -s
+  else
+  # include BUSCO
+    ./otb.sh --lite -n ${Assembly_Name} -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
+  fi
 fi
