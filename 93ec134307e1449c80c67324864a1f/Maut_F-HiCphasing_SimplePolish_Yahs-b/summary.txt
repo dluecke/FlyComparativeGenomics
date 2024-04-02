@@ -1,0 +1,14 @@
+GenomeScope version 2.0
+input file = Maut_F-HiCphasing_SimplePolish_Yahs-b.histo
+output directory = Maut_F-HiCphasing_SimplePolish_Yahs-b
+p = 2
+k = 21
+
+property                      min               max               
+Homozygous (aa)               89.7229%          95.0688%          
+Heterozygous (ab)             4.93117%          10.2771%          
+Genome Haploid Length         693,302,134 bp    708,111,632 bp    
+Genome Repeat Length          526,508,479 bp    537,755,129 bp    
+Genome Unique Length          166,793,655 bp    170,356,503 bp    
+Model Fit                     27.1028%          73.6404%          
+Read Error Rate               3.41166%          3.41166%          

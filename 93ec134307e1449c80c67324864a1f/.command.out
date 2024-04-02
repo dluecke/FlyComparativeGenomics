@@ -1,0 +1,4 @@
+GenomeScope analyzing Maut_F-HiCphasing_SimplePolish_Yahs-b.histo p=2 k=21 outdir=Maut_F-HiCphasing_SimplePolish_Yahs-b
+aa:92.4% ab:7.6%
+Model converged het:0.076 kcov:26.3 err:0.0341 model fit:0.868 len:708111632
+finished genomescope
