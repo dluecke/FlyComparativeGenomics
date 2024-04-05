@@ -23,20 +23,20 @@ Assembly_Name="Species_Sex-Assembly_Type-N"
 # HiFi Reads, ours are stored as BAM files, can use fastq
 # If globbing give as much of the name as possible, the combined read file is named based on this
 #CCS='/project/vpgru/PathToHiFi/AsMuchInfoAsPossible*.bam'
-CCS='/project/vpgru/ComparativeGenomics/Musca_autumnalis/m64312e_22022.combined.reads.fastq'
+CCS=''
 
 # Hi-C Foward and reverse reads (won't use in Lite mode)
 # 3/26/24 haven't yet checked if globbed Hi-C files are supported
 #Forward="/project/vpgru/PathToHiC/*_R1.fastq.gz"
 #Reverse="/project/vpgru/PathToHiC/*_R2.fastq.gz"
-Forward='/project/vpgru/ComparativeGenomics/Musca_autumnalis/HiC/sa22218_S3HiC_R1.fastq.gz'
-Reverse='/project/vpgru/ComparativeGenomics/Musca_autumnalis/HiC/sa22218_S3HiC_R2.fastq.gz'
+Forward=''
+Reverse=''
 
 # PIPELINE OPTIONS
 # hifiasm phasing of diploid genome
 #Comment/Uncomment for Type (only select one of)
-HiFi_Type="default" # only use HiFi reads to generate primary/alternate contigs
-#HiFi_Type="phasing" # attempt to generate haplotigs using Hi-C if available
+#HiFi_Type="default" # only use HiFi reads to generate primary/alternate contigs
+HiFi_Type="phasing" # attempt to generate haplotigs using Hi-C if available
 #HiFi_Type="trio"    # use maternal/paternal reads to generate maternal/paternal chromosomes
 
 # HiFiASM can purge duplicate haplotigs to save memory. If using trio-binning reduce to 1 or 0. See -l parameter in https://hifiasm.readthedocs.io/en/latest/parameter-reference.html#parameter-reference
