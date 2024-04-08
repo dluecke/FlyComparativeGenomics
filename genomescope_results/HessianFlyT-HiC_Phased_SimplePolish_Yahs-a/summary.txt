@@ -1,0 +1,14 @@
+GenomeScope version 2.0
+input file = HessianFlyT-HiC_Phased_SimplePolish_Yahs-a.histo
+output directory = HessianFlyT-HiC_Phased_SimplePolish_Yahs-a
+p = 2
+k = 21
+
+property                      min               max               
+Homozygous (aa)               98.9085%          98.9509%          
+Heterozygous (ab)             1.04905%          1.09155%          
+Genome Haploid Length         147,280,793 bp    147,750,063 bp    
+Genome Repeat Length          22,813,712 bp     22,886,401 bp     
+Genome Unique Length          124,467,082 bp    124,863,662 bp    
+Model Fit                     75.663%           85.5705%          
+Read Error Rate               0.0954681%        0.0954681%        
