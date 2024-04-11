@@ -1,0 +1,1250 @@
+digraph "dag" {
+p0 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromPath"];
+p3 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p0 -> p3 [label="bam_ch"];
+
+p1 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromPath"];
+p6 [label="check_fastq"];
+p1 -> p6 [label="right_hicfastq_check"];
+
+p2 [shape=point,label="",fixedsize=true,width=0.1,xlabel="Channel.fromPath"];
+p6 [label="check_fastq"];
+p2 -> p6 [label="left_hicfastq_check"];
+
+p3 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p4 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p3 -> p4 [label="in_check_ch"];
+
+p3 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="into"];
+p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p3 -> p9 [label="in_Hifi_ch"];
+
+p4 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p5 [label="check_in_file"];
+p4 -> p5;
+
+p5 [label="check_in_file"];
+p128 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p5 -> p128 [label="check_in_file_output"];
+
+p6 [label="check_fastq"];
+p22 [label="hicstuff"];
+p6 -> p22 [label="right_fastq_hicstuff"];
+
+p6 [label="check_fastq"];
+p8 [shape=point];
+p6 -> p8 [label="right_fastq_hicstuff_polish"];
+
+p6 [label="check_fastq"];
+p41 [label="bwa_for_yahs"];
+p6 -> p41 [label="right_yahs"];
+
+p6 [label="check_fastq"];
+p42 [label="bwa_for_simple_yahs"];
+p6 -> p42 [label="simple_right_yahs"];
+
+p6 [label="check_fastq"];
+p43 [label="bwa_for_merfin_yahs"];
+p6 -> p43 [label="merfin_right_yahs"];
+
+p6 [label="check_fastq"];
+p44 [label="bwa_for_dv_yahs"];
+p6 -> p44 [label="dv_right_yahs"];
+
+p6 [label="check_fastq"];
+p22 [label="hicstuff"];
+p6 -> p22 [label="left_fastq_hicstuff"];
+
+p6 [label="check_fastq"];
+p7 [shape=point];
+p6 -> p7 [label="left_fastq_hicstuff_polish"];
+
+p6 [label="check_fastq"];
+p41 [label="bwa_for_yahs"];
+p6 -> p41 [label="left_yahs"];
+
+p6 [label="check_fastq"];
+p42 [label="bwa_for_simple_yahs"];
+p6 -> p42 [label="simple_left_yahs"];
+
+p6 [label="check_fastq"];
+p43 [label="bwa_for_merfin_yahs"];
+p6 -> p43 [label="merfin_left_yahs"];
+
+p6 [label="check_fastq"];
+p44 [label="bwa_for_dv_yahs"];
+p6 -> p44 [label="dv_left_yahs"];
+
+p6 [label="check_fastq"];
+p80 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p6 -> p80 [label="fasta_in_ch"];
+
+p6 [label="check_fastq"];
+p126 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p6 -> p126 [label="check_fastq_output"];
+
+p9 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p10 [label="HiFiAdapterFilt"];
+p9 -> p10;
+
+p10 [label="HiFiAdapterFilt"];
+p11 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p10 -> p11 [label="hifiasm_filt_fastq_ch"];
+
+p10 [label="HiFiAdapterFilt"];
+p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p10 -> p25 [label="filt_fastq_ch"];
+
+p10 [label="HiFiAdapterFilt"];
+p34 [label="minimap_for_deep_variant"];
+p10 -> p34 [label="minimap_dv_filt_ch"];
+
+p10 [label="HiFiAdapterFilt"];
+p30 [label="minimap_for_merfin"];
+p10 -> p30 [label="minimap_merfin_filt_ch"];
+
+p10 [label="HiFiAdapterFilt"];
+p33 [label="merfin"];
+p10 -> p33 [label="meryl_filt_ch"];
+
+p10 [label="HiFiAdapterFilt"];
+p124 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p10 -> p124 [label="pbadapterfilt_output"];
+
+p11 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p12 [label="HiFiASM"];
+p11 -> p12;
+
+p12 [label="HiFiASM"];
+p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p12 -> p13 [label="gfa_ch"];
+
+p12 [label="HiFiASM"];
+p18 [label="ragtag_dot_py"];
+p12 -> p18 [label="fasta_ec_ch"];
+
+p12 [label="HiFiASM"];
+p130 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p12 -> p130 [label="HiFiASM_output"];
+
+p13 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 [label="gfa2fasta"];
+p13 -> p14;
+
+p14 [label="gfa2fasta"];
+p82 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p82 [label="gfa2fasta_fasta_res_ch"];
+
+p14 [label="gfa2fasta"];
+p18 [label="ragtag_dot_py"];
+p14 -> p18 [label="fasta_unoriented_ch"];
+
+p14 [label="gfa2fasta"];
+p22 [label="hicstuff"];
+p14 -> p22 [label="fasta_genome_ch"];
+
+p14 [label="gfa2fasta"];
+p16 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p16 [label="fasta_busco_ch"];
+
+p14 [label="gfa2fasta"];
+p41 [label="bwa_for_yahs"];
+p14 -> p41 [label="no_polish_yahs_align_genome_ch"];
+
+p14 [label="gfa2fasta"];
+p21 [label="yahs_faidx"];
+p14 -> p21 [label="fasta_fai_yahs_genome_ch"];
+
+p14 [label="gfa2fasta"];
+p15 [shape=point];
+p14 -> p15 [label="fasta_hap_ch"];
+
+p14 [label="gfa2fasta"];
+p59 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p59 [label="simple_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p61 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p61 [label="merfin_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p63 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p63 [label="dv_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p65 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p65 [label="yahs_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p67 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p67 [label="yahs_simple_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p69 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p69 [label="yahs_merfin_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p71 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p14 -> p71 [label="yahs_dv_fasta_hap_polish_ch"];
+
+p14 [label="gfa2fasta"];
+p132 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p14 -> p132 [label="gfa2fasta_output"];
+
+p16 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p17 [label="busco_gfa"];
+p16 -> p17;
+
+p17 [label="busco_gfa"];
+p148 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p17 -> p148 [label="busco_gfa_output"];
+
+p18 [label="ragtag_dot_py"];
+p84 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p18 -> p84 [label="ragtag_fasta_res_ch"];
+
+p18 [label="ragtag_dot_py"];
+p19 [shape=point];
+p18 -> p19 [label="ragtag_fasta_genome_ch"];
+
+p18 [label="ragtag_dot_py"];
+p20 [label="faidx"];
+p18 -> p20 [label="fasta_fai_genome_ch"];
+
+p18 [label="ragtag_dot_py"];
+p23 [label="Shhquis_dot_jl"];
+p18 -> p23 [label="fasta_sshquis_genome_ch"];
+
+p18 [label="ragtag_dot_py"];
+p136 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p18 -> p136 [label="ragtag_dot_py_output"];
+
+p20 [label="faidx"];
+p23 [label="Shhquis_dot_jl"];
+p20 -> p23 [label="fai_ch"];
+
+p20 [label="faidx"];
+p138 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p20 -> p138 [label="faidx_output"];
+
+p21 [label="yahs_faidx"];
+p49 [label="yahs"];
+p21 -> p49 [label="yahs_fai_ch"];
+
+p21 [label="yahs_faidx"];
+p49 [label="yahs"];
+p21 -> p49 [label="yahs_genome_ch"];
+
+p22 [label="hicstuff"];
+p23 [label="Shhquis_dot_jl"];
+p22 -> p23 [label="abs_ch"];
+
+p22 [label="hicstuff"];
+p23 [label="Shhquis_dot_jl"];
+p22 -> p23 [label="contigs_ch"];
+
+p22 [label="hicstuff"];
+p134 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p22 -> p134 [label="hicstuff_output"];
+
+p23 [label="Shhquis_dot_jl"];
+p86 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p23 -> p86 [label="shhquis_fasta_res_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p24 [shape=point];
+p23 -> p24 [label="polish_haps_genome_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p28 [label="simple_fcs_adaptor"];
+p23 -> p28 [label="shhquis_simple_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p33 [label="merfin"];
+p23 -> p33 [label="shhquis_merfin_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p35 [label="samtools_index_for_deep_variant"];
+p23 -> p35 [label="shhquis_dv_fai_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p36 [label="deep_variant"];
+p23 -> p36 [label="shhquis_dv_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p37 [label="dv_bcftools"];
+p23 -> p37 [label="shhquis_bcftools_dv_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p39 [label="merfin_bcftools"];
+p23 -> p39 [label="shhquis_bcftools_merfin_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p34 [label="minimap_for_deep_variant"];
+p23 -> p34 [label="shhquis_dv_minimap_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p30 [label="minimap_for_merfin"];
+p23 -> p30 [label="shquis_minimap_merfin_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p31 [label="samtools_mpileup_merfin"];
+p23 -> p31 [label="shhquis_mpileup_ch"];
+
+p23 [label="Shhquis_dot_jl"];
+p140 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p23 -> p140 [label="Shhquis_dot_jl_output"];
+
+p25 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collect"];
+p26 [label="K_mer_counting"];
+p25 -> p26;
+
+p26 [label="K_mer_counting"];
+p27 [label="genomescope2"];
+p26 -> p27 [label="histo_ch"];
+
+p26 [label="K_mer_counting"];
+p117 [label="k_mer_Version"];
+p26 -> p117 [label="jellyfish_ver_ch"];
+
+p26 [label="K_mer_counting"];
+p156 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p26 -> p156 [label="jellyfish_output"];
+
+p27 [label="genomescope2"];
+p33 [label="merfin"];
+p27 -> p33 [label="kcov_ch"];
+
+p27 [label="genomescope2"];
+p33 [label="merfin"];
+p27 -> p33 [label="lookup_table_ch"];
+
+p27 [label="genomescope2"];
+p118 [label="genomescope_Version"];
+p27 -> p118 [label="genomescope_ver_ch"];
+
+p27 [label="genomescope2"];
+p158 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p27 -> p158 [label="genomescope2_output"];
+
+p28 [label="simple_fcs_adaptor"];
+p29 [label="simple_polish"];
+p28 -> p29 [label="simple_fcs_adaptor_ch"];
+
+p28 [label="simple_fcs_adaptor"];
+p160 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p28 -> p160 [label="simple_fcs_adaptor_output"];
+
+p29 [label="simple_polish"];
+p60 [label="ragtag_dot_py_hap_simple_polish"];
+p29 -> p60 [label="simple_polished_genome_ch"];
+
+p29 [label="simple_polish"];
+p73 [label="simple_busco_fasta"];
+p29 -> p73 [label="simple_polished_genome_busco_ch"];
+
+p29 [label="simple_polish"];
+p50 [label="simple_yahs"];
+p29 -> p50 [label="yahs_simple_genome_ch"];
+
+p29 [label="simple_polish"];
+p42 [label="bwa_for_simple_yahs"];
+p29 -> p42 [label="yahs_simple_align_genome_ch"];
+
+p29 [label="simple_polish"];
+p50 [label="simple_yahs"];
+p29 -> p50 [label="yahs_simple_fai_ch"];
+
+p30 [label="minimap_for_merfin"];
+p31 [label="samtools_mpileup_merfin"];
+p30 -> p31 [label="sam_for_merfin_ch"];
+
+p30 [label="minimap_for_merfin"];
+p162 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p30 -> p162 [label="minimap_dot_sh_output"];
+
+p31 [label="samtools_mpileup_merfin"];
+p32 [label="bcftools_refmt"];
+p31 -> p32 [label="bcf_for_merfin_ch"];
+
+p31 [label="samtools_mpileup_merfin"];
+p164 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p31 -> p164 [label="samtools_mpileup_output"];
+
+p32 [label="bcftools_refmt"];
+p33 [label="merfin"];
+p32 -> p33 [label="vcf_for_merfin_ch"];
+
+p32 [label="bcftools_refmt"];
+p166 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p32 -> p166 [label="bcftools_refmt_output"];
+
+p33 [label="merfin"];
+p39 [label="merfin_bcftools"];
+p33 -> p39 [label="merfin_vcf_ch"];
+
+p33 [label="merfin"];
+p168 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p33 -> p168 [label="merfin_output"];
+
+p34 [label="minimap_for_deep_variant"];
+p35 [label="samtools_index_for_deep_variant"];
+p34 -> p35 [label="sam_for_dv_ch"];
+
+p34 [label="minimap_for_deep_variant"];
+p170 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p34 -> p170 [label="minimap_dv_output"];
+
+p35 [label="samtools_index_for_deep_variant"];
+p36 [label="deep_variant"];
+p35 -> p36 [label="bam_dv_index_ch"];
+
+p35 [label="samtools_index_for_deep_variant"];
+p36 [label="deep_variant"];
+p35 -> p36 [label="bai_dv_index_ch"];
+
+p35 [label="samtools_index_for_deep_variant"];
+p36 [label="deep_variant"];
+p35 -> p36 [label="fai_dv_index_ch"];
+
+p36 [label="deep_variant"];
+p37 [label="dv_bcftools"];
+p36 -> p37 [label="dv_vcf_ch"];
+
+p36 [label="deep_variant"];
+p172 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p36 -> p172 [label="deep_variant_output"];
+
+p37 [label="dv_bcftools"];
+p38 [label="dv_fcs_adaptor"];
+p37 -> p38 [label="dv_fcs_adaptor_ch"];
+
+p37 [label="dv_bcftools"];
+p178 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p37 -> p178 [label="dv_bcftools_output"];
+
+p38 [label="dv_fcs_adaptor"];
+p64 [label="ragtag_dot_py_hap_deep_variant_polish"];
+p38 -> p64 [label="dv_vcf_polished_genome_ch"];
+
+p38 [label="dv_fcs_adaptor"];
+p90 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p38 -> p90 [label="dv_vcf_res_ch"];
+
+p38 [label="dv_fcs_adaptor"];
+p75 [label="dv_busco_fasta"];
+p38 -> p75 [label="dv_vcf_polished_busco_genome_ch"];
+
+p38 [label="dv_fcs_adaptor"];
+p52 [label="dv_yahs_faidx"];
+p38 -> p52 [label="yahs_dv_genome_ch"];
+
+p38 [label="dv_fcs_adaptor"];
+p44 [label="bwa_for_dv_yahs"];
+p38 -> p44 [label="yahs_dv_align_genome_ch"];
+
+p38 [label="dv_fcs_adaptor"];
+p180 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p38 -> p180 [label="dv_fcs_adaptor_output"];
+
+p39 [label="merfin_bcftools"];
+p40 [label="merfin_fcs_adaptor"];
+p39 -> p40 [label="merfin_fcs_adaptor_ch"];
+
+p39 [label="merfin_bcftools"];
+p174 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p39 -> p174 [label="merfin_bcftools_output"];
+
+p40 [label="merfin_fcs_adaptor"];
+p62 [label="ragtag_dot_py_hap_merfin_polish"];
+p40 -> p62 [label="merfin_vcf_polished_genome_ch"];
+
+p40 [label="merfin_fcs_adaptor"];
+p88 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p40 -> p88 [label="merfin_vcf_res_ch"];
+
+p40 [label="merfin_fcs_adaptor"];
+p74 [label="merfin_busco_fasta"];
+p40 -> p74 [label="merfin_vcf_polished_busco_genome_ch"];
+
+p40 [label="merfin_fcs_adaptor"];
+p51 [label="merfin_yahs_faidx"];
+p40 -> p51 [label="yahs_merfin_genome_ch"];
+
+p40 [label="merfin_fcs_adaptor"];
+p43 [label="bwa_for_merfin_yahs"];
+p40 -> p43 [label="yahs_merfin_align_genome_ch"];
+
+p40 [label="merfin_fcs_adaptor"];
+p176 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p40 -> p176 [label="merfin_fcs_adaptor_output"];
+
+p41 [label="bwa_for_yahs"];
+p45 [label="bam_sort_for_yahs"];
+p41 -> p45 [label="yahs_sam_ch"];
+
+p41 [label="bwa_for_yahs"];
+p182 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p41 -> p182 [label="bwa_for_yahs_output"];
+
+p42 [label="bwa_for_simple_yahs"];
+p46 [label="bam_sort_for_simple_yahs"];
+p42 -> p46 [label="yahs_simple_sam_ch"];
+
+p42 [label="bwa_for_simple_yahs"];
+p184 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p42 -> p184 [label="bwa_for_yahs_simple_output"];
+
+p43 [label="bwa_for_merfin_yahs"];
+p47 [label="bam_sort_for_merfin_yahs"];
+p43 -> p47 [label="yahs_merfin_sam_ch"];
+
+p43 [label="bwa_for_merfin_yahs"];
+p186 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p43 -> p186 [label="bwa_for_yahs_merfin_output"];
+
+p44 [label="bwa_for_dv_yahs"];
+p48 [label="bam_sort_for_dv_yahs"];
+p44 -> p48 [label="yahs_dv_sam_ch"];
+
+p44 [label="bwa_for_dv_yahs"];
+p188 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p44 -> p188 [label="bwa_for_yahs_dv_output"];
+
+p45 [label="bam_sort_for_yahs"];
+p49 [label="yahs"];
+p45 -> p49 [label="bam_for_yahs_ch"];
+
+p45 [label="bam_sort_for_yahs"];
+p190 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p45 -> p190 [label="bam_sort_for_yahs_output"];
+
+p46 [label="bam_sort_for_simple_yahs"];
+p50 [label="simple_yahs"];
+p46 -> p50 [label="bam_for_simple_yahs_ch"];
+
+p46 [label="bam_sort_for_simple_yahs"];
+p192 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p46 -> p192 [label="bam_sort_for_simple_yahs_output"];
+
+p47 [label="bam_sort_for_merfin_yahs"];
+p53 [label="merfin_yahs"];
+p47 -> p53 [label="bam_for_merfin_yahs_ch"];
+
+p47 [label="bam_sort_for_merfin_yahs"];
+p194 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p47 -> p194 [label="bam_sort_for_merfin_yahs_output"];
+
+p48 [label="bam_sort_for_dv_yahs"];
+p54 [label="dv_yahs"];
+p48 -> p54 [label="bam_for_dv_yahs_ch"];
+
+p48 [label="bam_sort_for_dv_yahs"];
+p196 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p48 -> p196 [label="bam_sort_for_dv_yahs_output"];
+
+p49 [label="yahs"];
+p98 [label="yahs_no_polish_stats_dot_sh"];
+p49 -> p98 [label="yahs_no_polish_stats_ch"];
+
+p49 [label="yahs"];
+p66 [label="ragtag_dot_py_yahs"];
+p49 -> p66 [label="yahs_no_polish_haps_genome_ch"];
+
+p49 [label="yahs"];
+p76 [label="yahs_busco_fasta"];
+p49 -> p76 [label="yahs_no_polish_busco_ch"];
+
+p49 [label="yahs"];
+p55 [label="juicer_tools_pre_yahs"];
+p49 -> p55 [label="yahs_JBAT_txt_ch"];
+
+p49 [label="yahs"];
+p55 [label="juicer_tools_pre_yahs"];
+p49 -> p55 [label="yahs_JBAT_ch"];
+
+p49 [label="yahs"];
+p198 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p49 -> p198 [label="yahs_output"];
+
+p50 [label="simple_yahs"];
+p99 [label="yahs_simple_polish_stats_dot_sh"];
+p50 -> p99 [label="yahs_simple_polish_stats_ch"];
+
+p50 [label="simple_yahs"];
+p68 [label="ragtag_dot_py_simple_yahs"];
+p50 -> p68 [label="yahs_simple_polish_haps_genome_ch"];
+
+p50 [label="simple_yahs"];
+p77 [label="yahs_simple_busco_fasta"];
+p50 -> p77 [label="yahs_simple_polish_busco_ch"];
+
+p50 [label="simple_yahs"];
+p56 [label="juicer_tools_pre_yahs_simple"];
+p50 -> p56 [label="yahs_simple_JBAT_txt_ch"];
+
+p50 [label="simple_yahs"];
+p56 [label="juicer_tools_pre_yahs_simple"];
+p50 -> p56 [label="yahs_simple_JBAT_ch"];
+
+p50 [label="simple_yahs"];
+p200 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p50 -> p200 [label="yahs_simple_output"];
+
+p51 [label="merfin_yahs_faidx"];
+p53 [label="merfin_yahs"];
+p51 -> p53 [label="yahs_merfin_fai_genome_fai_ch"];
+
+p51 [label="merfin_yahs_faidx"];
+p53 [label="merfin_yahs"];
+p51 -> p53 [label="yahs_merfin_fai_genome_ch"];
+
+p52 [label="dv_yahs_faidx"];
+p54 [label="dv_yahs"];
+p52 -> p54 [label="yahs_dv_fai_genome_fai_ch"];
+
+p52 [label="dv_yahs_faidx"];
+p54 [label="dv_yahs"];
+p52 -> p54 [label="yahs_dv_fai_genome_ch"];
+
+p53 [label="merfin_yahs"];
+p100 [label="yahs_merfin_polish_stats_dot_sh"];
+p53 -> p100 [label="yahs_merfin_polish_stats_ch"];
+
+p53 [label="merfin_yahs"];
+p70 [label="ragtag_dot_py_merfin_yahs"];
+p53 -> p70 [label="yahs_merfin_polish_haps_genome_ch"];
+
+p53 [label="merfin_yahs"];
+p78 [label="yahs_merfin_busco_fasta"];
+p53 -> p78 [label="yahs_merfin_polish_busco_ch"];
+
+p53 [label="merfin_yahs"];
+p57 [label="juicer_tools_pre_yahs_merfin"];
+p53 -> p57 [label="yahs_merfin_JBAT_txt_ch"];
+
+p53 [label="merfin_yahs"];
+p57 [label="juicer_tools_pre_yahs_merfin"];
+p53 -> p57 [label="yahs_merfin_JBAT_ch"];
+
+p53 [label="merfin_yahs"];
+p202 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p53 -> p202 [label="yahs_merfin_output"];
+
+p54 [label="dv_yahs"];
+p101 [label="yahs_dv_polish_stats_dot_sh"];
+p54 -> p101 [label="yahs_dv_polish_stats_ch"];
+
+p54 [label="dv_yahs"];
+p72 [label="ragtag_dot_py_dv_yahs"];
+p54 -> p72 [label="yahs_dv_polish_haps_genome_ch"];
+
+p54 [label="dv_yahs"];
+p79 [label="yahs_merfin_dv_fasta"];
+p54 -> p79 [label="yahs_dv_polish_busco_ch"];
+
+p54 [label="dv_yahs"];
+p58 [label="juicer_tools_pre_yahs_dv"];
+p54 -> p58 [label="yahs_dv_JBAT_txt_ch"];
+
+p54 [label="dv_yahs"];
+p58 [label="juicer_tools_pre_yahs_dv"];
+p54 -> p58 [label="yahs_dv_JBAT_ch"];
+
+p54 [label="dv_yahs"];
+p204 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p54 -> p204 [label="yahs_dv_output"];
+
+p55 [label="juicer_tools_pre_yahs"];
+p206 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p55 -> p206 [label="juicer_tools_pre_yahs_output"];
+
+p56 [label="juicer_tools_pre_yahs_simple"];
+p208 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p56 -> p208 [label="juicer_tools_pre_yahs_simple_output"];
+
+p57 [label="juicer_tools_pre_yahs_merfin"];
+p210 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p57 -> p210 [label="juicer_tools_pre_yahs_merfin_output"];
+
+p58 [label="juicer_tools_pre_yahs_dv"];
+p212 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p58 -> p212 [label="juicer_tools_pre_yahs_dv_output"];
+
+p59 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p60 [label="ragtag_dot_py_hap_simple_polish"];
+p59 -> p60;
+
+p60 [label="ragtag_dot_py_hap_simple_polish"];
+p92 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p60 -> p92 [label="simple_hap_patch_res_ch"];
+
+p60 [label="ragtag_dot_py_hap_simple_polish"];
+p142 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p60 -> p142 [label="simple_ragtag_dot_py_hap_output"];
+
+p61 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p62 [label="ragtag_dot_py_hap_merfin_polish"];
+p61 -> p62;
+
+p62 [label="ragtag_dot_py_hap_merfin_polish"];
+p94 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p62 -> p94 [label="merfin_hap_patch_res_ch"];
+
+p62 [label="ragtag_dot_py_hap_merfin_polish"];
+p144 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p62 -> p144 [label="merfin_ragtag_dot_py_hap_output"];
+
+p63 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p64 [label="ragtag_dot_py_hap_deep_variant_polish"];
+p63 -> p64;
+
+p64 [label="ragtag_dot_py_hap_deep_variant_polish"];
+p96 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p64 -> p96 [label="dv_hap_patch_res_ch"];
+
+p64 [label="ragtag_dot_py_hap_deep_variant_polish"];
+p146 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p64 -> p146 [label="dv_ragtag_dot_py_hap_output"];
+
+p65 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p66 [label="ragtag_dot_py_yahs"];
+p65 -> p66;
+
+p66 [label="ragtag_dot_py_yahs"];
+p102 [label="yahs_hap_patch_stats_dot_sh"];
+p66 -> p102 [label="yahs_hap_patch_res_ch"];
+
+p66 [label="ragtag_dot_py_yahs"];
+p214 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p66 -> p214 [label="yahs_ragtag_dot_py_hap_output"];
+
+p67 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p68 [label="ragtag_dot_py_simple_yahs"];
+p67 -> p68;
+
+p68 [label="ragtag_dot_py_simple_yahs"];
+p103 [label="yahs_hap_patch_simple_polish_stats_dot_sh"];
+p68 -> p103 [label="yahs_simple_hap_patch_res_ch"];
+
+p68 [label="ragtag_dot_py_simple_yahs"];
+p216 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p68 -> p216 [label="yahs_simple_ragtag_dot_py_hap_output"];
+
+p69 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p70 [label="ragtag_dot_py_merfin_yahs"];
+p69 -> p70;
+
+p70 [label="ragtag_dot_py_merfin_yahs"];
+p104 [label="yahs_hap_patch_merfin_polish_stats_dot_sh"];
+p70 -> p104 [label="yahs_merfin_hap_patch_res_ch"];
+
+p70 [label="ragtag_dot_py_merfin_yahs"];
+p218 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p70 -> p218 [label="yahs_merfin_ragtag_dot_py_hap_output"];
+
+p71 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p72 [label="ragtag_dot_py_dv_yahs"];
+p71 -> p72;
+
+p72 [label="ragtag_dot_py_dv_yahs"];
+p105 [label="yahs_hap_patch_dv_polish_stats_dot_sh"];
+p72 -> p105 [label="yahs_dv_hap_patch_res_ch"];
+
+p72 [label="ragtag_dot_py_dv_yahs"];
+p220 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p72 -> p220 [label="yahs_dv_ragtag_dot_py_hap_output"];
+
+p73 [label="simple_busco_fasta"];
+p150 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p73 -> p150 [label="simple_busco_fasta_output"];
+
+p74 [label="merfin_busco_fasta"];
+p152 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p74 -> p152 [label="merfin_busco_fasta_output"];
+
+p75 [label="dv_busco_fasta"];
+p154 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p75 -> p154 [label="dv_busco_fasta_output"];
+
+p76 [label="yahs_busco_fasta"];
+p222 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p76 -> p222 [label="yahs_busco_fasta_output"];
+
+p77 [label="yahs_simple_busco_fasta"];
+p224 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p77 -> p224 [label="yahs_simple_busco_fasta_output"];
+
+p78 [label="yahs_merfin_busco_fasta"];
+p226 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p78 -> p226 [label="yahs_merfin_busco_fasta_output"];
+
+p79 [label="yahs_merfin_dv_fasta"];
+p228 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p79 -> p228 [label="yahs_dv_busco_fasta_output"];
+
+p80 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p81 [label="fasta_in_dot_sh"];
+p80 -> p81;
+
+p82 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p83 [label="gfa2fasta_stats_dot_sh"];
+p82 -> p83;
+
+p84 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p85 [label="ragtag_stats_dot_sh"];
+p84 -> p85;
+
+p86 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p87 [label="shhquis_stats_dot_sh"];
+p86 -> p87;
+
+p88 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p89 [label="merfin_vcf_stats_dot_sh"];
+p88 -> p89;
+
+p90 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p91 [label="dv_vcf_stats_dot_sh"];
+p90 -> p91;
+
+p92 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p93 [label="simple_hap_patch_stats_dot_sh"];
+p92 -> p93;
+
+p94 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p95 [label="merfin_hap_patch_stats_dot_sh"];
+p94 -> p95;
+
+p96 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="flatten"];
+p97 [label="dv_hap_patch_stats_dot_sh"];
+p96 -> p97;
+
+p106 [label="HiFiASM_Version"];
+p230 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p106 -> p230 [label="hifiasm_version"];
+
+p107 [label="any2fasta_Version"];
+p233 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p107 -> p233 [label="any2fasta_version"];
+
+p108 [label="ragtag_Version"];
+p236 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p108 -> p236 [label="ragtag_version"];
+
+p109 [label="samtools_Version"];
+p239 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p109 -> p239 [label="samtools_version"];
+
+p110 [label="YaHS_Version"];
+p242 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p110 -> p242 [label="yahs_version"];
+
+p111 [label="bwa_Version"];
+p245 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p111 -> p245 [label="bwa_mem_version"];
+
+p112 [label="bcftools_Version"];
+p248 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p112 -> p248 [label="bcftools_version"];
+
+p113 [label="hicstuff_Version"];
+p251 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p113 -> p251 [label="hicstuff_version"];
+
+p114 [label="gfastats_Version"];
+p254 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p114 -> p254 [label="gfastats_version"];
+
+p115 [label="deepvariant_Version"];
+p260 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p115 -> p260 [label="deepvariant_version"];
+
+p116 [label="fcs_adaptor_Version"];
+p257 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p116 -> p257 [label="fcs_adaptor_version"];
+
+p117 [label="k_mer_Version"];
+p263 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p117 -> p263 [label="jellyfish_version"];
+
+p118 [label="genomescope_Version"];
+p266 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p118 -> p266 [label="genomescope_version"];
+
+p119 [label="merfin_Version"];
+p269 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p119 -> p269 [label="merfin_version"];
+
+p120 [label="BUSCO_Version"];
+p272 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p120 -> p272 [label="busco_version"];
+
+p121 [label="shhquis_Version"];
+p275 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p121 -> p275 [label="shhquis_version"];
+
+p122 [label="HiFiAdapterFilt_Version"];
+p278 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p122 -> p278 [label="pbadapterfilt_version"];
+
+p123 [label="Juicer_Tools_Version"];
+p281 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p123 -> p281 [label="Juicer_Tools_version"];
+
+p124 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p125 [shape=point];
+p124 -> p125;
+
+p126 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p127 [shape=point];
+p126 -> p127;
+
+p128 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p129 [shape=point];
+p128 -> p129;
+
+p130 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p131 [shape=point];
+p130 -> p131;
+
+p132 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p133 [shape=point];
+p132 -> p133;
+
+p134 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p135 [shape=point];
+p134 -> p135;
+
+p136 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p137 [shape=point];
+p136 -> p137;
+
+p138 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p139 [shape=point];
+p138 -> p139;
+
+p140 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p141 [shape=point];
+p140 -> p141;
+
+p142 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p143 [shape=point];
+p142 -> p143;
+
+p144 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p145 [shape=point];
+p144 -> p145;
+
+p146 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p147 [shape=point];
+p146 -> p147;
+
+p148 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p149 [shape=point];
+p148 -> p149;
+
+p150 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p151 [shape=point];
+p150 -> p151;
+
+p152 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p153 [shape=point];
+p152 -> p153;
+
+p154 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p155 [shape=point];
+p154 -> p155;
+
+p156 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p157 [shape=point];
+p156 -> p157;
+
+p158 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p159 [shape=point];
+p158 -> p159;
+
+p160 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p161 [shape=point];
+p160 -> p161;
+
+p162 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p163 [shape=point];
+p162 -> p163;
+
+p164 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p165 [shape=point];
+p164 -> p165;
+
+p166 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p167 [shape=point];
+p166 -> p167;
+
+p168 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p169 [shape=point];
+p168 -> p169;
+
+p170 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p171 [shape=point];
+p170 -> p171;
+
+p172 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p173 [shape=point];
+p172 -> p173;
+
+p174 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p175 [shape=point];
+p174 -> p175;
+
+p176 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p177 [shape=point];
+p176 -> p177;
+
+p178 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p179 [shape=point];
+p178 -> p179;
+
+p180 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p181 [shape=point];
+p180 -> p181;
+
+p182 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p183 [shape=point];
+p182 -> p183;
+
+p184 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p185 [shape=point];
+p184 -> p185;
+
+p186 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p187 [shape=point];
+p186 -> p187;
+
+p188 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p189 [shape=point];
+p188 -> p189;
+
+p190 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p191 [shape=point];
+p190 -> p191;
+
+p192 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p193 [shape=point];
+p192 -> p193;
+
+p194 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p195 [shape=point];
+p194 -> p195;
+
+p196 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p197 [shape=point];
+p196 -> p197;
+
+p198 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p199 [shape=point];
+p198 -> p199;
+
+p200 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p201 [shape=point];
+p200 -> p201;
+
+p202 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p203 [shape=point];
+p202 -> p203;
+
+p204 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p205 [shape=point];
+p204 -> p205;
+
+p206 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p207 [shape=point];
+p206 -> p207;
+
+p208 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p209 [shape=point];
+p208 -> p209;
+
+p210 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p211 [shape=point];
+p210 -> p211;
+
+p212 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p213 [shape=point];
+p212 -> p213;
+
+p214 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p215 [shape=point];
+p214 -> p215;
+
+p216 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p217 [shape=point];
+p216 -> p217;
+
+p218 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p219 [shape=point];
+p218 -> p219;
+
+p220 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p221 [shape=point];
+p220 -> p221;
+
+p222 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p223 [shape=point];
+p222 -> p223;
+
+p224 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p225 [shape=point];
+p224 -> p225;
+
+p226 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p227 [shape=point];
+p226 -> p227;
+
+p228 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p229 [shape=point];
+p228 -> p229;
+
+p230 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p231 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p230 -> p231;
+
+p231 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p232 [shape=point];
+p231 -> p232;
+
+p233 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p234 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p233 -> p234;
+
+p234 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p235 [shape=point];
+p234 -> p235;
+
+p236 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p237 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p236 -> p237;
+
+p237 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p238 [shape=point];
+p237 -> p238;
+
+p239 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p240 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p239 -> p240;
+
+p240 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p241 [shape=point];
+p240 -> p241;
+
+p242 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p243 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p242 -> p243;
+
+p243 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p244 [shape=point];
+p243 -> p244;
+
+p245 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p246 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p245 -> p246;
+
+p246 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p247 [shape=point];
+p246 -> p247;
+
+p248 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p249 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p248 -> p249;
+
+p249 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p250 [shape=point];
+p249 -> p250;
+
+p251 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p252 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p251 -> p252;
+
+p252 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p253 [shape=point];
+p252 -> p253;
+
+p254 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p255 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p254 -> p255;
+
+p255 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p256 [shape=point];
+p255 -> p256;
+
+p257 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p258 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p257 -> p258;
+
+p258 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p259 [shape=point];
+p258 -> p259;
+
+p260 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p261 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p260 -> p261;
+
+p261 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p262 [shape=point];
+p261 -> p262;
+
+p263 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p264 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p263 -> p264;
+
+p264 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p265 [shape=point];
+p264 -> p265;
+
+p266 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p267 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p266 -> p267;
+
+p267 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p268 [shape=point];
+p267 -> p268;
+
+p269 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p270 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p269 -> p270;
+
+p270 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p271 [shape=point];
+p270 -> p271;
+
+p272 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p273 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p272 -> p273;
+
+p273 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p274 [shape=point];
+p273 -> p274;
+
+p275 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p276 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p275 -> p276;
+
+p276 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p277 [shape=point];
+p276 -> p277;
+
+p278 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p279 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p278 -> p279;
+
+p279 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p280 [shape=point];
+p279 -> p280;
+
+p281 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="collectFile"];
+p282 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p281 -> p282;
+
+p282 [shape=circle,label="",fixedsize=true,width=0.1,xlabel="view"];
+p283 [shape=point];
+p282 -> p283;
+
+}
