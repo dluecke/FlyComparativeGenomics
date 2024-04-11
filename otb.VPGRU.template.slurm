@@ -105,10 +105,10 @@ if [[ -z "$Lite_Run" ]]; then
 # normal run (-z checks for empty string)
   if [[ -z "$Busco" ]]; then
   # no BUSCO
-    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Busco} ${Polish_Type} --runner ${Runner} -c -s
+    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} --polish-type ${Polish_Type} ${Yahs} ${Busco} --runner ${Runner} -c -s
   else
   # include BUSCO
-    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Yahs} ${Polish_Type} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
+    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} --polish-type ${Polish_Type} ${Yahs} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
   fi
 else
 # lite run
