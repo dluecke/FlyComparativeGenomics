@@ -49,9 +49,9 @@ Lite_Run=""
 
 #Comment/Uncomment for Polishing (only select one of)
 #Polish_Type="" #No polishing
-Polish_Type="--polish_type simple" #Simple Polishing
-#Polish_Type="--polish_type dv" #Deep Variant Polishing
-#Polish_Type="--polish_type merfin" #merfin Polishing
+Polish_Type="simple" #Simple Polishing
+#Polish_Type="dv" #Deep Variant Polishing
+#Polish_Type="merfin" #merfin Polishing
 
 #Comment/Uncommment for Yahs scaffolding with Hi-C reads
 #Yahs="" #Yahs will not be run
