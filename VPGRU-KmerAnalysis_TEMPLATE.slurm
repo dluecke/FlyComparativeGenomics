@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH -J KmerAnalysis-$RUNID
+#SBATCH -J KmerAnalysis
 #SBATCH -N 1
 #SBATCH -c 32
 #SBATCH -p medium
-#SBATCH -o "${RUNID}.stdout.%j.%N" 		# standard out %j adds job number to outputfile name and %N adds the node
-#SBATCH -e "${RUNID}.stderr.%j.%N" 		#optional but it prints our standard error
-#SBATCH --mail-user=${USER}@usda.gov
+#SBATCH -o "KmerAnalysis.stdout.%j.%N" 		# standard out %j adds job number to outputfile name and %N adds the node
+#SBATCH -e "KmerAnalysis.stderr.%j.%N" 		#optional but it prints our standard error
+#SBATCH --mail-user=David.Luecke@usda.gov   # going to replace with $USER in the submission shell
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
 date
