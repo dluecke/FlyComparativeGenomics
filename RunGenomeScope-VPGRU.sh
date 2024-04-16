@@ -40,7 +40,7 @@ SEQFILE="${@: -1}"
 
 # default parameter values
 K_LEN=21
-RUN_ID="${SEQFILE%%.bam}"
+RUN_ID=$(basename "${SEQFILENAME%%.bam}")
 
 while getopts ":hk:o:" arg; do
     case $arg in
@@ -67,9 +67,10 @@ echo "GITLOC: $GITLOC"
     conda_env_dir || \
     source activate genomescope2 
 
-sbatch --jobname=KmerAnalysis-${RUNID} \
-    --main-user=${USER}@usda.gov \
+sbatch --job-name="KmerAnalysis-${RUNID}" \
+    --main-user="${USER}@usda.gov" \
     -o="KmerAnalysis-${RUNID}.stdout.%j.%N" \
     -e="KmerAnalysis-${RUNID}.stderr.%j.%N" \
     --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID} \
     ${GITLOC}/VPGRU-KmerAnalysis_TEMPLATE.slurm
+
