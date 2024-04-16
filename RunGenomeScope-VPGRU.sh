@@ -68,10 +68,10 @@ echo "GITLOC: $GITLOC"
     conda_env_dir || \
     source activate genomescope2 
 
-sbatch --job-name="KmerAnalysis-${RUNID}" \
+sbatch --job-name="KmerAnalysis-${RUN_ID}" \
     --mail-user="${USER}@usda.gov" \
-    -o="KmerAnalysis-${RUNID}.stdout.%j.%N" \
-    -e="KmerAnalysis-${RUNID}.stderr.%j.%N" \
+    -o "KmerAnalysis-${RUN_ID}.stdout.%j.%N" \
+    -e "KmerAnalysis-${RUN_ID}.stderr.%j.%N" \
     --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID} \
     ${GITLOC}/VPGRU-KmerAnalysis_TEMPLATE.slurm
 
