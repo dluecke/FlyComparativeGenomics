@@ -26,8 +26,8 @@ usage() {
 
 # function to enable access to genomescope2 conda environment
 conda_env_dir() {
-    conda config
-    echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc
+    conda config # writes ~/.condarc file, which will be modified
+    echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc # add path to genomescope2 env
     source activate -p /project/vpgru/.conda/genomescope2 || \
         { echo "Problem activating conda env genomescope2" ; exit; }
 }
@@ -42,6 +42,7 @@ SEQFILE="${@: -1}"
 K_LEN=21
 SEQNAME=$(basename $SEQFILE)
 RUN_ID="${SEQNAME%%.bam}"
+FQ_FILE="${SEQFILE%%.bam}.fastq"
 
 while getopts ":hk:o:" arg; do
     case $arg in
@@ -57,10 +58,18 @@ while getopts ":hk:o:" arg; do
     esac
 done
 
-# activate environment genomescope2 
+# activate environment genomescope2, using conda_env_dir function to initiate if necessary 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
     conda_env_dir || \
     source activate genomescope2 
+
+# Print some run info to screen
+echo -e "\nSubmitting SLURM job KmerAnalysis-${RUN_ID} to perform Kmer analysis on BAM file:\n $SEQFILE"
+echo -e "\nThis will first generate FASTQ file:\n $FQ_FILE"
+echo -e "then perform jellyfish count and histo using Kmer length ${K_LEN}, with output files:"
+echo -e " ${PWD}/${RUN_ID}.jf\n ${PWD}/${RUN_ID}.histo"
+echo -e "\nGenomeScope2 analysis will be performed on ${RUN_ID}.histo"
+echo -e "using Kmer length ${K_LEN} and ploidy 2, with output files in directory:\n ${PWD}/${RUN_ID}/\n"
 
 # launch slurm template with proper variables
 sbatch --job-name="KmerAnalysis-${RUN_ID}" \

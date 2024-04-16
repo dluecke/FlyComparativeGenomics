@@ -17,7 +17,7 @@ $SOFTWARE/genomescope2.0/genomescope.R --version
 
 FASTQ="${BAMFILE%%.bam}.fastq"
 
-echo -e "\nConverting BAM file:\n ${BAMFILE}\n to FASTQ file:\n ${FASTQ}"
+echo -e "\nConverting BAM file:\n ${BAMFILE}\nto FASTQ file:\n ${FASTQ}"
 echo "samtools fastq $BAMFILE > $FASTQ"
 
 SIZE=$(jellyfish mem -m $KLEN --mem 96G | cut -f1 -d' ')
