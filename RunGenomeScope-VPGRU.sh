@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # RunGenomeScope-VPGRU.sh a wrapper to run Kmer counting and GenomeScope2 model
-# intended as a QC step for HiFi data, but should work with any .bam, .fq, or .fa
+# intended as a QC step for HiFi data, but should work with any .bam
+#    (Can extend to .fq, or .fa in future)
 # Designed for USDA Ceres VPGRU project space:
 #    prefigured conda environment for R packages 
 #    GenomeScope2 install in VPGRU project software directory
@@ -37,7 +38,7 @@ SEQFILE="${@: -1}"
 
 # default parameter values
 K_LEN=21
-RUN_ID="${BAMFILE%%.bam}"
+RUN_ID="${SEQFILE%%.bam}"
 
 while getopts ":hk:o:" arg; do
     case $arg in
@@ -56,6 +57,7 @@ done
 echo "Args Set:"
 echo "K_LEN: $K_LEN"
 echo "RUN_ID: $RUN_ID"
+echo "SEQFILE: $SEQFILE"
 
 # activate environment genomescope2 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
