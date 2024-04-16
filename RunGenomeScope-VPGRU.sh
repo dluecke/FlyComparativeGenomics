@@ -40,7 +40,8 @@ SEQFILE="${@: -1}"
 
 # default parameter values
 K_LEN=21
-RUN_ID=$(basename "${SEQFILENAME%%.bam}")
+SEQNAME=$(basename $SEQFILE)
+RUN_ID="${SEQNAME%%.bam}"
 
 while getopts ":hk:o:" arg; do
     case $arg in
@@ -68,7 +69,7 @@ echo "GITLOC: $GITLOC"
     source activate genomescope2 
 
 sbatch --job-name="KmerAnalysis-${RUNID}" \
-    --main-user="${USER}@usda.gov" \
+    --mail-user="${USER}@usda.gov" \
     -o="KmerAnalysis-${RUNID}.stdout.%j.%N" \
     -e="KmerAnalysis-${RUNID}.stderr.%j.%N" \
     --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID} \
