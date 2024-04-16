@@ -1,0 +1,14 @@
+GenomeScope version 2.0
+input file = AameriLAPRU-Simple-a.histo
+output directory = AameriLAPRU-Simple-a
+p = 2
+k = 21
+
+property                      min               max               
+Homozygous (aa)               83.576%           97.2918%          
+Heterozygous (ab)             2.7082%           16.424%           
+Genome Haploid Length         800,193,403 bp    813,170,702 bp    
+Genome Repeat Length          470,416,997 bp    478,046,081 bp    
+Genome Unique Length          329,776,405 bp    335,124,621 bp    
+Model Fit                     43.0869%          82.9517%          
+Read Error Rate               1.41753%          1.41753%          
