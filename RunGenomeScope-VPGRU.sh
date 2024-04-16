@@ -32,8 +32,11 @@ conda_env_dir() {
 
 # last arg is the seq file
 SEQFILE="${@: -1}"
+echo $SEQFILE
 
 [ $# -eq 0 ] && usage
+echo "cleared arg count check" 
+
 [[ "$SEQFILE" =~ "*.bam" ]] || usage
 
 # default parameter values
