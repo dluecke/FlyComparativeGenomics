@@ -26,7 +26,7 @@ usage() {
 conda_env_dir() {
     conda config
     echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc
-    conda activate -p /project/vpgru/.conda/genomescope2 || \
+    source activate -p /project/vpgru/.conda/genomescope2 || \
         { echo "Problem activating conda env genomescope2" ; exit; }
 }
 
@@ -37,7 +37,7 @@ echo $SEQFILE
 [ $# -eq 0 ] && usage
 echo "cleared arg count check" 
 
-[[ "$SEQFILE" =~ "*.bam" ]] || {echo "need bam file"; usage}
+[[ "$SEQFILE" =~ "*.bam" ]] || { echo "need bam file"; usage; }
 
 # default parameter values
 K_LEN=21
@@ -65,6 +65,6 @@ echo "SEQFILE: $SEQFILE"
 # activate environment genomescope2 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
     conda_env_dir || \
-    conda activate genomescope 
+    source activate genomescope 
 
 $SOFTWARE/genomescope2.0/genomescope.R 
