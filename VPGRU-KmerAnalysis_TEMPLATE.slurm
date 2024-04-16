@@ -21,12 +21,12 @@ echo -e "\nConverting BAM file:\n ${BAMFILE}\nto FASTQ file:\n ${FASTQ}\n"
 samtools fastq --threads 31 $BAMFILE > $FASTQ
 
 SIZE=$(jellyfish mem -m $KLEN --mem 96G | cut -f1 -d' ')
-echo -e "Starting jellyfish count with -m $KLEN and -s $SIZE, output into:\n ${PWD}/${RUNID}.jf"
+echo -e "Starting jellyfish count with -m $KLEN and -s $SIZE, output into:\n ${PWD}/${RUNID}.jf\n"
 jellyfish count -C -m $KLEN -s $SIZE -t 32 $FASTQ -o ${RUNID}.jf
-echo -e "\nStarting jellyfish histo to write:\n ${PWD}/${RUNID}.histo"
+echo -e "Starting jellyfish histo to write:\n ${PWD}/${RUNID}.histo\n"
 jellyfish histo -t 32 ${RUNID}.jf > ${RUNID}.histo
 
-echo -e "\nStarting genomescope analysis on ${RUNID}.histo with -k ${KLEN} and -p 2."
+echo -e "Starting genomescope analysis on ${RUNID}.histo with -k ${KLEN} and -p 2."
 echo -e "Output in:\n ${PWD}/${RUNID}\n"
 $SOFTWARE/genomescope2.0/genomescope.R -i ${RUNID}.histo -o $RUNID -k $KLEN -p 2 --fitted_hist
 
