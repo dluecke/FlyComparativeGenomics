@@ -13,6 +13,8 @@ module load miniconda
 
 # location of Git Repo for GenomeScope
 SOFTWARE=/project/vpgru/software/
+# location of Git Repo for this script (and SLURM template)
+GITLOC=$(dirname $0)
 
 usage() { 
     echo "USAGE: $0 [-k|-o|-h] SeqFile.bam"
@@ -58,10 +60,16 @@ echo "Args Set:"
 echo "K_LEN: $K_LEN"
 echo "RUN_ID: $RUN_ID"
 echo "SEQFILE: $SEQFILE"
+echo "GITLOC: $GITLOC"
 
 # activate environment genomescope2 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
     conda_env_dir || \
     source activate genomescope2 
 
-$SOFTWARE/genomescope2.0/genomescope.R 
+sbatch --jobname=KmerAnalysis-${RUNID} \
+    --main-user=${USER}@usda.gov \
+    -o="KmerAnalysis-${RUNID}.stdout.%j.%N" \
+    -e="KmerAnalysis-${RUNID}.stderr.%j.%N" \
+    --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID} \
+    ${GITLOG}/VPGRU-KmerAnalysis_TEMPLATE.slurm
