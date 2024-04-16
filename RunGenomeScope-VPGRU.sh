@@ -19,6 +19,11 @@ usage() {
 # call usage if no args
 [ $# -eq 0 ] && usage
 
+# default parameter values
+K_LEN=21
+SEQNAME=$(basename $SEQFILE)
+RUN_ID="${SEQNAME%%.bam}"
+
 # get options, including call usage if -h flag
 while getopts ":hk:o:" arg; do
     case $arg in
@@ -50,12 +55,6 @@ SOFTWARE=/project/vpgru/software
 # location of Git Repo for this script (and SLURM template)
 GITLOC=$(dirname $0)
 
-# default parameter values
-K_LEN=21
-SEQNAME=$(basename $SEQFILE)
-RUN_ID="${SEQNAME%%.bam}"
-FQ_FILE="${SEQFILE%%.bam}.fastq"
-
 # function to enable access to genomescope2 conda environment
 conda_env_dir() {
     conda config # writes ~/.condarc file, which will be modified
@@ -70,6 +69,7 @@ conda_env_dir() {
     source activate genomescope2 
 
 # Print some run info to screen
+FQ_FILE="${SEQFILE%%.bam}.fastq"
 echo -e "\nSubmitting SLURM job KmerAnalysis-${RUN_ID} to perform Kmer analysis on BAM file:\n $SEQFILE"
 echo -e "\nThis will first generate FASTQ file:\n $FQ_FILE"
 echo -e "then perform jellyfish count and histo using Kmer length ${K_LEN}, with output files:"
