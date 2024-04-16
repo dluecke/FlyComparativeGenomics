@@ -72,4 +72,4 @@ sbatch --jobname=KmerAnalysis-${RUNID} \
     -o="KmerAnalysis-${RUNID}.stdout.%j.%N" \
     -e="KmerAnalysis-${RUNID}.stderr.%j.%N" \
     --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID} \
-    ${GITLOG}/VPGRU-KmerAnalysis_TEMPLATE.slurm
+    ${GITLOC}/VPGRU-KmerAnalysis_TEMPLATE.slurm
