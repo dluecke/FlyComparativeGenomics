@@ -14,8 +14,10 @@ module load miniconda
 SOFTWARE=/project/vpgru/software/
 
 usage() { 
-    echo "$0 [OPTS] SeqFile.bam:"
-    grep " .)\ #" # pull the arg lines from case statment, make sure to comment them below
+    echo "$0 [-k|-o|-h] SeqFile.bam:"
+    echo "-k INT kmer length, default 21"
+    echo "-o STRING name for run label/output, default SeqFile name (no ext)"
+    echo "-h FLAG print usage statement"
     exit 0
 }
 
