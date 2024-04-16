@@ -23,8 +23,8 @@ usage() {
 conda_env_dir() {
     conda config
     echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc
-    conda activate genomescope2 || \
-        { echo "Problem accessing conda env genomescope2" ; exit }
+    conda activate -p /project/vpgru/.conda/genomescope2 || \
+        { echo "Problem activating conda env genomescope2" ; exit }
 }
 
 # last arg is the seq file
