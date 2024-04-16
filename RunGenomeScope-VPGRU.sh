@@ -62,6 +62,6 @@ echo "SEQFILE: $SEQFILE"
 # activate environment genomescope2 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
     conda_env_dir || \
-    source activate genomescope 
+    source activate genomescope2 
 
 $SOFTWARE/genomescope2.0/genomescope.R 
