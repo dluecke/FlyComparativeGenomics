@@ -57,17 +57,12 @@ while getopts ":hk:o:" arg; do
     esac
 done
 
-echo "Args Set:"
-echo "K_LEN: $K_LEN"
-echo "RUN_ID: $RUN_ID"
-echo "SEQFILE: $SEQFILE"
-echo "GITLOC: $GITLOC"
-
 # activate environment genomescope2 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
     conda_env_dir || \
     source activate genomescope2 
 
+# launch slurm template with proper variables
 sbatch --job-name="KmerAnalysis-${RUN_ID}" \
     --mail-user="${USER}@usda.gov" \
     -o "KmerAnalysis-${RUN_ID}.stdout.%j.%N" \
