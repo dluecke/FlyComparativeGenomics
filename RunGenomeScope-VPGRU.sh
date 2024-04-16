@@ -8,14 +8,6 @@
 #    GenomeScope2 install in VPGRU project software directory
 #    Ceres modules for jellyfish2 and samtools
 
-module unload r # need to use the conda environment R
-module load miniconda
-
-# location of Git Repo for GenomeScope
-SOFTWARE=/project/vpgru/software
-# location of Git Repo for this script (and SLURM template)
-GITLOC=$(dirname $0)
-
 usage() { 
     echo "USAGE: $0 [-k|-o|-h] SeqFile.bam"
     echo "  -k INT kmer length, default 21"
@@ -24,26 +16,10 @@ usage() {
     exit 0
 }
 
-# function to enable access to genomescope2 conda environment
-conda_env_dir() {
-    conda config # writes ~/.condarc file, which will be modified
-    echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc # add path to genomescope2 env
-    source activate -p /project/vpgru/.conda/genomescope2 || \
-        { echo "Problem activating conda env genomescope2" ; exit; }
-}
-
-# last arg is the seq file
-SEQFILE="${@: -1}"
+# call usage if no args
 [ $# -eq 0 ] && usage
 
-[[ "$SEQFILE" == *".bam" ]] || { echo "need bam file"; usage; }
-
-# default parameter values
-K_LEN=21
-SEQNAME=$(basename $SEQFILE)
-RUN_ID="${SEQNAME%%.bam}"
-FQ_FILE="${SEQFILE%%.bam}.fastq"
-
+# get options, including call usage if -h flag
 while getopts ":hk:o:" arg; do
     case $arg in
         k) # kmer size, default 21
@@ -57,6 +33,36 @@ while getopts ":hk:o:" arg; do
             ;;
     esac
 done
+
+# last arg is the seq file
+SEQFILE="${@: -1}"
+# call usage if not bam file
+[[ "$SEQFILE" == *".bam" ]] || { echo "need bam file"; usage; }
+
+# STARTING SCRIPT ACTIONS
+
+# modules for conda environment (make sure this is good before sbatch)
+module unload r # need to use the conda environment R
+module load miniconda
+
+# location of Git Repo for GenomeScope
+SOFTWARE=/project/vpgru/software
+# location of Git Repo for this script (and SLURM template)
+GITLOC=$(dirname $0)
+
+# default parameter values
+K_LEN=21
+SEQNAME=$(basename $SEQFILE)
+RUN_ID="${SEQNAME%%.bam}"
+FQ_FILE="${SEQFILE%%.bam}.fastq"
+
+# function to enable access to genomescope2 conda environment
+conda_env_dir() {
+    conda config # writes ~/.condarc file, which will be modified
+    echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc # add path to genomescope2 env
+    source activate -p /project/vpgru/.conda/genomescope2 || \
+        { echo "Problem activating conda env genomescope2" ; exit; }
+}
 
 # activate environment genomescope2, using conda_env_dir function to initiate if necessary 
 [ -z "$(conda info --envs | grep genomescope2)" ] && \
