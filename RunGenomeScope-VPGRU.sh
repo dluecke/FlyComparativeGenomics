@@ -56,8 +56,6 @@ echo "K_LEN: $K_LEN"
 echo "RUN_ID: $RUN_ID"
 
 # activate environment genomescope2 
-[ -z "$(conda info --envs | grep genomescope2)" ] && \
-    conda_env_dir() || \
-    conda activate genomescope 
+[ -z "$(conda info --envs | grep genomescope2)" ] && conda_env_dir() || conda activate genomescope 
 
 $SOFTWARE/genomescope2.0/genomescope.R 
