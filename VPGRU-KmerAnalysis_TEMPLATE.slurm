@@ -3,8 +3,8 @@
 #SBATCH -N 1
 #SBATCH -c 32
 #SBATCH -p medium
-#SBATCH -o "otb.stdout.%j.%N" 		# standard out %j adds job number to outputfile name and %N adds the node
-#SBATCH -e "otb.stderr.%j.%N" 		#optional but it prints our standard error
+#SBATCH -o "${RUNID}.stdout.%j.%N" 		# standard out %j adds job number to outputfile name and %N adds the node
+#SBATCH -e "${RUNID}.stderr.%j.%N" 		#optional but it prints our standard error
 #SBATCH --mail-user=${USER}@usda.gov
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
