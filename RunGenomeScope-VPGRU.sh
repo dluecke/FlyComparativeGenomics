@@ -12,7 +12,7 @@ module unload r # need to use the conda environment R
 module load miniconda
 
 # location of Git Repo for GenomeScope
-SOFTWARE=/project/vpgru/software/
+SOFTWARE=/project/vpgru/software
 # location of Git Repo for this script (and SLURM template)
 GITLOC=$(dirname $0)
 
