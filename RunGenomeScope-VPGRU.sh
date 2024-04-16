@@ -31,7 +31,7 @@ conda_env_dir() {
 SEQFILE="${@: -1}"
 
 [ $# -eq 0 ] && usage
-[[ "$SEQFILE" ~= "*.bam" ]] || usage
+[[ "$SEQFILE" =~ "*.bam" ]] || usage
 
 # default parameter values
 K_LEN=21
