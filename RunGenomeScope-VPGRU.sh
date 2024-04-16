@@ -37,7 +37,7 @@ echo $SEQFILE
 [ $# -eq 0 ] && usage
 echo "cleared arg count check" 
 
-[[ "$SEQFILE" =~ "*.bam" ]] || usage
+[[ "$SEQFILE" =~ "*.bam" ]] || {echo "need bam file"; usage}
 
 # default parameter values
 K_LEN=21
