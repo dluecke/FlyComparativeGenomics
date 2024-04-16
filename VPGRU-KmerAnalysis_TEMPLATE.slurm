@@ -18,7 +18,7 @@ $SOFTWARE/genomescope2.0/genomescope.R --version
 FASTQ="${BAMFILE%%.bam}.fastq"
 
 echo -e "\nConverting BAM file:\n ${BAMFILE}\nto FASTQ file:\n ${FASTQ}\n"
-samtools fastq $BAMFILE > $FASTQ
+samtools fastq --threads 31 $BAMFILE > $FASTQ
 
 SIZE=$(jellyfish mem -m $KLEN --mem 96G | cut -f1 -d' ')
 echo -e "Starting jellyfish count with -m $KLEN and -s $SIZE, output into:\n ${PWD}/${RUNID}.jf"
