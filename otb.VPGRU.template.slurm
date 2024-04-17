@@ -33,6 +33,13 @@ Forward=''
 Reverse=''
 
 # PIPELINE OPTIONS
+# Lite mode skips all Hi-C steps (phasing, polishing, scaffolding)
+# If set to lite will automatically skip Hi-C read paths, 
+#   sets HiFi_Type to "default", skips polishing and Yahs.
+# Can still set PurgeDups, Runner, Threads, and Busco
+Lite_Run=""
+#Lite_Run="lite"
+
 # hifiasm phasing of diploid genome
 #Comment/Uncomment for Type (only select one of)
 #HiFi_Type="default" # only use HiFi reads to generate primary/alternate contigs
@@ -41,11 +48,6 @@ HiFi_Type="phasing" # attempt to generate haplotigs using Hi-C if available
 
 # HiFiASM can purge duplicate haplotigs to save memory. If using trio-binning reduce to 1 or 0. See -l parameter in https://hifiasm.readthedocs.io/en/latest/parameter-reference.html#parameter-reference
 PurgeDups=3
-
-# Lite mode skips all Hi-C steps (phasing, polishing, scaffolding)
-# if set to lite will automatically skip Hi-C read paths and next 2 options
-Lite_Run=""
-#Lite_Run="lite"
 
 #Comment/Uncomment for Polishing (only select one of)
 #Polish_Type="" #No polishing
@@ -114,9 +116,9 @@ else
 # lite run
   if [[ -z "$Busco" ]]; then
   # no BUSCO
-    ./otb.sh --lite -n ${Assembly_Name} -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} --runner ${Runner} -c -s
+    ./otb.sh --lite -n ${Assembly_Name} -in "$(echo ${CCS})" -m "default" -t ${Threads} --purge-dups ${PurgeDups} --runner ${Runner} -c -s
   else
   # include BUSCO
-    ./otb.sh --lite -n ${Assembly_Name} -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
+    ./otb.sh --lite -n ${Assembly_Name} -in "$(echo ${CCS})" -m "default" -t ${Threads} --purge-dups ${PurgeDups} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
   fi
 fi
