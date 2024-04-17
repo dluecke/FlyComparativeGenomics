@@ -23,7 +23,7 @@ else
     echo -e "\nUsing pre-existing FASTQ file:\n ${FASTQ}\n"
 fi
 
-SIZE=$(jellyfish mem -m $KLEN --mem 96G | cut -f1 -d' ')
+SIZE=$(jellyfish mem -m $KLEN --mem 90G | cut -f1 -d' ')
 echo -e "Starting jellyfish count with -m $KLEN and -s $SIZE, output into:\n ${PWD}/${RUNID}.jf\n"
 jellyfish count -C -m $KLEN -s $SIZE -t 32 $FASTQ -o ${RUNID}.jf
 echo -e "Starting jellyfish histo to write:\n ${PWD}/${RUNID}.histo\n"
