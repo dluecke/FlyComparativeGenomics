@@ -20,6 +20,8 @@ usage() {
 [ $# -eq 0 ] && usage
 
 # default parameter values
+# last arg is the seq file
+SEQFILE="${@: -1}"
 K_LEN=21
 SEQNAME=$(basename $SEQFILE)
 RUN_ID="${SEQNAME%%.bam}"
@@ -39,8 +41,6 @@ while getopts ":hk:o:" arg; do
     esac
 done
 
-# last arg is the seq file
-SEQFILE="${@: -1}"
 # call usage if not bam file
 [[ "$SEQFILE" == *".bam" ]] || { echo "need bam file"; usage; }
 
