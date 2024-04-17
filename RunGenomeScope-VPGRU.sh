@@ -9,9 +9,10 @@
 #    Ceres modules for jellyfish2 and samtools
 
 usage() { 
-    echo "USAGE: $0 [-k|-o|-h] SeqFile.bam"
+    echo "USAGE: $0 [-k|-o|-t|-h] SeqFile.bam"
     echo "  -k INT kmer length, default 21"
     echo "  -o STRING name for run label/output, default SeqFile name (no ext)"
+    echo "  -t INT threads, default 32"
     echo "  -h FLAG print usage statement"
     exit 0
 }
@@ -23,17 +24,21 @@ usage() {
 # last arg is the seq file
 SEQFILE="${@: -1}"
 K_LEN=21
+N_CORES=32
 SEQNAME=$(basename $SEQFILE)
 RUN_ID="${SEQNAME%%.bam}"
 
 # get options, including call usage if -h flag
-while getopts ":hk:o:" arg; do
+while getopts ":hk:o:t:" arg; do
     case $arg in
         k) # kmer size, default 21
             K_LEN=${OPTARG}
             ;;
         o) # name for RunID and output directory, default filename
             RUN_ID="${OPTARG}"
+            ;;
+        t) # number of threads for SLURM submission
+            N_CORES=${OPTARG}
             ;;
         h | *) # print help
             usage
@@ -80,8 +85,9 @@ echo -e "using Kmer length ${K_LEN} and ploidy 2, with output files in directory
 # launch slurm template with proper variables
 sbatch --job-name="KmerAnalysis-${RUN_ID}" \
     --mail-user="${USER}@usda.gov" \
+    -c ${N_CORES} \
     -o "KmerAnalysis-${RUN_ID}.stdout.%j.%N" \
     -e "KmerAnalysis-${RUN_ID}.stderr.%j.%N" \
-    --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID} \
+    --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID},THREADS=${N_CORES} \
     ${GITLOC}/VPGRU-KmerAnalysis_TEMPLATE.slurm
 

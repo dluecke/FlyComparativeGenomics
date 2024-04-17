@@ -18,16 +18,18 @@ $SOFTWARE/genomescope2.0/genomescope.R --version
 FASTQ="${BAMFILE%%.bam}.fastq"
 if [ ! -f $FASTQ ]; then
     echo -e "\nConverting BAM file:\n ${BAMFILE}\nto FASTQ file:\n ${FASTQ}\n"
-    samtools fastq --threads 31 $BAMFILE > $FASTQ
+    samtools fastq --threads $((THREADS-1)) $BAMFILE > $FASTQ
 else
     echo -e "\nUsing pre-existing FASTQ file:\n ${FASTQ}\n"
 fi
 
+# estimating jellyfish count --size parameter, based on default 32 cores - jellyfish2 automatically adjusts
 SIZE=$(jellyfish mem -m $KLEN --mem 96G | cut -f1 -d' ')
+
 echo -e "Starting jellyfish count with -m $KLEN and -s $SIZE, output into:\n ${PWD}/${RUNID}.jf\n"
-jellyfish count -C -m $KLEN -s $SIZE -t 32 $FASTQ -o ${RUNID}.jf
+jellyfish count -C -m $KLEN -s $SIZE -t ${THREADS} $FASTQ -o ${RUNID}.jf
 echo -e "Starting jellyfish histo to write:\n ${PWD}/${RUNID}.histo\n"
-jellyfish histo -t 32 ${RUNID}.jf > ${RUNID}.histo
+jellyfish histo -t ${THREADS} ${RUNID}.jf > ${RUNID}.histo
 
 echo -e "Starting genomescope analysis on ${RUNID}.histo with -k ${KLEN} and -p 2."
 echo -e "Output in:\n ${PWD}/${RUNID}\n"
