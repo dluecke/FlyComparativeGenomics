@@ -90,10 +90,19 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
     echo "into $HiFi_fastq"
     echo "this might take a minute"
     module load samtools
-    for bam_file in $CCS; do
-      # use samtools fastq to convert BAMs, then cat loop output to new file
-      # --threads is number of additional, so 2 total
-      samtools fastq --threads 1 $bam_file
+    for ccs_file in $CCS; do
+      if [[ "$ccs_file" == *".bam" ]]; then
+        # use samtools fastq to convert BAMs, then cat loop output to new file
+        # --threads is number of additional, so 2 total
+        samtools fastq --threads 1 $ccs_file
+      elif [[ "$ccs_file" == *".fastq" || "$ccs_file" == *".fq" ]]; then
+        cat $ccs_file
+      elif [[ "$ccs_file" == *".fastq.gz" || "$ccs_file" == *".fq.gz" ]]; then
+        gunzip -c $ccs_file
+      else
+        echo "unrecognized hifi file extension: $ccs_file"
+        exit;
+      fi
     done > $HiFi_fastq
     module unload samtools
     echo "finished! combined reads are in $HiFi_fastq"
