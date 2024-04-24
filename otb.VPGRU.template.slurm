@@ -100,7 +100,7 @@ if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
       elif [[ "$ccs_file" == *".fastq.gz" || "$ccs_file" == *".fq.gz" ]]; then
         gunzip -c $ccs_file
       else
-        echo "unrecognized hifi file extension: $ccs_file"
+        echo "unrecognized hifi file extension: $ccs_file" >&2
         exit;
       fi
     done > $HiFi_fastq
