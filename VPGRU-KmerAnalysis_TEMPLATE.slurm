@@ -15,12 +15,20 @@ module load jellyfish2
 jellyfish --version
 $SOFTWARE/genomescope2.0/genomescope.R --version
 
-FASTQ="${BAMFILE%%.bam}.fastq"
-if [ ! -f $FASTQ ]; then
-    echo -e "\nConverting BAM file:\n ${BAMFILE}\nto FASTQ file:\n ${FASTQ}\n"
-    samtools fastq --threads $((THREADS-1)) $BAMFILE > $FASTQ
+if [[ "$SEQFILE" == *".bam" ]]; then
+    FASTQ="${SEQFILE%%.bam}.fastq"
+    if [ ! -f $FASTQ ]; then
+        echo -e "\nConverting BAM file:\n ${SEQFILE}\nto FASTQ file:\n ${FASTQ}\n"
+        samtools fastq --threads $((THREADS-1)) $SEQFILE > $FASTQ
+    else
+        echo -e "\nUsing pre-existing FASTQ file:\n ${FASTQ}\n"
+    fi
+elif [[ "$SEQFILE" == *".fq" || "$SEQFILE" == *".fastq" ]]; then
+    FASTQ=$SEQFILE
+    echo -e "\nUsing provided FASTQ file:\n ${FASTQ}\n"
 else
-    echo -e "\nUsing pre-existing FASTQ file:\n ${FASTQ}\n"
+    echo "file extension not recognized: $SEQFILE"
+    exit;
 fi
 
 # estimating jellyfish count --size parameter, based on default 32 cores - jellyfish2 automatically adjusts

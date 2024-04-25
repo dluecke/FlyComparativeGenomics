@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # RunGenomeScope-VPGRU.sh a wrapper to run Kmer counting and GenomeScope2 model
-# intended as a QC step for HiFi data, but should work with any .bam
-#    (Can extend to .fq, or .fa in future)
+# intended as a QC step for HiFi data, but should work with any .bam or .fq/.fastq
+#    (Can extend to .fa in future)
 # Designed for USDA Ceres VPGRU project space:
 #    prefigured conda environment for R packages 
 #    GenomeScope2 install in VPGRU project software directory
@@ -26,7 +26,9 @@ SEQFILE="${@: -1}"
 K_LEN=21
 N_CORES=32
 SEQNAME=$(basename $SEQFILE)
-RUN_ID="${SEQNAME%%.bam}"
+[[ "SEQNAME" == *".bam" ]] && RUN_ID="${SEQNAME%%.bam}"
+[[ "SEQNAME" == *".fq" ]] && RUN_ID="${SEQNAME%%.fq}"
+[[ "SEQNAME" == *".fastq" ]] && RUN_ID="${SEQNAME%%.fastq}"
 
 # get options, including call usage if -h flag
 while getopts ":hk:o:t:" arg; do
@@ -46,8 +48,10 @@ while getopts ":hk:o:t:" arg; do
     esac
 done
 
-# call usage if not bam file
-[[ "$SEQFILE" == *".bam" ]] || { echo "need bam file"; usage; }
+# call usage if not bam or fastq file
+[[ "$SEQFILE" == *".bam" || \
+    "$SEQFILE" == *".fastq" || \
+    "$SEQFILE" == *".fq"  ]] || { echo "need bam or fastq file"; usage; }
 
 # STARTING SCRIPT ACTIONS
 
