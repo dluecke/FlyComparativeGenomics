@@ -91,7 +91,7 @@ echo -e "\nGenomeScope2 analysis will be performed on ${RUN_ID}.histo"
 echo -e "using Kmer length ${K_LEN} and ploidy 2, with output files in directory:\n ${PWD}/${RUN_ID}/\n"
 
 # launch slurm template with proper variables
-sbatch --job-name="KmerAnalysis-${RUN_ID}" \
+sbatch --job-name="${RUN_ID}-KmerAnalysis" \
     --mail-user="${USER}@usda.gov" \
     -c ${N_CORES} \
     -o "KmerAnalysis-${RUN_ID}.stdout.%j.%N" \
