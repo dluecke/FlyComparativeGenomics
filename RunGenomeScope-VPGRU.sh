@@ -78,10 +78,14 @@ conda_env_dir() {
     source activate genomescope2 
 
 # Print some run info to screen
-FQ_FILE="${SEQFILE%%.bam}.fastq"
-echo -e "\nSubmitting SLURM job KmerAnalysis-${RUN_ID} to perform Kmer analysis on BAM file:\n $SEQFILE"
-echo -e "\nThis will first generate FASTQ file:\n $FQ_FILE"
-echo -e "then perform jellyfish count and histo using Kmer length ${K_LEN}, with output files:"
+echo -e "\nSubmitting SLURM job KmerAnalysis-${RUN_ID} to perform Kmer analysis on sequence file:\n $SEQFILE"
+if [[ "$SEQFILE" == *".bam" ]]; then
+    FQ_FILE="${SEQFILE%%.bam}.fastq"
+    echo -e "\nThis will first generate FASTQ file:\n $FQ_FILE"
+else
+    echo -e "\nUsing provided fastq file"
+fi
+echo -e "Will run jellyfish count and histo using Kmer length ${K_LEN}, with output files:"
 echo -e " ${PWD}/${RUN_ID}.jf\n ${PWD}/${RUN_ID}.histo"
 echo -e "\nGenomeScope2 analysis will be performed on ${RUN_ID}.histo"
 echo -e "using Kmer length ${K_LEN} and ploidy 2, with output files in directory:\n ${PWD}/${RUN_ID}/\n"
@@ -92,6 +96,6 @@ sbatch --job-name="KmerAnalysis-${RUN_ID}" \
     -c ${N_CORES} \
     -o "KmerAnalysis-${RUN_ID}.stdout.%j.%N" \
     -e "KmerAnalysis-${RUN_ID}.stderr.%j.%N" \
-    --export=ALL,SOFTWARE=${SOFTWARE},BAMFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID},THREADS=${N_CORES} \
+    --export=ALL,SOFTWARE=${SOFTWARE},SEQFILE=${SEQFILE},KLEN=${K_LEN},RUNID=${RUN_ID},THREADS=${N_CORES} \
     ${GITLOC}/VPGRU-KmerAnalysis_TEMPLATE.slurm
 
