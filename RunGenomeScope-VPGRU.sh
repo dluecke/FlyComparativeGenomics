@@ -9,7 +9,7 @@
 #    Ceres modules for jellyfish2 and samtools
 
 usage() { 
-    echo "USAGE: $0 [-k|-o|-t|-h] SeqFile.bam"
+    echo "USAGE: $0 [-k|-o|-t|-h] SeqFile.[bam|fastq|fq]"
     echo "  -k INT kmer length, default 21"
     echo "  -o STRING name for run label/output, default SeqFile name (no ext)"
     echo "  -t INT threads, default 32"
@@ -56,7 +56,7 @@ done
 # STARTING SCRIPT ACTIONS
 
 # modules for conda environment (make sure this is good before sbatch)
-module unload r # need to use the conda environment R
+which Rscript &>/dev/null && module unload r # need to use the conda environment R
 module load miniconda
 
 # location of Git Repo for GenomeScope
