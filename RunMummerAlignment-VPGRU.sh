@@ -83,8 +83,8 @@ ALIGNMENT_NAME="${RUN_ID}-${C_VAL}"
 
 # screen output before SLURM submission
 echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
-echo "  Reference: ${REFERENCE}"
-echo "  Query: ${QUERY}"
+echo "  Reference: ${REF_FASTA}"
+echo "  Query: ${QRY_FASTA}"
 echo "  Seed Match Length: ${C_VAL}"
 echo "Submitting to SLURM with job name ${RUN_ID}-mummer"
 
