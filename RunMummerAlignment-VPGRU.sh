@@ -68,6 +68,7 @@ done
     && [[ "$QRYFILE" == *".fasta" || "$QRYFILE" == *".fa" ]] \
     || { echo "need fasta file"; usage; }
 
+echo $REF_FASTA $QRY_FASTA
 # call usage if files aren't found
 [[ -f $REF_FASTA && -f $QRY_FASTA ]] || { echo "can't find input files"; usage; }
 
