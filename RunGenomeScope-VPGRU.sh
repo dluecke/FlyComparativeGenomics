@@ -17,8 +17,9 @@ usage() {
     exit 0
 }
 
-# call usage if no args
+# call usage if no args or "-h"
 [ $# -eq 0 ] && usage
+[[ "$*" == *"-h"* ]] && usage
 
 # default parameter values
 # last arg is the seq file
