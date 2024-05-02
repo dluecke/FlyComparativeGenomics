@@ -9,7 +9,7 @@
 usage() { 
     echo "USAGE: $0 [-c|-o|-p|-t|-g|-h] REFERENCE.fa QUERY.fa"
     echo "  -c INT minimum match length, default=1000"
-    echo "  -o STRING alignment name, default REFERENCE_vs_QUERY"
+    echo "  -o STRING alignment name, default REFERENCE_vs_QUERY (c value appended automatically)"
     echo "  -p STRING slurm partition, default short"
     echo "  -t INT threads, default 8"
     echo "  -g PATH to annotation_tools git repo, default ~/annotation_tools"
