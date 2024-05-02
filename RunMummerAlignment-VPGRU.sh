@@ -73,6 +73,11 @@ done
 
 
 # STARTING SCRIPT ACTIONS
+
+# alignment name is Run_ID and C value
+ALIGNMENT_NAME="${RUN_ID}-${C_VAL}"
+
+# screen output before SLURM submission
 echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
 echo "  Reference: ${REFERENCE}"
 echo "  Query: ${QUERY}"
@@ -89,5 +94,5 @@ sbatch --job-name="${RUN_ID}-mummer" \
     -c ${N_CORES} \
     -o "Mummer-${RUN_ID}.stdout.%j.%N" \
     -e "Mummer-${RUN_ID}.stderr.%j.%N" \
-    --export=ALL,REFERENCE=${REF_FASTA},QUERY=${QRY_FASTA},C_VAL=${C_VAL},ALIGNMENT_NAME=${RUN_ID},THREADS=${N_CORES},TOOLS_PATH=${TOOLS_PATH} \
+    --export=ALL,REFERENCE=${REF_FASTA},QUERY=${QRY_FASTA},C_VAL=${C_VAL},ALIGNMENT_NAME=${ALIGNMENT_NAME},THREADS=${N_CORES},TOOLS_PATH=${TOOLS_PATH} \
     ${GITLOC}/VPGRU-MummerAlignment_TEMPLATE.slurm
