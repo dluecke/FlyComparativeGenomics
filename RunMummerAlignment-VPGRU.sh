@@ -67,9 +67,9 @@ done
     && [[ "$QRYFILE" == *".fasta" || "$QRYFILE" == *".fa" ]] \
     || { echo "need fasta file"; usage; }
 
-echo $ANNOTATIONTOOLSPATH
 # call usage if no annotation_tools found
-[[ -d $ANNOTATIONTOOLSPATH ]] || { echo "can't find annotation_tools/"; usage; }
+[[ -f $ANNOTATIONTOOLSPATH/alignment_and_visualization/convert_gnuplot_to_tsv.sh ]] \
+    || { echo "can't find annotation_tools/"; usage; }
 
 # STARTING SCRIPT ACTIONS
 echo "Script starting for ${RUN_ID}"
