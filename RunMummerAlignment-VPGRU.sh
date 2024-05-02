@@ -27,7 +27,7 @@ QRY_FASTA="${@: -1}"
 C_VAL=1000
 N_CORES=8
 PARTITION="short"
-ANNOTATIONTOOLSPATH="~/annotation_tools"
+ANNOTATIONTOOLSPATH=~/annotation_tools
 # trim filenames for default run name
 REFFILE=$(basename $REF_FASTA)
 QRYFILE=$(basename $QRY_FASTA)
@@ -54,7 +54,7 @@ while getopts ":hc:o:p:t:g:" arg; do
             N_CORES=${OPTARG}
             ;;
         g) # path to annotation_tools/ git repo
-            ANNOTATIONTOOLSPATH="${OPTARG}"
+            ANNOTATIONTOOLSPATH=${OPTARG}
             ;;
         h | *) # print help
             usage
