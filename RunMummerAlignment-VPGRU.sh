@@ -22,7 +22,7 @@ usage() {
 [[ "$*" == *"-h"* ]] && usage
 
 # last 2 args the reference and query seq files
-REF_FASTA="${@: -2}"
+REF_FASTA="${@: -2:1}"
 QRY_FASTA="${@: -1}"
 # default run parameters
 C_VAL=1000
@@ -68,7 +68,6 @@ done
     && [[ "$QRYFILE" == *".fasta" || "$QRYFILE" == *".fa" ]] \
     || { echo "need fasta file"; usage; }
 
-echo $REF_FASTA $QRY_FASTA
 # call usage if files aren't found
 [[ -f $REF_FASTA && -f $QRY_FASTA ]] || { echo "can't find input files"; usage; }
 
