@@ -9,7 +9,7 @@
 usage() { 
     echo "USAGE: $0 [-c|-o|-p|-t|-g|-h] REFERENCE.fa QUERY.fa"
     echo "  -c INT minimum match length, default=1000"
-    echo "  -o STRING alignment name, default REFERENCE_vs_QUERY-cINT"
+    echo "  -o STRING alignment name, default REFERENCE_vs_QUERY"
     echo "  -p STRING slurm partition, default short"
     echo "  -t INT threads, default 8"
     echo "  -g PATH to annotation_tools git repo, default ~/annotation_tools"
@@ -27,7 +27,7 @@ QRY_FASTA="${@: -1}"
 C_VAL=1000
 N_CORES=8
 PARTITION="short"
-ANNOTATIONTOOLSPATH=~/annotation_tools
+TOOLS_PATH=~/annotation_tools
 # trim filenames for default run name
 REFFILE=$(basename $REF_FASTA)
 QRYFILE=$(basename $QRY_FASTA)
@@ -36,7 +36,7 @@ QRYFILE=$(basename $QRY_FASTA)
 [[ "$QRYFILE" == *".fa" ]] && QRYNAME="${QRYFILE%%.fa}"
 [[ "$QRYFILE" == *".fasta" ]] && QRYNAME="${QRYFILE%%.fasta}"
 # default run name
-RUN_ID="${REFNAME}_vs_${QRYNAME}-c${C_VAL}"
+RUN_ID="${REFNAME}_vs_${QRYNAME}"
 
 # get options, including call usage if -h flag
 while getopts ":hc:o:p:t:g:" arg; do
@@ -54,7 +54,7 @@ while getopts ":hc:o:p:t:g:" arg; do
             N_CORES=${OPTARG}
             ;;
         g) # path to annotation_tools/ git repo
-            ANNOTATIONTOOLSPATH=${OPTARG}
+            TOOLS_PATH=${OPTARG}
             ;;
         h | *) # print help
             usage
@@ -68,8 +68,26 @@ done
     || { echo "need fasta file"; usage; }
 
 # call usage if no annotation_tools found
-[[ -f $ANNOTATIONTOOLSPATH/alignment_and_visualization/convert_gnuplot_to_tsv.sh ]] \
+[[ -f $TOOLS_PATH/alignment_and_visualization/convert_gnuplot_to_tsv.sh ]] \
     || { echo "can't find annotation_tools/"; usage; }
 
+
 # STARTING SCRIPT ACTIONS
-echo "Script starting for ${RUN_ID}"
+echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
+echo "  Reference: ${REFERENCE}"
+echo "  Query: ${QUERY}"
+echo "  Seed Match Length: ${C_VAL}"
+echo "Submitting to SLURM with job name ${RUN_ID}-mummer"
+
+# location of this script and slurm template
+GITLOC=$(dirname $0)
+
+# launch slurm template with proper variables
+sbatch --job-name="${RUN_ID}-mummer" \
+    --mail-user="${USER}@usda.gov" \
+    -p ${PARTITION} \
+    -c ${N_CORES} \
+    -o "Mummer-${RUN_ID}.stdout.%j.%N" \
+    -e "Mummer-${RUN_ID}.stderr.%j.%N" \
+    --export=ALL,REFERENCE=${REF_FASTA},QUERY=${QRY_FASTA},C_VAL=${C_VAL},ALIGNMENT_NAME=${RUN_ID},THREADS=${N_CORES},TOOLS_PATH=${TOOLS_PATH} \
+    ${GITLOC}/VPGRU-MummerAlignment_TEMPLATE.slurm

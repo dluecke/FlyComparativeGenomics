@@ -25,7 +25,10 @@ mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGN
 echo "Finished mummerplot. Rough draft dotplot file: ${ALIGNMENT_NAME}.ps"
 
 echo "Extracting alignment coordinates into tsv format"
-${ALIGNMENTTOOLSREPO}/alignment_and_visualization/convert_gnuplot_to_tsv.sh ${ALIGNMENT_NAME}
-echo ""
+${TOOLS_PATH}/alignment_and_visualization/convert_gnuplot_to_tsv.sh ${ALIGNMENT_NAME}
+echo "Finished extracting tsv files for use by alignment_region_dotplot.R:"
+echo "  ${ALIGNMENT_NAME}.plot.tsv"
+echo "  ${ALIGNMENT_NAME}.breaks.tsv"
+echo "------------------------"
 
 date
