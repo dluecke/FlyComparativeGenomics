@@ -67,6 +67,7 @@ done
     && [[ "$QRYFILE" == *".fasta" || "$QRYFILE" == *".fa" ]] \
     || { echo "need fasta file"; usage; }
 
+echo $ANNOTATIONTOOLSPATH
 # call usage if no annotation_tools found
 [[ -d $ANNOTATIONTOOLSPATH ]] || { echo "can't find annotation_tools/"; usage; }
 
