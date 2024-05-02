@@ -63,10 +63,13 @@ while getopts ":hc:o:p:t:g:" arg; do
     esac
 done
 
-# call usage if not bam or fastq file
+# call usage if not fasta file
 [[ "$REFFILE" == *".fasta" || "$REFFILE" == *".fa" ]] \
     && [[ "$QRYFILE" == *".fasta" || "$QRYFILE" == *".fa" ]] \
     || { echo "need fasta file"; usage; }
+
+# call usage if files aren't found
+[[ -f $REF_FASTA && -f $QRY_FASTA ]] || { echo "can't find input files"; usage; }
 
 # call usage if no annotation_tools found
 [[ -f $TOOLS_PATH/alignment_and_visualization/convert_gnuplot_to_tsv.sh ]] \
