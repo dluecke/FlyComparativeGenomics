@@ -86,7 +86,9 @@ echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
 echo "  Reference: ${REF_FASTA}"
 echo "  Query: ${QRY_FASTA}"
 echo "  Seed Match Length: ${C_VAL}"
-echo "Submitting to SLURM with job name ${RUN_ID}-mummer"
+echo "Submitting to SLURM with job name ${RUN_ID}-mummer:"
+echo "  Partition:  ${PARTITION}"
+echo "  Cores/Threads:  ${N_CORES}
 
 # location of this script and slurm template
 GITLOC=$(dirname $0)

@@ -18,6 +18,10 @@ echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
 echo "  Reference: ${REFERENCE}"
 echo "  Query: ${QUERY}"
 echo "  Seed Match Length: ${C_VAL}"
+echo "  Job Name: ${RUN_ID}-mummer"
+echo "  Partition:  ${PARTITION}"
+echo "  Cores/Threads:  ${N_CORES}
+
 nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} -c ${C_VAL} ${REFERENCE} ${QUERY}
 
 echo "Finished alignment, using mummerplot to generate alignment coordinates"
