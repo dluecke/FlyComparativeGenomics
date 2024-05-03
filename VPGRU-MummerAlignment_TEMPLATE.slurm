@@ -20,7 +20,7 @@ echo "  Query: ${QUERY}"
 echo "  Seed Match Length: ${C_VAL}"
 echo "  Job Name: ${RUN_ID}-mummer"
 echo "  Partition:  ${PARTITION}"
-echo "  Cores/Threads:  ${N_CORES}"
+echo "  Cores/Threads:  ${THREADS}"
 
 nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} -c ${C_VAL} ${REFERENCE} ${QUERY}
 
