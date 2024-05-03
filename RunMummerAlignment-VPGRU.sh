@@ -79,7 +79,7 @@ done
 # STARTING SCRIPT ACTIONS
 
 # alignment name is Run_ID and C value
-ALIGNMENT_NAME="${RUN_ID}-${C_VAL}"
+ALIGNMENT_NAME="${RUN_ID}-c${C_VAL}"
 
 # screen output before SLURM submission
 echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
