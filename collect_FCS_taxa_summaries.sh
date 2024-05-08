@@ -5,7 +5,7 @@
 # Expects a *.taxonomy.rpt file in SEQID/ results directory
 # Produces in current directory:
 #  taxon_summary-SEQID.txt lists all reference species and primary divs, sorted by prevalence
-#  taxonBroad_summary-SEQID.txt lists all primary divs, sorted by prevalence 
+#  taxonBroad_summary-SEQID.txt lists all primary divs, sorted by taxa name 
 #    input for R script plot_FC-genome_taxa.R which compares taxa in reads vs assembly
 #  NonInsectSeqs-SEQID.txt is all taxonomy.rpt lines with only non-insect matches
 
