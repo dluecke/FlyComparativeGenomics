@@ -8,7 +8,7 @@ usage() {
     echo "  -x INT NCBI taxon ID"
     echo "  SEQFILE.[fa|fq|bam] file to screen"
     echo " OPTIONAL:"
-    echo "  -o STRING FCS output directory, default SEQFILE"
+    echo "  -o STRING FCS output directory, default basename SEQFILE"
     echo "  -t INT threads, default 32"
     echo "  -g PATH to FlyComparativeGenomics git repo, default ~/FlyComparativeGenomics"
     echo "  -h FLAG print usage statement"
@@ -20,10 +20,10 @@ usage() {
 
 # last 2 args the reference and query seq files
 SEQFILE="${@: -1}"
-SEQNAME=$(basename $SEQFILE)
-OUT_DIR="${SEQNAME%%.[A-Za-z]*}"
+OUT_DIR=$(basename $SEQFILE)
+#OUT_DIR="${SEQNAME%%.[A-Za-z]*}"
 # default run parameters
-N_CORES=32
+N_THREAD=32
 FCG_PATH=~/FlyComparativeGenomics
 
 # get options, including call usage if -h flag
@@ -36,7 +36,7 @@ while getopts ":hx:o:t:g:" arg; do
             OUT_DIR="${OPTARG}"
             ;;
         t) # number of threads for SLURM submission
-            N_CORES=${OPTARG}
+            N_THREAD=${OPTARG}
             ;;
         g) # path to annotation_tools/ git repo
             FCG_PATH=${OPTARG}
@@ -56,18 +56,18 @@ done
 
 echo -e "Running FCS-genome screen on file:\n ${SEQFILE}"
 echo -e "using taxonomic ID:\n $TAXID"
-echo -e "with output directed to:\n $OUTDIR"
-echo "Will also write summaries of taxonomy report in $OUTDIR"
+echo -e "with output directed to:\n $OUT_DIR"
+echo "Will also write summaries of taxonomy report in $OUT_DIR"
 
-echo -e "\nSubmitting to the mem partition with $THREADS CPU"
+echo -e "\nSubmitting to the mem partition with $N_THREAD CPU"
 echo "with job name FCS-${TAXID}-${OUT_DIR}"
 
 # launch slurm template with proper variables
 sbatch --job-name="FCS-${TAXID}-${OUT_DIR}" \
     --mail-user="${USER}@usda.gov" \
-    -c ${N_CORES} \
+    -n ${N_THREAD} \
     -o "FCS-${TAXID}-${OUT_DIR}.stdout.%j.%N" \
     -e "FCS-${TAXID}-${OUT_DIR}.stderr.%j.%N" \
     --export=ALL,IN_SEQFILE=${SEQFILE},OUTDIR=${OUT_DIR}\
-THREADS=${N_CORES},FCG_REPO=${FCG_PATH} \
+THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
     ${FCG_PATH}/VPGRU-FCS_screen_TEMPLATE.slurm
