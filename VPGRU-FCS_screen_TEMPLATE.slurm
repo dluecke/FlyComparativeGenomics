@@ -34,7 +34,7 @@ fi
 echo -e "Running FCS-genome screen on file:\n ${SEQFILE}"
 echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUTDIR"
-echo -e "\nRun on the mem partition with $THREADS CPU\n"
+echo -e "\nRun on the mem partition with $THREADS tasks\n"
 
 which fcs.py
 fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID
