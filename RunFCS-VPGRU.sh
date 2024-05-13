@@ -59,7 +59,7 @@ echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUT_DIR"
 echo "Will also write summaries of taxonomy report in $OUT_DIR"
 
-echo -e "\nSubmitting to the mem partition with $N_THREAD CPU"
+echo -e "\nSubmitting to the mem partition with $N_THREAD tasks"
 echo "with job name FCS-${TAXID}-${OUT_DIR}"
 
 # launch slurm template with proper variables
