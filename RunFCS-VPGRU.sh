@@ -47,9 +47,9 @@ while getopts ":hc:o:p:t:g:" arg; do
     esac
 done
 
-[[ -f $SEQFILE ]] || {echo "Can't find input file $SEQFILE"; usage; }
-[[ ! -z $TAXID ]] || {echo "No taxon ID provided"; usage; }
-[[ -d $FCG_PATH ]] || {echo "Can't find FlyComparativeGenomics repo at $FCG_PATH"; usage; }
+[[ -f $SEQFILE ]] || { echo "Can't find input file $SEQFILE"; usage; }
+[[ ! -z $TAXID ]] || { echo "No taxon ID provided"; usage; }
+[[ -d $FCG_PATH ]] || { echo "Can't find FlyComparativeGenomics repo at $FCG_PATH"; usage; }
 
 [[ -d $OUT_DIR ]] || mkdir -p $OUT_DIR
 
