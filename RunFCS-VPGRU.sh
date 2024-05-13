@@ -21,7 +21,8 @@ usage() {
 
 # last 2 args the reference and query seq files
 SEQFILE="${@: -1}"
-OUT_DIR="${SEQFILE%%.[A-Za-z]*}"
+SEQNAME=$(basename $SEQFILE)
+OUT_DIR="${SEQNAME%%.[A-Za-z]*}"
 # default run parameters
 N_CORES=32
 FCG_PATH=~/FlyComparativeGenomics
