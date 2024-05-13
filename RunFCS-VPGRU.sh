@@ -42,6 +42,7 @@ while getopts ":hc:o:p:t:g:" arg; do
             FCG_PATH=${OPTARG}
             ;;
         h | *) # print help
+            echo "Requested help"
             usage
             ;;
     esac
