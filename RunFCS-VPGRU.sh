@@ -17,7 +17,6 @@ usage() {
 
 # call usage if no args or "-h" 
 [ $# -eq 0 ] && usage
-[[ "$*" == *"-h"* ]] && usage
 
 # last 2 args the reference and query seq files
 SEQFILE="${@: -1}"
