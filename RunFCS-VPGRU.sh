@@ -27,7 +27,7 @@ N_CORES=32
 FCG_PATH=~/FlyComparativeGenomics
 
 # get options, including call usage if -h flag
-while getopts ":hc:o:p:t:g:" arg; do
+while getopts ":hx:o:t:g:" arg; do
     case $arg in
         x) # NCBI taxon ID for species
             TAXID=${OPTARG}
@@ -42,7 +42,6 @@ while getopts ":hc:o:p:t:g:" arg; do
             FCG_PATH=${OPTARG}
             ;;
         h | *) # print help
-            echo "Requested help via $arg $OPTARG"
             usage
             ;;
     esac
