@@ -31,12 +31,13 @@ else
     exit;
 fi
 
-echo -e "Running FCS-genome screen on file:\n ${SEQFILE}"
+echo -e "\nRunning FCS-genome screen on file:\n ${SEQFILE}"
 echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUTDIR"
 echo -e "\nRun on the mem partition with $THREADS tasks\n"
 
 which fcs.py
+echo 
 fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID
 
 echo "FCS-genome screen complete.  Collecting taxa summaries."
