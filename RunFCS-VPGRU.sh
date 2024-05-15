@@ -68,6 +68,6 @@ sbatch --job-name="FCS-${TAXID}-${OUT_DIR}" \
     -n ${N_THREAD} \
     -o "FCS-${TAXID}-${OUT_DIR}.stdout.%j.%N" \
     -e "FCS-${TAXID}-${OUT_DIR}.stderr.%j.%N" \
-    --export=ALL,IN_SEQFILE=${SEQFILE},OUTDIR=${OUT_DIR}\
-THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
+    --export=ALL,IN_SEQFILE=${SEQFILE},OUTDIR=${OUT_DIR},\
+TAXID=${TAXID},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
     ${FCG_PATH}/VPGRU-FCS_screen_TEMPLATE.slurm
