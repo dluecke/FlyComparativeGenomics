@@ -3,12 +3,12 @@
 # RunFCS-VPGRU.sh runs FCS-genome screen and summarizes taxonomy report
 
 usage() { 
-    echo "USAGE: $0 [-o|-t|-g|-h] -x TAXON_ID SEQFILE.[fa|fq|bam]"
+    echo "USAGE: $0 [-o|-t|-g|-h] -x TAXON_ID PATH/TO/SEQFILE.[fa|fq|bam]"
     echo " REQUIRED:"
     echo "  -x INT NCBI taxon ID"
     echo "  SEQFILE.[fa|fq|bam] file to screen"
     echo " OPTIONAL:"
-    echo "  -o STRING FCS output directory, default basename SEQFILE"
+    echo "  -o STRING FCS output directory, default SEQFILENAME-FCSout"
     echo "  -t INT threads, default 32"
     echo "  -g PATH to FlyComparativeGenomics git repo, default ~/FlyComparativeGenomics"
     echo "  -h FLAG print usage statement"
@@ -20,7 +20,7 @@ usage() {
 
 # last 2 args the reference and query seq files
 SEQFILE="${@: -1}"
-OUT_DIR=$(basename $SEQFILE)
+OUT_DIR="$(basename $SEQFILE)-FCSout"
 #OUT_DIR="${SEQNAME%%.[A-Za-z]*}"
 # default run parameters
 N_THREAD=32
