@@ -63,7 +63,7 @@ sbatch --job-name="Meryl-${OUT_PREFIX}" \
     -n ${N_THREAD} \
     -o "Meryl-${OUT_PREFIX}.stdout.%j.%N" \
     -e "Meryl-${OUT_PREFIX}.stderr.%j.%N" \
-    --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FASTA=${ASM_FASTA},K_LEN=${K_LEN}\
+    --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FASTA=${ASM_FASTA},K_LEN=${K_LEN},\
 MERQURY_OUT=${OUT_PREFIX},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
     ${FCG_PATH}/VPGRU-meryl_merqury_TEMPLATE.slurm
 
