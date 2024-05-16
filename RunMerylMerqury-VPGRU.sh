@@ -53,9 +53,8 @@ done
 echo -e "Running meryl and merqury with k=${K_LEN} on reads:\n ${READS_FASTQ}"
 echo -e "and assembly:\n ${ASM_FASTA}\nRun in :\n $PWD"
 echo -e "with merqury output prefix ${OUT_PREFIX}"
-echo "Will also write summaries of taxonomy report in ${OUT_DIR}"
 
-echo -e "\nSubmitting to the mem partition with $N_THREAD tasks"
+echo -e "\nSubmitting to the short partition with $N_THREAD tasks"
 echo "with job name Meryl-${OUT_PREFIX}"
 
 # launch slurm template with proper variables
