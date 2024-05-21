@@ -51,9 +51,9 @@ PurgeDups=3
 
 #Comment/Uncomment for Polishing (only select one of)
 #Polish_Type="" #No polishing
-Polish_Type="simple" #Simple Polishing
-#Polish_Type="dv" #Deep Variant Polishing
-#Polish_Type="merfin" #merfin Polishing
+Polish_Type="--polish-type simple" #Simple Polishing
+#Polish_Type="--polish-type dv" #Deep Variant Polishing
+#Polish_Type="--polish-type merfin" #merfin Polishing
 
 #Comment/Uncommment for Yahs scaffolding with Hi-C reads
 #Yahs="" #Yahs will not be run
@@ -116,10 +116,10 @@ if [[ -z "$Lite_Run" ]]; then
 # normal run (-z checks for empty string)
   if [[ -z "$Busco" ]]; then
   # no BUSCO
-    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} --polish-type ${Polish_Type} ${Yahs} ${Busco} --runner ${Runner} -c -s
+    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Polish_Type} ${Yahs} ${Busco} --runner ${Runner} -c -s
   else
   # include BUSCO
-    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} --polish-type ${Polish_Type} ${Yahs} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
+    ./otb.sh -n ${Assembly_Name} -f "$( echo ${Forward})" -r "$(echo ${Reverse})" -in "$(echo ${CCS})" -m ${HiFi_Type} -t ${Threads} --purge-dups ${PurgeDups} ${Polish_Type} ${Yahs} ${Busco} ${Busco_Location} ${Busco_DB} --runner ${Runner} -c -s
   fi
 else
 # lite run
