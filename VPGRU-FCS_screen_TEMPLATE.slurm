@@ -15,14 +15,14 @@ module load fcs-genome
 if [[ "$IN_SEQFILE" == *".bam" ]]; then
     module load samtools
     SEQFILE="${IN_SEQFILE%.bam}.fasta"
-    echo -e "\nConverting BAM file:\n ${IN_SEQFILE}\nto FASTA file:\n ${SEQFILE}\n"
+    echo -e "\nConverting BAM file:\n ${IN_SEQFILE}\nto FASTA file:\n ${SEQFILE}\nwith:"
     which samtools
     samtools fasta --threads $((THREADS-1)) $IN_SEQFILE > $SEQFILE
 elif [[ "$IN_SEQFILE" == *".fq" || "$IN_SEQFILE" == *".fastq" || \
         "$IN_SEQFILE" == *".fq.gz" || "$IN_SEQFILE" == *".fastq.gz" ]]; then
     module load seqkit
     SEQFILE="${IN_SEQFILE%.f*q*}.fasta"
-    echo -e "\nConverting FASTQ file:\n ${IN_SEQFILE}\nto FASTA file:\n ${SEQFILE}\n"
+    echo -e "\nConverting FASTQ file:\n ${IN_SEQFILE}\nto FASTA file:\n ${SEQFILE}\nwith:"
     which seqkit
     seqkit --threads $THREADS fq2fa $IN_SEQFILE -o $SEQFILE
 elif [[ "$IN_SEQFILE" == *".fa" || "$IN_SEQFILE" == *".fasta" || \
