@@ -133,7 +133,13 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   if( is.null(QUERY) ){
     QUERY <- BREAKS_QRY$SeqName
   }
+
+  # filter qry and ref by length
+  REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH]
+  QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH]
+  COORDS <- COORDS[((COORDS$ref_SeqName %in% REFERENCE) & (COORDS$qry_SeqName %in% QUERY)),]
   
+  # reorder the query sequences to best show contiguity across contigs
   if( REORDER_QRY ){
     # longest reference match for each scaffold pair
     topR_coords <- COORDS %>% dplyr::group_by(ref_SeqName, qry_SeqName) %>% top_n(1, ref_length)
@@ -142,16 +148,10 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     QUERY <- ORDERED_QRY_ALL[ ORDERED_QRY_ALL %in% QUERY ]
   }
   
-  # filter qry and ref by length
-  REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH]
-  QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH]
-  
-  
   DF_COORDS <- GetScaffoldCoordsDF(L.COORDS = L.COORDS, REFERENCE = REFERENCE, QUERY = QUERY, 
                                    DROP_EMPTY_SCAFFOLDS = DROP_EMPTY_SCAFFOLDS,
                                    MIN_REF_LENGTH = MIN_REF_LENGTH, MIN_QRY_LENGTH = MIN_QRY_LENGTH,
                                    MIN_MATCH_LENGTH = MIN_MATCH_LENGTH)
-  
   
   # By default only plot scaffolds with matches
   if( DROP_EMPTY_SCAFFOLDS ){  
@@ -247,4 +247,46 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   
   return(p2)
 }
+
+
+# Function to find which reference and query sequences have lowest match percent
+# takes l.coords, returns list with dataframes of ref and qry seqs sorted by match coverage
+GetMatchStats <- function(L.COORDS){
+  
+  # DF for reference sequence match statistics
+  # get stats by reference sequence
+  REF_MATCH_STATS <- L.COORDS$coords  %>% group_by(ref_SeqName) %>% 
+    summarise( total_match = sum(ref_length), longest_match = max(ref_length), n_matches = length(ref_length) )
+  # ref sequences with no matches (in breaks but not coords)
+  REF_NO_MATCH <- rownames(L.COORDS$breaksRef)[ ! (rownames(L.COORDS$breaksRef) %in% REF_MATCH_STATS$ref_SeqName)]
+  # add to ref match stats df with match stats = 0
+  REF_MATCH_STATS <- rbind(REF_MATCH_STATS, 
+                        data.frame(ref_SeqName = REF_NO_MATCH,
+                                   total_match = 0, longest_match = 0, n_matches = 0))
+  # get lengths for ref seqs
+  REF_MATCH_STATS$SeqLength <- L.COORDS$breaksRef[REF_MATCH_STATS$ref_SeqName,]$SeqLength
+  # calculate length-normalized stats
+  REF_MATCH_STATS$match_pct <- REF_MATCH_STATS$total_match / REF_MATCH_STATS$SeqLength
+  REF_MATCH_STATS$longest_pct <- REF_MATCH_STATS$longest_match / REF_MATCH_STATS$SeqLength
+  # sort by percent sequence with match
+  REF_MATCH_STATS <- REF_MATCH_STATS[order(REF_MATCH_STATS$match_pct),]
+  
+  # DF for query sequence match statistics, same process
+  QRY_MATCH_STATS <- L.COORDS$coords  %>% group_by(qry_SeqName) %>% 
+    summarise( total_match = sum(ref_length), longest_match = max(ref_length), n_matches = length(ref_length) )
+  QRY_NO_MATCH <- rownames(L.COORDS$breaksQry)[ ! (rownames(L.COORDS$breaksQry) %in% QRY_MATCH_STATS$qry_SeqName)] 
+  QRY_MATCH_STATS <- rbind(QRY_MATCH_STATS, 
+                           data.frame(qry_SeqName = QRY_NO_MATCH,
+                                      total_match = 0, longest_match = 0, n_matches = 0))
+  QRY_MATCH_STATS$SeqLength <- L.COORDS$breaksQry[QRY_MATCH_STATS$qry_SeqName,]$SeqLength
+  QRY_MATCH_STATS$match_pct <- QRY_MATCH_STATS$total_match / QRY_MATCH_STATS$SeqLength
+  QRY_MATCH_STATS$longest_pct <- QRY_MATCH_STATS$longest_match / QRY_MATCH_STATS$SeqLength
+  QRY_MATCH_STATS <- QRY_MATCH_STATS[order(QRY_MATCH_STATS$match_pct),]
+  
+
+  return(list( RefStats = REF_MATCH_STATS,
+               QryStats = QRY_MATCH_STATS ))
+}
+
+
 
