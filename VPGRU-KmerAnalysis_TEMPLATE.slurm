@@ -46,7 +46,8 @@ $SOFTWARE/genomescope2.0/genomescope.R -i ${RUNID}.histo -o $RUNID -k $KLEN -p 2
 # Write line for csv containing sequence file identifier and estimated error rate
 sleep 10
 TrayID=$(echo $FASTQ | cut -d'.' -f1)
-EstErr=$(grep err: KmerAnalysis-${RUNID}.stdout.%j.%N | cut -d' ' -f5 | cut -d':' -f2)
+# getting error rate from stdout file but can't use %j and %N so glob and use last row (most recent)
+EstErr=$(grep err: KmerAnalysis-${RUNID}.stdout* | tail -n1 | cut -d' ' -f5 | cut -d':' -f2)
 echo "${TrayID},${EstErr}" > ${RUNID}_Line-HiFiTray_EstError.csv
 echo -e "\nWrote ${FASTQ} line for HiFiTray_EstError.csv:\n ${RUNID}_Line-HiFiTray_EstError.csv\n"
 
