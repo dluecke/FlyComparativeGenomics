@@ -66,11 +66,11 @@ Runner="slurm_usda_mem"
 Threads="32"
 
 #Comment/Uncommment for busco quality check for benchmark single copy genes
-#Busco="--busco" #Busco will be run
-Busco="" #Busco will not be run
+Busco="--busco" #Busco will be run
+#Busco="" #Busco will not be run
 
-Busco_Location="-l /project/ag100pest/software/OTB_test/busco"
-Busco_DB="-p insecta_odb10"
+Busco_Location="" #"-p /project/ag100pest/software/OTB_test/busco"
+Busco_DB="-l diptera_odb10"
 
 # RUNNING OTB (NO MORE TEMPLATE EDITS NEEDED BELOW HERE)
 # Modifications by DL 
