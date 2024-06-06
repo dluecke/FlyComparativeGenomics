@@ -5,6 +5,7 @@
 usage() { 
     echo "USAGE: $0 [-o|-k|-t|-g|-h] READS.FASTQ ASSEMBLY.FASTA"
     echo "  -o STRING FCS output directory, default ASSEMBLYNAME"
+    echo "  -l FLAG write ReadsOnly files for leftovers"
     echo "  -k INT kmer length, default 21"
     echo "  -t INT threads, default 48"
     echo "  -g PATH to FlyComparativeGenomics git repo, default ~/FlyComparativeGenomics"
@@ -21,15 +22,20 @@ ASM_FASTA="${@: -1}"
 ASM_FN="$(basename $ASM_FASTA)"
 OUT_PREFIX="${ASM_FN%%.f*a}"
 # default run parameters
+READS_ONLY="" # empty string won't trigger ReadsOnly section
 K_LEN=21
 N_THREAD=48
 FCG_PATH=~/FlyComparativeGenomics
 
 # get options, including call usage if -h flag
-while getopts ":ho:k:t:g:" arg; do
+while getopts ":ho:lk:t:g:" arg; do
     case $arg in
         o) # name for RunID and output directory, default filename
             OUT_PREFIX="${OPTARG}"
+            ;;
+        l) # flag for writing leftover ReadsOnly files
+            # any string will do
+            READS_ONLY="l" 
             ;;
         k) # kmer length for reads meryl
             K_LEN=${OPTARG}
@@ -54,6 +60,9 @@ echo -e "Running meryl and merqury with k=${K_LEN} on reads:\n ${READS_FASTQ}"
 echo -e "and assembly:\n ${ASM_FASTA}\nRun in :\n $PWD"
 echo -e "with merqury output prefix ${OUT_PREFIX}"
 
+if [[ -n $READS_ONLY ]]; then
+    echo -e "\nUsing meryl difference to generate ReadsOnly files of reads with kmers not in assembly"
+fi
 echo -e "\nSubmitting to the short partition with $N_THREAD tasks"
 echo "with job name Meryl-${OUT_PREFIX}"
 
@@ -64,6 +73,6 @@ sbatch --job-name="Meryl-${OUT_PREFIX}" \
     -o "Meryl-${OUT_PREFIX}.stdout.%j.%N" \
     -e "Meryl-${OUT_PREFIX}.stderr.%j.%N" \
     --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FASTA=${ASM_FASTA},K_LEN=${K_LEN},\
-MERQURY_OUT=${OUT_PREFIX},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
+MERQURY_OUT=${OUT_PREFIX},READS_ONLY=${READS_ONLY},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
     ${FCG_PATH}/VPGRU-meryl_merqury_TEMPLATE.slurm
 

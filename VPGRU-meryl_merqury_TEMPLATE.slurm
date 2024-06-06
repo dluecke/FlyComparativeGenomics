@@ -20,10 +20,6 @@ READS_FN=$(basename $READS_FASTQ)
 READS_MERYL="${READS_FN%%.f*q}.meryl"
 ASM_FN=$(basename $ASM_FASTA)
 ASM_MERYL="${ASM_FN%%.f*a}.meryl"
-# ReadsOnly outputs names for fastq file name
-READSONLY_MERYL="${READS_FN%%.f*q}.ReadsOnly.meryl"
-READSONLY_FASTQ="${READS_FN%%.f*q}.ReadsOnly.fastq.gz"
-READSONLY_NAMES="${READS_FN%%.f*q}.ReadsOnly.names.txt"
 
 echo "Meryl and Merqury jobs ran on -p short with -n ${THREADS}"
 echo
@@ -37,14 +33,21 @@ echo -e "to assembly file:\n ${ASM_FASTA}"
 echo -e "with output prefix ${MERQURY_OUT}"
 merqury.sh ${READS_MERYL} ${ASM_FASTA} ${MERQURY_OUT}
 
-echo -e "Running meryl difference to find kmers observed only in hifi reads:\n ${READSONLY_MERYL}\n"
-meryl difference ${READS_MERYL} ${ASM_MERYL} output ${READSONLY_MERYL}
+if [[ -n $READS_ONLY ]]; then
+    # ReadsOnly outputs names for fastq file name
+    READSONLY_MERYL="${READS_FN%%.f*q}.ReadsOnly.meryl"
+    READSONLY_FASTQ="${READS_FN%%.f*q}.ReadsOnly.fastq.gz"
+    READSONLY_NAMES="${READS_FN%%.f*q}.ReadsOnly.names.txt"
 
-echo -e "Running meryl-lookup to extract fastq.gz file of reads with kmers not observed in assembly:\n ${READSONLY_FASTQ}\n"
-meryl-lookup -include -sequence ${READS_FASTQ} -mers ${READSONLY_MERYL} | \
-    pigz -c > ${READSONLY_FASTQ}
+    echo -e "Running meryl difference to find kmers observed only in hifi reads:\n ${READSONLY_MERYL}\n"
+    meryl difference ${READS_MERYL} ${ASM_MERYL} output ${READSONLY_MERYL}
 
-echo -e "Extracting read names from ${READSONLY_FASTQ}:\n ${READSONLY_NAMES}\n"
-zcat ${READSONLY_FASTQ} | grep -e "^@" > ${READSONLY_NAMES}
+    echo -e "Running meryl-lookup to extract fastq.gz file of reads with kmers not observed in assembly:\n ${READSONLY_FASTQ}\n"
+    meryl-lookup -include -sequence ${READS_FASTQ} -mers ${READSONLY_MERYL} | \
+        pigz -c > ${READSONLY_FASTQ}
+
+    echo -e "Extracting read names from ${READSONLY_FASTQ}:\n ${READSONLY_NAMES}\n"
+    zcat ${READSONLY_FASTQ} | grep -e "^@" > ${READSONLY_NAMES}
+fi
 
 date
