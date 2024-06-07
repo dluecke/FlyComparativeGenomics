@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -n 2
-#SBATCH -p long
+#SBATCH -p medium
 #SBATCH -o "otb.stdout.%j.%N" 		# standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "otb.stderr.%j.%N" 		#optional but it prints our standard error
-#SBATCH --mail-user=<username>
+#SBATCH --mail-user=David.Luecke@usda.gov
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
 # Modified by DL to incorporate troubleshoot suggestions from DM while OTB still in beta (March 2024)
@@ -17,7 +17,7 @@ module load nextflow/22.04.3
 module load apptainer/1.1.8
 
 # We need an assembly name, generally this is just the name of the organism
-Assembly_Name="Species_Sex-Assembly_Type-N"
+Assembly_Name="Species_Sex-Merfin-a"
 
 # READS
 # HiFi Reads, ours are stored as BAM files, can use fastq
@@ -51,9 +51,9 @@ PurgeDups=3
 
 #Comment/Uncomment for Polishing (only select one of)
 #Polish_Type="" #No polishing
-Polish_Type="--polish-type simple" #Simple Polishing
+#Polish_Type="--polish-type simple" #Simple Polishing
 #Polish_Type="--polish-type dv" #Deep Variant Polishing
-#Polish_Type="--polish-type merfin" #merfin Polishing
+Polish_Type="--polish-type merfin" #merfin Polishing
 
 #Comment/Uncommment for Yahs scaffolding with Hi-C reads
 #Yahs="" #Yahs will not be run
