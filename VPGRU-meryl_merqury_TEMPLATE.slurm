@@ -30,7 +30,7 @@ meryl k=${K_LEN} count ${READS_FASTQ} output ${READS_MERYL}
 
 echo -e "Running merqury comparing reads meryl output:\n ${READS_MERYL}"
 echo -e "to assembly file:\n ${ASM_FASTA}"
-echo -e "with output prefix ${MERQURY_OUT}"
+echo -e "with output prefix ${MERQURY_OUT}\n"
 merqury.sh ${READS_MERYL} ${ASM_FASTA} ${MERQURY_OUT}
 
 if [[ -n $READS_ONLY ]]; then
@@ -48,6 +48,21 @@ if [[ -n $READS_ONLY ]]; then
 
     echo -e "Extracting read names from ${READSONLY_FASTQ}:\n ${READSONLY_NAMES}\n"
     zcat ${READSONLY_FASTQ} | grep -e "^@" > ${READSONLY_NAMES}
+fi
+
+if [[ -n $TRIO ]]; then
+    echo -e "Trio mode. Running meryl count on parental reads with kmer length ${K_LEN}."
+    echo -e "\nMaternal:"
+    echo $MATERNAL
+    echo -e "output prefix ${READS_MERYL}_mat\n"
+    meryl k=${K_LEN} count ${MATERNAL} output "${READS_MERYL}_mat" 
+    echo -e "Paternal:"
+    echo $PATERNAL
+    echo -e "output prefix ${READS_MERYL}_pat\n"
+    meryl k=${K_LEN} count ${PATERNAL} output "${READS_MERYL}_pat" 
+
+    echo -e "Running merqury hapmers.sh on maternal, paternal, and F1 meryl dbs\n"
+    $MERQURY/trio/hapmers.sh ${READS_MERYL}_mat.meryl ${READS_MERYL}_pat.meryl ${READS_MERYL}.meryl
 fi
 
 date
