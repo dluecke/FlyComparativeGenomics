@@ -69,7 +69,7 @@ done
 [[ -f $ASM_FASTA ]] || { echo "Can't find assembly file ${ASM_FASTA}"; usage; }
 [[ -d $FCG_PATH ]] || { echo "Can't find FlyComparativeGenomics repo at $FCG_PATH"; usage; }
 
-if [[ "$TRIO" == "t" ]]; then
+if [[ -n $TRIO ]]; then
     find $MATERNAL -quit &> /dev/null || { echo "Can't find reads file ${MATERNAL}"; usage; }
     find $PATERNAL -quit &> /dev/null || { echo "Can't find reads file ${PATERNAL}"; usage; }
 fi
@@ -81,6 +81,16 @@ echo -e "with merqury output prefix ${OUT_PREFIX}"
 if [[ -n $READS_ONLY ]]; then
     echo -e "\nUsing meryl difference to generate ReadsOnly files of reads with kmers not in assembly"
 fi
+
+if [[ -n $TRIO ]]; then
+    echo -e "\nTrio mode. Running separate meryl count on parental reads."
+    echo -e "\nMaternal:"
+    echo $MATERNAL
+    echo -e "Paternal:"
+    echo $PATERNAL
+    echo -e "\nThen will run hapmers.sh to generate trio binned merqury plots"
+fi
+
 echo -e "\nSubmitting to the short partition with $N_THREAD tasks"
 echo "with job name Meryl-${OUT_PREFIX}"
 
@@ -91,6 +101,7 @@ sbatch --job-name="Meryl-${OUT_PREFIX}" \
     -o "Meryl-${OUT_PREFIX}.stdout.%j.%N" \
     -e "Meryl-${OUT_PREFIX}.stderr.%j.%N" \
     --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FASTA=${ASM_FASTA},K_LEN=${K_LEN},\
-MERQURY_OUT=${OUT_PREFIX},READS_ONLY=${READS_ONLY},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
+MERQURY_OUT=${OUT_PREFIX},READS_ONLY=${READS_ONLY},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH},\
+TRIO=${TRIO},MATERNAL=${MATERNAL},PATERNAL=${PATERNAL} \
     ${FCG_PATH}/VPGRU-meryl_merqury_TEMPLATE.slurm
 
