@@ -52,14 +52,14 @@ fi
 
 if [[ -n $TRIO ]]; then
     echo -e "Trio mode. Running meryl count on parental reads with kmer length ${K_LEN}."
-    echo -e "\nMaternal:"
-    echo $MATERNAL
+    echo -e "Maternal:"
+    echo "$MATERNAL"
     echo -e "output prefix ${READS_MERYL}_mat\n"
-    meryl k=${K_LEN} count ${MATERNAL} output "${READS_MERYL}_mat" 
+    meryl k=${K_LEN} count "${MATERNAL}" output "${READS_MERYL}_mat" 
     echo -e "Paternal:"
-    echo $PATERNAL
+    echo "$PATERNAL"
     echo -e "output prefix ${READS_MERYL}_pat\n"
-    meryl k=${K_LEN} count ${PATERNAL} output "${READS_MERYL}_pat" 
+    meryl k=${K_LEN} count "${PATERNAL}" output "${READS_MERYL}_pat" 
 
     echo -e "Running merqury hapmers.sh on maternal, paternal, and F1 meryl dbs\n"
     $MERQURY/trio/hapmers.sh ${READS_MERYL}_mat.meryl ${READS_MERYL}_pat.meryl ${READS_MERYL}.meryl

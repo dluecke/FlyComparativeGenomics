@@ -45,10 +45,10 @@ while getopts ":ho:ltm:p:k:c:g:" arg; do
             TRIO="t"
             ;;
         m) # maternal read file used in trio binning
-            MATERNAL=${OPTARG}
+            MATERNAL="${OPTARG}"
             ;;
         p) # paternal read file used in trio binning
-            PATERNAL=${OPTARG}
+            PATERNAL="${OPTARG}"
             ;;
         k) # kmer length for reads meryl
             K_LEN=${OPTARG}
@@ -83,11 +83,11 @@ if [[ -n $READS_ONLY ]]; then
 fi
 
 if [[ -n $TRIO ]]; then
-    echo -e "\nTrio mode. Running separate meryl count on parental reads."
-    echo -e "\nMaternal:"
-    echo $MATERNAL
+    echo -e "\nTrio mode. Running separate meryl count on parental reads"
+    echo -e "Maternal:"
+    echo "$MATERNAL"
     echo -e "Paternal:"
-    echo $PATERNAL
+    echo "$PATERNAL"
     echo -e "\nThen will run hapmers.sh to generate trio binned merqury plots"
 fi
 
@@ -102,6 +102,6 @@ sbatch --job-name="Meryl-${OUT_PREFIX}" \
     -e "Meryl-${OUT_PREFIX}.stderr.%j.%N" \
     --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FASTA=${ASM_FASTA},K_LEN=${K_LEN},\
 MERQURY_OUT=${OUT_PREFIX},READS_ONLY=${READS_ONLY},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH},\
-TRIO=${TRIO},MATERNAL=${MATERNAL},PATERNAL=${PATERNAL} \
+TRIO=${TRIO},MATERNAL="${MATERNAL}",PATERNAL="${PATERNAL}" \
     ${FCG_PATH}/VPGRU-meryl_merqury_TEMPLATE.slurm
 
