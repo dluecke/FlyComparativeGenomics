@@ -45,4 +45,9 @@ fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID
 echo "FCS-genome screen complete.  Collecting taxa summaries."
 ${FCG_REPO}/collect_FCS_taxa_summaries.sh $OUTDIR 
 
+if [[ -n $CLEAN ]]; then
+    echo "Running FCS clean genome with action report $OUTDIR/*fcs_gx_report.txt
+    cat $SEQFILE | fcs.py clean genome --action-report $OUTDIR/*fcs_gx_report.txt --output $SEQFILE-clean.fa --contam-fasta-out $SEQFILE-contam.fa
+fi
+
 date

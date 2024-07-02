@@ -3,12 +3,13 @@
 # RunFCS-VPGRU.sh runs FCS-genome screen and summarizes taxonomy report
 
 usage() { 
-    echo "USAGE: $0 [-o|-t|-g|-h] -x TAXON_ID PATH/TO/SEQFILE.[fa|fq|bam]"
+    echo "USAGE: $0 [-o|-c|-t|-g|-h] -x TAXON_ID PATH/TO/SEQFILE.[fa|fq|bam]"
     echo " REQUIRED:"
     echo "  -x INT NCBI taxon ID"
     echo "  SEQFILE.[fa|fq|bam] file to screen"
     echo " OPTIONAL:"
     echo "  -o STRING FCS output directory, default SEQFILENAME-FCSout"
+    echo "  -c FLAG run FCS genome clean automatically, default FALSE"
     echo "  -t INT threads, default 32"
     echo "  -g PATH to FlyComparativeGenomics git repo, default ~/FlyComparativeGenomics"
     echo "  -h FLAG print usage statement"
@@ -23,17 +24,21 @@ SEQFILE="${@: -1}"
 OUT_DIR="$(basename $SEQFILE)-FCSout"
 #OUT_DIR="${SEQNAME%%.[A-Za-z]*}"
 # default run parameters
+CLEAN=""
 N_THREAD=32
 FCG_PATH=~/FlyComparativeGenomics
 
 # get options, including call usage if -h flag
-while getopts ":hx:o:t:g:" arg; do
+while getopts ":hx:o:ct:g:" arg; do
     case $arg in
         x) # NCBI taxon ID for species
             TAXID=${OPTARG}
             ;;
         o) # name for RunID and output directory, default filename
             OUT_DIR="${OPTARG}"
+            ;;
+        c) # flag to run FCS clean at end
+            CLEAN="c"
             ;;
         t) # number of threads for SLURM submission
             N_THREAD=${OPTARG}
@@ -69,5 +74,5 @@ sbatch --job-name="FCS-${TAXID}-${OUT_DIR}" \
     -o "FCS-${TAXID}-${OUT_DIR}.stdout.%j.%N" \
     -e "FCS-${TAXID}-${OUT_DIR}.stderr.%j.%N" \
     --export=ALL,IN_SEQFILE=${SEQFILE},OUTDIR=${OUT_DIR},\
-TAXID=${TAXID},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
+TAXID=${TAXID},CLEAN=${CLEAN},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
     ${FCG_PATH}/VPGRU-FCS_screen_TEMPLATE.slurm
