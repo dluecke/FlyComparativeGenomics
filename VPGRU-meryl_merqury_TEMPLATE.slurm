@@ -53,7 +53,7 @@ fi
 if [[ -n $TRIO ]]; then
     READS_MAT="${READS_FN%.f*}_mat.meryl"
     READS_PAT="${READS_FN%.f*}_pat.meryl"
-    echo -e "Trio mode. Running meryl count on parental reads with kmer length ${K_LEN}."
+    echo -e "\nTrio mode. Running meryl count on parental reads with kmer length ${K_LEN}."
     echo -e "Maternal:"
     echo "$MATERNAL"
     echo -e "output prefix ${READS_MAT}\n"
