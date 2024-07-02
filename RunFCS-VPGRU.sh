@@ -64,6 +64,10 @@ echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUT_DIR"
 echo "Will also write summaries of taxonomy report in $OUT_DIR"
 
+if [[ -n $CLEAN ]]; then
+    echo -e "\nRunning FCS clean genome with action report to be generated in $OUT_DIR"
+fi
+
 echo -e "\nSubmitting to the mem partition with $N_THREAD tasks"
 echo "with job name FCS-${TAXID}-${OUT_DIR}"
 
