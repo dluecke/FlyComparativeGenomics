@@ -17,9 +17,9 @@ which merqury.sh
 # meryl directory names are seq file names with extension replaced by .meryl
 # matches default meryl behavior 
 READS_FN=$(basename $READS_FASTQ)
-READS_MERYL="${READS_FN%%.f*q}.meryl"
+READS_MERYL="${READS_FN%.f*}.meryl"
 ASM_FN=$(basename $ASM_FASTA)
-ASM_MERYL="${ASM_FN%%.f*a}.meryl"
+ASM_MERYL="${ASM_FN%.f*a}.meryl"
 
 echo "Meryl and Merqury jobs ran on -p short with -n ${THREADS}"
 echo
@@ -35,9 +35,9 @@ merqury.sh ${READS_MERYL} ${ASM_FASTA} ${MERQURY_OUT}
 
 if [[ -n $READS_ONLY ]]; then
     # ReadsOnly outputs names for fastq file name
-    READSONLY_MERYL="${READS_FN%%.f*q}.ReadsOnly.meryl"
-    READSONLY_FASTQ="${READS_FN%%.f*q}.ReadsOnly.fastq.gz"
-    READSONLY_NAMES="${READS_FN%%.f*q}.ReadsOnly.names.txt"
+    READSONLY_MERYL="${READS_FN%.f*}.ReadsOnly.meryl"
+    READSONLY_FASTQ="${READS_FN%.f*}.ReadsOnly.fastq.gz"
+    READSONLY_NAMES="${READS_FN%.f*}.ReadsOnly.names.txt"
 
     echo -e "Running meryl difference to find kmers observed only in hifi reads:\n ${READSONLY_MERYL}\n"
     meryl difference ${READS_MERYL} ${ASM_MERYL} output ${READSONLY_MERYL}
@@ -51,8 +51,8 @@ if [[ -n $READS_ONLY ]]; then
 fi
 
 if [[ -n $TRIO ]]; then
-    READS_MAT="${READS_FN%%.f*q}_mat.meryl"
-    READS_PAT="${READS_FN%%.f*q}_pat.meryl"
+    READS_MAT="${READS_FN%.f*}_mat.meryl"
+    READS_PAT="${READS_FN%.f*}_pat.meryl"
     echo -e "Trio mode. Running meryl count on parental reads with kmer length ${K_LEN}."
     echo -e "Maternal:"
     echo "$MATERNAL"
