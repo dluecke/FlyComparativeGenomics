@@ -85,9 +85,9 @@ fi
 if [[ -n $TRIO ]]; then
     echo -e "\nTrio mode. Running separate meryl count on parental reads"
     echo -e "Maternal:"
-    ls "$MATERNAL"
+    ls $MATERNAL
     echo -e "Paternal:"
-    ls "$PATERNAL"
+    ls $PATERNAL
     echo -e "\nThen will run hapmers.sh to generate trio binned merqury plots"
 fi
 
