@@ -4,7 +4,7 @@
 
 usage() { 
     echo "USAGE: $0 [-h|-o|-s|-p|-q|-t] ASSEMBLY.FASTA HIFI.FOFN"
-    echo " HIFI.fofn file of file names, bam|fa|fasta|fa.gz|fq}fastq|fq.gz"
+    echo "  HIFI.fofn file of file names, bam|fa|fasta|fa.gz|fq}fastq|fq.gz"
     echo "  -o STRING output prefix for BAM file, default ASSEMBLY.HIFI.align"
     echo "  -s FLAG output SAM file"
     echo "  -p FLAG output PAF file (implies -s)"
@@ -81,7 +81,7 @@ module load miniconda
 # Print info to screen pre-submission
 echo -e "Starting pbmm2 to run minimap2, aligning reads in:\n ${HIFI_FOFN}"
 echo -e "onto assembly:\n ${ASM_FASTA}\nRun in :\n $PWD"
-echo -e "with output BAM file ${OUT_PREFIX}.bam"
+echo -e "with output BAM file:\n ${OUT_PREFIX}.bam"
 echo "using pbmm2 conda environment in /project/vpgru/.conda/pbmm2"
 
 if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
@@ -102,7 +102,7 @@ GITLOC=$(dirname $0)
 sbatch --job-name="pbmm2-${OUT_PREFIX}" \
     --mail-user="${USER}@usda.gov" \
     -p ${SLURM_QUEUE} \
-    -c ${N_THREAD} \
+    -n ${N_THREAD} \
     -o "pbmm2.stdout-${OUT_PREFIX}.%j.%N" \
     -e "pbmm2.stderr-${OUT_PREFIX}.%j.%N" \
     --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},OUT_PREFIX=${OUT_PREFIX},N_THREAD=${N_THREAD} \
