@@ -21,7 +21,7 @@ echo -e "Job name:\n pbmm2-${OUT_PREFIX}\n"
 
 pbmm2 --version
 echo -e "\nCommand:\n pbmm2 align --preset HiFi --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
-#pbmm2 align --preset HiFi --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
+pbmm2 align --preset HiFi --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
 
 if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
     echo -e "\nUsing samtools to produce SAM file ${OUT_PREFIX}.sam"
