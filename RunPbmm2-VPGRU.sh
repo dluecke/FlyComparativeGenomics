@@ -38,7 +38,7 @@ PAF_OUT="" # empty string won't trigger PAF out section
 N_THREAD=32
 
 # get options, including call usage if -h flag
-while getopts ":hspo:t:" arg; do
+while getopts ":hspo:q:t:" arg; do
     case $arg in
         s) # flag for SAM out
             SAM_OUT="sam"
