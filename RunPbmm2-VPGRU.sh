@@ -4,7 +4,7 @@
 
 usage() { 
     echo "USAGE: $0 [-h|-o|-s|-p|-q|-t] ASSEMBLY.FASTA HIFI.FOFN"
-    echo "  HIFI.fofn file of file names, bam|fa|fasta|fa.gz|fq}fastq|fq.gz"
+    echo "  HIFI.fofn file of file names, bam|fa|fasta|fa.gz|fq|fastq|fq.gz"
     echo "  -o STRING output prefix for BAM file, default ASSEMBLY.HIFI.align"
     echo "  -s FLAG output SAM file"
     echo "  -p FLAG output PAF file (implies -s)"
@@ -105,6 +105,7 @@ sbatch --job-name="pbmm2-${OUT_PREFIX}" \
     -n ${N_THREAD} \
     -o "pbmm2.stdout-${OUT_PREFIX}.%j.%N" \
     -e "pbmm2.stderr-${OUT_PREFIX}.%j.%N" \
-    --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},OUT_PREFIX=${OUT_PREFIX},N_THREAD=${N_THREAD} \
+    --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},\
+OUT_PREFIX=${OUT_PREFIX},SAM_OUT=${SAM_OUT},PAF_OUT=${PAF_OUT},N_THREAD=${N_THREAD} \
     ${GITLOC}/VPGRU-pbmm2_TEMPLATE.slurm
 
