@@ -20,8 +20,8 @@ echo -e "\nRan on the ${SLURM_QUEUE} partition with $N_THREAD cores"
 echo -e "Job name:\n pbmm2-${OUT_PREFIX}\n"
 
 pbmm2 --version
-echo -e "\nCommand:\n pbmm2 align --preset HiFi --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
-pbmm2 align --preset HiFi --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
+echo -e "\nCommand:\n pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
+pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
 
 if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
     echo -e "\nUsing samtools to produce SAM file ${OUT_PREFIX}.sam"
@@ -34,7 +34,7 @@ fi
 if [[ -n $PAF_OUT ]]; then
     echo -e "\nUsing minimap2 paftools.js to produce ${OUT_PREFIX}.paf.gz"
     module load minimap2
-    echo -e "\minimap2 version:"
+    echo -e "minimap2 version:"
     minimap2 --version
     echo -e "\nCommand:\n paftools.js sam2paf ${OUT_PREFIX}.sam | gzip -c - > ${OUT_PREFIX}.paf.gz"
     paftools.js sam2paf ${OUT_PREFIX}.sam | gzip -c - > ${OUT_PREFIX}.paf.gz
