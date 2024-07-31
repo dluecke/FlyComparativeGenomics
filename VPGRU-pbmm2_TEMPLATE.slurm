@@ -23,10 +23,14 @@ pbmm2 --version
 echo -e "\nCommand:\n pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
 pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
 
-if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
-    echo -e "\nUsing samtools to produce SAM file ${OUT_PREFIX}.sam"
+# load samtools if needed
+if [[ -n $SAM_OUT || -n $PAF_OUT || -n $GET_DEPTH ]]; then
     module load samtools
     samtools --version
+fi
+
+if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
+    echo -e "\nUsing samtools to produce SAM file ${OUT_PREFIX}.sam"
     echo -e "\nCommand:\n samtools view -h ${OUT_PREFIX}.bam > ${OUT_PREFIX}.sam\n"
     samtools view -h ${OUT_PREFIX}.bam > ${OUT_PREFIX}.sam
 fi
@@ -38,6 +42,13 @@ if [[ -n $PAF_OUT ]]; then
     minimap2 --version
     echo -e "\nCommand:\n paftools.js sam2paf ${OUT_PREFIX}.sam | gzip -c - > ${OUT_PREFIX}.paf.gz"
     paftools.js sam2paf ${OUT_PREFIX}.sam | gzip -c - > ${OUT_PREFIX}.paf.gz
+fi
+
+if [[ -n $GET_DEPTH ]]; then
+    # considered using mpileup instead of depth but much slower and don't gain towards VCF pipeline (use bcftools mpileup for that)
+    echo -e "\nUsing samtools to write ${OUT_PREFIX}.depth.tsv"
+    echo -e "\nCommand:\n samtools depth -aa ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv"
+    samtools depth -aa ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
 fi
 
 date
