@@ -49,6 +49,17 @@ if [[ -n $GET_DEPTH ]]; then
     echo -e "\nUsing samtools to write ${OUT_PREFIX}.depth.tsv"
     echo -e "\nCommand:\n samtools depth -aa ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv"
     samtools depth -aa ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
+    # get average per scaffold, asorti() to sort by scaffold name
+    awk '{ 
+            sum[$1] += $3
+            count[$1]++
+        } 
+        END {
+            n=asorti(count, indices); 
+            for (i=1; i<=n; i++) {
+                print indices[i], "\t", sum[indices[i]]/count[indices[i]]
+            }
+        }' ${OUT_PREFIX}.depth.tsv > ${OUT_PREFIX}.depth_by_scaffold.tsv
 fi
 
 date
