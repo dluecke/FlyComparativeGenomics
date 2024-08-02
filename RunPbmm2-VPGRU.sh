@@ -97,6 +97,10 @@ if [[ -n $PAF_OUT ]]; then
     echo -e "\nUsing minimap2 paftools.js to produce ${OUT_PREFIX}.paf.gz"
 fi
 
+if [[ -n $GET_DEPTH ]]; then
+    echo -e "\nUsing samtools depth to write ${OUT_PREFIX}.depth.tsv"
+fi
+
 echo -e "\nSubmitting to the ${SLURM_QUEUE} partition with $N_THREAD cores"
 echo -e "Job name:\n pbmm2-${OUT_PREFIX}\n"
 
@@ -111,6 +115,6 @@ sbatch --job-name="pbmm2-${OUT_PREFIX}" \
     -o "pbmm2.stdout-${OUT_PREFIX}.%j.%N" \
     -e "pbmm2.stderr-${OUT_PREFIX}.%j.%N" \
     --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},N_THREAD=${N_THREAD},\
-OUT_PREFIX=${OUT_PREFIX},SAM_OUT=${SAM_OUT},PAF_OUT=${PAF_OUT},GET_DEPTH=$(GET_DEPTH) \
+OUT_PREFIX=${OUT_PREFIX},SAM_OUT=${SAM_OUT},PAF_OUT=${PAF_OUT},GET_DEPTH=${GET_DEPTH} \
     ${GITLOC}/VPGRU-pbmm2_TEMPLATE.slurm
 
