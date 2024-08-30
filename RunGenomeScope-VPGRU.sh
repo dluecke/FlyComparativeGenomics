@@ -10,6 +10,7 @@
 
 usage() { 
     echo "USAGE: $0 [-k|-o|-t|-h] SeqFile.[bam|fastq|fq]"
+    echo "Need to run from a compute node (salloc) for conda to work"
     echo "  -k INT kmer length, default 21"
     echo "  -o STRING name for run label/output, default SeqFile name (no ext)"
     echo "  -t INT threads, default 32"
@@ -59,6 +60,10 @@ done
 # modules for conda environment (make sure this is good before sbatch)
 which Rscript &>/dev/null && module unload r # need to use the conda environment R
 module load miniconda
+
+# check if conda is working (as of 08/2024 need to be on compute node)
+echo "checking conda functioning"
+conda info --envs || { echo "conda not working, are you on a compute node?" ; usage; }
 
 # location of Git Repo for GenomeScope
 SOFTWARE=/project/vpgru/software
