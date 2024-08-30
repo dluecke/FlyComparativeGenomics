@@ -14,12 +14,15 @@ make_l.coords_breaks <- function(INFILE, INFILE_BREAKS){
   # Make df for coordinates of blast hits
   df.coords <- read.csv(INFILE, sep = "\t")
   df.coords <- df.coords[order(df.coords$R1),]
+  # use the match midpoint for sequence ID assignment to avoid boundary issues
+  df.coords$Rmid <- rowMeans( subset(df.coords, select = c(R1, R2)) )
+  df.coords$Qmid <- rowMeans( subset(df.coords, select = c(Q1, Q2)) )
   # get lengths of hits in ref and qry space, and match orientation
   df.coords$ref_length <- df.coords$R2 - df.coords$R1
   df.coords$qry_length <- df.coords$Q2 - df.coords$Q1
   df.coords$orientation <- apply(df.coords, 1, FUN = function(x){
-    if( sign(x[5]) == sign(x[6]) ){return("forward")}
-    if( sign(x[5]) != sign(x[6]) ){return("reverse")}
+    if( sign(x[7]) == sign(x[8]) ){return("forward")}
+    if( sign(x[7]) != sign(x[8]) ){return("reverse")}
   })
   
   # Make df for scaffold positions in reference and query alignment sequences
@@ -33,14 +36,14 @@ make_l.coords_breaks <- function(INFILE, INFILE_BREAKS){
   rownames(df.breaksRef) <- df.breaksRef$SeqName
   rownames(df.breaksQry) <- df.breaksQry$SeqName
   # add length for each sequence
-  df.breaksRef$SeqLength <- c( diff(df.breaksRef$Position), NaN )
-  df.breaksQry$SeqLength <- c( diff(df.breaksQry$Position), NaN )
+  df.breaksRef$SeqLength <- c( diff(df.breaksRef$Position) + 1, NaN )
+  df.breaksQry$SeqLength <- c( diff(df.breaksQry$Position) + 1, NaN )
   
   # Assign Ref and Qry scaffold IDs for each alignment line in df.coords based on position in total alignment
-  df.coords$ref_SeqName <- sapply(df.coords$R1, function(x){ 
+  df.coords$ref_SeqName <- sapply(df.coords$Rmid, function(x){ 
     df.breaksRef$SeqName[ which( df.breaksRef$Position > x )[1] - 1]
   })
-  df.coords$qry_SeqName <- sapply(df.coords$Q1, function(x){ 
+  df.coords$qry_SeqName <- sapply(df.coords$Qmid, function(x){ 
     df.breaksQry$SeqName[ which( df.breaksQry$Position > x )[1] - 1]
   })
   
