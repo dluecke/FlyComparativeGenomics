@@ -70,8 +70,8 @@ done
 # Ensure conda env pbmm2 activated before calling sbatch
 # function to configure access to pbmm2 conda environment (in vpgru projects)
 conda_env_dir() {
-    conda config # writes ~/.condarc file, which will be modified
-    echo -e "\nenvs_dirs:\n  /project/vpgru/.conda" >> ~/.condarc # add path to genomescope2 env
+    #conda config # writes ~/.condarc file, which will be modified
+    echo -e "\nenvs_dirs:\n  - /project/vpgru/.conda" >> ~/.condarc # add path to genomescope2 env
     source activate -p /project/vpgru/.conda/pbmm2 || \
         { echo "Problem activating conda env pbmm2" ; exit; }
 }
