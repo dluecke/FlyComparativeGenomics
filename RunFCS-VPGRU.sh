@@ -58,7 +58,7 @@ done
 
 if [[ "$IN_SEQFILE" == *".bam" || \
       "$IN_SEQFILE" == *".fq" || "$IN_SEQFILE" == *".fastq" || \
-      "$IN_SEQFILE" == *".fq.gz" || "$IN_SEQFILE" == *".fastq.gz" \
+      "$IN_SEQFILE" == *".fq.gz" || "$IN_SEQFILE" == *".fastq.gz" || \
       "$IN_SEQFILE" == *".fa" || "$IN_SEQFILE" == *".fasta" || \
       "$IN_SEQFILE" == *".fa.gz" || "$IN_SEQFILE" == *".fasta.gz" ]]; then
     echo "$IN_SEQFILE extension recognized"
