@@ -56,10 +56,21 @@ done
 [[ ! -z $TAXID ]] || { echo "No taxon ID provided"; usage; }
 [[ -d $FCG_PATH ]] || { echo "Can't find FlyComparativeGenomics repo at $FCG_PATH"; usage; }
 
+if [[ "$IN_SEQFILE" == *".bam" || \
+      "$IN_SEQFILE" == *".fq" || "$IN_SEQFILE" == *".fastq" || \
+      "$IN_SEQFILE" == *".fq.gz" || "$IN_SEQFILE" == *".fastq.gz" \
+      "$IN_SEQFILE" == *".fa" || "$IN_SEQFILE" == *".fasta" || \
+      "$IN_SEQFILE" == *".fa.gz" || "$IN_SEQFILE" == *".fasta.gz" ]]; then
+    echo "$IN_SEQFILE extension recognized"
+else
+    echo "file extension not recognized: $IN_SEQFILE"
+    exit;
+fi
+
 [[ -d $OUT_DIR ]] || mkdir -p $OUT_DIR
 
 
-echo -e "Running FCS-genome screen on file:\n ${SEQFILE}"
+echo -e "\nRunning FCS-genome screen on file:\n ${SEQFILE}"
 echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUT_DIR"
 echo "Will also write summaries of taxonomy report in $OUT_DIR"
