@@ -56,14 +56,14 @@ done
 [[ ! -z $TAXID ]] || { echo "No taxon ID provided"; usage; }
 [[ -d $FCG_PATH ]] || { echo "Can't find FlyComparativeGenomics repo at $FCG_PATH"; usage; }
 
-if [[ "$IN_SEQFILE" == *".bam" || \
-      "$IN_SEQFILE" == *".fq" || "$IN_SEQFILE" == *".fastq" || \
-      "$IN_SEQFILE" == *".fq.gz" || "$IN_SEQFILE" == *".fastq.gz" || \
-      "$IN_SEQFILE" == *".fa" || "$IN_SEQFILE" == *".fasta" || \
-      "$IN_SEQFILE" == *".fa.gz" || "$IN_SEQFILE" == *".fasta.gz" ]]; then
-    echo "$IN_SEQFILE extension recognized"
+if [[ "$SEQFILE" == *".bam" || \
+      "$SEQFILE" == *".fq" || "$SEQFILE" == *".fastq" || \
+      "$SEQFILE" == *".fq.gz" || "$SEQFILE" == *".fastq.gz" || \
+      "$SEQFILE" == *".fa" || "$SEQFILE" == *".fasta" || \
+      "$SEQFILE" == *".fa.gz" || "$SEQFILE" == *".fasta.gz" ]]; then
+    echo "$SEQFILE extension recognized"
 else
-    echo "file extension not recognized: $IN_SEQFILE"
+    echo "file extension not recognized: $SEQFILE"
     exit;
 fi
 
