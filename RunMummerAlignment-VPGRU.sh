@@ -8,7 +8,7 @@
 
 usage() { 
     echo "USAGE: $0 [-c|-o|-p|-t|-g|-h] REFERENCE.fa QUERY.fa"
-    echo "  -c INT minimum match length, default=1000"
+    echo "  -c INT minimum match length, default=2000"
     echo "  -o STRING alignment name, default REFERENCE_vs_QUERY (c value appended automatically)"
     echo "  -p STRING slurm partition, default short"
     echo "  -t INT threads, default 8"
@@ -25,7 +25,7 @@ usage() {
 REF_FASTA="${@: -2:1}"
 QRY_FASTA="${@: -1}"
 # default run parameters
-C_VAL=1000
+C_VAL=2000
 N_CORES=8
 PARTITION="short"
 TOOLS_PATH=~/annotation_tools
