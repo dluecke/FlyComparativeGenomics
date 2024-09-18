@@ -33,6 +33,11 @@ else
     exit;
 fi
 
+if [[ -L $IN_SEQFILE ]]; then
+    echo "replacing link with path to file"
+    SEQFILE=$(ls -l $IN_SEQFILE | awk '{print $NF}')
+fi
+
 echo -e "\nRunning FCS-genome screen on file:\n ${SEQFILE}"
 echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUTDIR"
