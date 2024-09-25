@@ -80,7 +80,7 @@ conda_env_dir() {
 #  using conda_env_dir function to configure and activate if necessary 
 module load miniconda
 # check conda working (won't if still on head node)
-conda info --envs 2> /dev/null || { echo "Conda not working, need to switch to compute node?" ; usage; }
+conda info --envs >/dev/null 2>&1 || { echo "Conda not working, need to switch to compute node?" ; usage; }
 
 [ -z "$(conda info --envs | grep pbmm2)" ] && \
     conda_env_dir || \
