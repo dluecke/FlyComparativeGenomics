@@ -8,13 +8,15 @@
 #SBATCH -o "stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "stderr.%j.%N"     #optional, prints our standard error
 
+module load smrtlink
+
 date
 
 # Print info to stdout for reference
 echo -e "Starting pbmm2 to run minimap2, aligning reads in:\n ${HIFI_FOFN}"
 echo -e "onto assembly:\n ${ASM_FASTA}\nRun in :\n $PWD"
 echo -e "with output BAM file ${OUT_PREFIX}.bam"
-echo -e "using pbmm2 conda environment in /project/vpgru/.conda/pbmm2\n"
+echo -e "using pbmm2 from smrtlink module\n"
 
 echo -e "\nRan on the ${SLURM_QUEUE} partition with $N_THREAD cores"
 echo -e "Job name:\n pbmm2-${OUT_PREFIX}\n"
