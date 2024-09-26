@@ -71,6 +71,6 @@ sbatch --job-name="purge_dups-${PD_OUT}" \
     -e "pd.${PD_OUT}.%j.%N.stderr" \
     --export=ALL,PRI_ASM=${PRI_ASM},PAF_IN=${PAF_IN},\
 PD_OUT=${PD_OUT},N_THREAD=${N_THREAD},QUEUE=${QUEUE} \
-    ${GITLOC}/VPGRU-pbmm2_TEMPLATE.slurm
+    ${GITLOC}/VPGRU-PurgeDups_TEMPLATE.slurm
 
 
