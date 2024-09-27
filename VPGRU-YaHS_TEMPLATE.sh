@@ -19,8 +19,8 @@ RIGHT_HIC=$4
 # no extension filename of contig assembly
 PCTG_NAME=$(basename ${PCTG_ASM%f*a})
 # names for HiC alignment sam/bam files
-ALN_SAM=$PCTG_NAME".HiC_aln.sam"
-ALN_BAM=$PCTG_NAME".HiC_aln.bam"
+ALN_SAM=$PCTG_NAME"HiC_aln.sam"
+ALN_BAM=$PCTG_NAME"HiC_aln.bam"
 
 echo -e "\nStarting bwa alignment of HiC reads:\n $LEFT_HIC\n $RIGHT_HIC"
 echo -e "onto contig assembly:\n $PCTG_ASM"
