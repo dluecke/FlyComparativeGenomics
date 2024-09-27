@@ -22,6 +22,9 @@ echo -e "Submitting to $QUEUE partition with $N_THREAD threads"
 
 mkdir $PD_OUT
 
+# name of split fasta for self-alignment (avoids writing to same location as PRI_ASM if given as path)
+ASM_SPLIT="$(basename $PRI_ASM).split"
+
 echo "Running initial purge_dups steps"
 echo -e "Commands:\n pbcstat -O $PD_OUT $PAF_IN"
 echo -e " calcuts $PD_OUT/PB.stat > cutoffs.$PD_OUT 2>calcuts.$PD_OUT.log"
@@ -29,16 +32,16 @@ pbcstat -O $PD_OUT $PAF_IN
 calcuts $PD_OUT/PB.stat > cutoffs.$PD_OUT 2>calcuts.$PD_OUT.log
 
 echo "Starting assembly self-alignment"
-echo -e "Commands:\n split_fa $PRI_ASM > $PRI_ASM.split"
-echo " minimap2 -xasm5 -DP $PRI_ASM.split $PRI_ASM.split | gzip -c - > $PRI_ASM.split.self.paf.gz"
-split_fa $PRI_ASM > $PRI_ASM.split
-minimap2 -xasm5 -DP $PRI_ASM.split $PRI_ASM.split | \
-    gzip -c - > $PRI_ASM.split.self.paf.gz
+echo -e "Commands:\n split_fa $PRI_ASM > $ASM_SPLIT"
+echo " minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | gzip -c - > $ASM_SPLIT.self.paf.gz"
+split_fa $PRI_ASM > $ASM_SPLIT
+minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | \
+    gzip -c - > $ASM_SPLIT.self.paf.gz
 
 echo "Running main purge_dups step"
-echo -e "Command:\n purge_dups -2 -T cutoffs.$PD_OUT -c $PD_OUT/PB.base.cov $PRI_ASM.split.self.paf.gz > dups.$PD_OUT.bed 2> purge_dups.$PD_OUT.log"
+echo -e "Command:\n purge_dups -2 -T cutoffs.$PD_OUT -c $PD_OUT/PB.base.cov $ASM_SPLIT.self.paf.gz > dups.$PD_OUT.bed 2> purge_dups.$PD_OUT.log"
 purge_dups -2 -T cutoffs.$PD_OUT -c $PD_OUT/PB.base.cov \
-    $PRI_ASM.split.self.paf.gz > \
+    $ASM_SPLIT.self.paf.gz > \
     dups.$PD_OUT.bed 2> purge_dups.$PD_OUT.log
 
 echo "Purging assembly"
