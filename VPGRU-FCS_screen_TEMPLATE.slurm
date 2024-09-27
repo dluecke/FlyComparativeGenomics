@@ -14,14 +14,14 @@ module load fcs-genome
 
 if [[ "$IN_SEQFILE" == *".bam" ]]; then
     module load samtools
-    SEQFILE="${IN_SEQFILE%.bam}.fasta"
+    SEQFILE=$(basename "${IN_SEQFILE%.bam}.fasta")
     echo -e "\nConverting BAM file:\n ${IN_SEQFILE}\nto FASTA file:\n ${SEQFILE}\nwith:"
     which samtools
     samtools fasta --threads $((THREADS-1)) $IN_SEQFILE > $SEQFILE
 elif [[ "$IN_SEQFILE" == *".fq" || "$IN_SEQFILE" == *".fastq" || \
         "$IN_SEQFILE" == *".fq.gz" || "$IN_SEQFILE" == *".fastq.gz" ]]; then
     module load seqkit
-    SEQFILE="${IN_SEQFILE%.f*q*}.fasta"
+    SEQFILE=$(basename "${IN_SEQFILE%.f*q*}.fasta")
     echo -e "\nConverting FASTQ file:\n ${IN_SEQFILE}\nto FASTA file:\n ${SEQFILE}\nwith:"
     which seqkit
     seqkit --threads $THREADS fq2fa $IN_SEQFILE -o $SEQFILE
@@ -51,13 +51,16 @@ echo
 fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID
 
 echo "FCS-genome screen complete.  Collecting taxa summaries."
+echo -e "command:\n ${FCG_REPO}/collect_FCS_taxa_summaries.sh $OUTDIR"
 ${FCG_REPO}/collect_FCS_taxa_summaries.sh $OUTDIR 
 
 if [[ -n $CLEAN ]]; then
+    # get output filename without path for output
+    SEQFILE_NAME=$(basename $SEQFILE)
     echo "Running FCS clean genome with action report $OUTDIR/*fcs_gx_report.txt"
     echo "command:"
-    echo "cat $SEQFILE | fcs.py clean genome --action-report $OUTDIR/*fcs_gx_report.txt --output $SEQFILE-clean.fa --contam-fasta-out $SEQFILE-contam.fa"
-    cat $SEQFILE | fcs.py clean genome --action-report $OUTDIR/*fcs_gx_report.txt --output $SEQFILE-clean.fa --contam-fasta-out $SEQFILE-contam.fa
+    echo "cat $SEQFILE | fcs.py clean genome --action-report $OUTDIR/*fcs_gx_report.txt --output $SEQFILE_NAME-clean.fa --contam-fasta-out $SEQFILE_NAME-contam.fa"
+    cat $SEQFILE | fcs.py clean genome --action-report $OUTDIR/*fcs_gx_report.txt --output $SEQFILE_NAME-clean.fa --contam-fasta-out $SEQFILE_NAME-contam.fa
 fi
 
 date
