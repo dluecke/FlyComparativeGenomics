@@ -45,7 +45,7 @@ for MP in ${MISSING_PURGED[*]}; do
 done
 
 # check lineage lists the same, otherwise end
-if [ "${LINEAGES[*]}" == "${LINEAGES_PURGED[*]}"]; then
+if [[ "${LINEAGES[*]}" == "${LINEAGES_PURGED[*]}" ]]; then
     echo -e "Finding purged Buscos from lineages:\n ${LINEAGES[*]}"
 else
     echo "Lineages in $DIR_ORIGINAL and $DIR_PURGED do not match"
