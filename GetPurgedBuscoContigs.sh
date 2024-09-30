@@ -49,6 +49,8 @@ if [ "${LINEAGES[*]}" == "${LINEAGES_PURGED[*]}"]; then
     echo -e "Finding purged Buscos from lineages:\n ${LINEAGES[*]}"
 else
     echo "Lineages in $DIR_ORIGINAL and $DIR_PURGED do not match"
+    echo -e "$DIR_ORIGINAL lineages:\n ${LINEAGES[*]}"
+    echo -e "$DIR_PURGED lineages:\n ${LINEAGES_PURGED[*]}"
     usage
 fi
 
