@@ -41,7 +41,7 @@ done
 
 LINEAGES_PURGED=()
 for MP in ${MISSING_PURGED[*]}; do
-    LINEAGES_PURGED+=(echo $MP | sed 's/.*run_\([a-z]*\)_odb[0-9]*.*/\1/')
+    LINEAGES_PURGED+=($(echo $MP | sed 's/.*run_\([a-z]*\)_odb[0-9]*.*/\1/'))
 done
 
 # check lineage lists the same, otherwise end
