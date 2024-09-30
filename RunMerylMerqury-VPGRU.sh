@@ -18,6 +18,8 @@ usage() {
 
 # call usage if no args or "-h" 
 [ $# -eq 0 ] && usage
+[[ "$*" == *" -h"* || $1 == "-h" ]] && usage
+
 
 # last 2 args the reference and query seq files
 READS_FASTQ="${@: -2:1}"

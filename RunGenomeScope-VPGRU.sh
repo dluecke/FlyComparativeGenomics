@@ -20,7 +20,7 @@ usage() {
 
 # call usage if no args or "-h"
 [ $# -eq 0 ] && usage
-[[ "$*" == *"-h "* ]] && usage
+[[ "$*" == *" -h"* || $1 == "-h" ]] && usage
 
 # default parameter values
 # last arg is the seq file
