@@ -15,7 +15,7 @@
 usage() {
     echo "USAGE: $0 ORIGINAL_ASM_BUSCO/ PURGED_ASM_BUSCO/"
     echo "Directories with Busco runs BEFORE and AFTER contig purging"
-    echo "Each Busco lineage must be represented in each"
+    echo "Each Busco lineage must be represented in both"
     exit 0
 }
 
@@ -36,7 +36,7 @@ MISSING_PURGED=($(find $DIR_PURGED -type f -name "missing_busco_list.tsv" -print
 # get lineage array from each file path, will use to check are making correct comps
 LINEAGES=()
 for MO in ${MISSING_ORIGINAL[*]}; do
-    LINEAGES+=(echo $MO | sed 's/.*run_\([a-z]*\)_odb[0-9]*.*/\1/')
+    LINEAGES+=($(echo $MO | sed 's/.*run_\([a-z]*\)_odb[0-9]*.*/\1/'))
 done
 
 LINEAGES_PURGED=()
