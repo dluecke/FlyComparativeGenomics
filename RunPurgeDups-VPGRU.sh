@@ -6,7 +6,7 @@
 #    Ceres modules for purge_dups and minimap2
 
 usage() { 
-    echo "USAGE: $0 [-o|-t|-p|-h] PCTG_ASM.fa[sta] HIFI_ASM_ALIGN.paf[.gz]"
+    echo "USAGE: $0 [-o|-m|-t|-p|-h] PCTG_ASM.fa[sta] HIFI_ASM_ALIGN.paf[.gz]"
     echo "  -o STRING prefix for purged output, default PCTG_ASM-DeDup"
     echo "  -m INT depth for manual cutoff, default NULL and auto-cutoff"
     echo "  -t INT threads, default 32"
