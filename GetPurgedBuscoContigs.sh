@@ -66,11 +66,11 @@ fi
 
 for i in ${!LINEAGES[@]}; do 
     comm -13 <(sort ${MISSING_PURGED[i]}) <(sort ${MISSING_ORIGINAL[i]}) \
-        > BuscosPurged-genes-${LINEAGE[i]}.txt
+        > BuscosPurged-genes-${LINEAGES[i]}.txt
     while read BUSCO; do
         grep $BUSCO ${FULL_TABLE[i]} | awk '{print $3}'
-    done < BuscosPurged-genes-${LINEAGE[i]}.txt | sort -u \
-        > BuscosPurged-contigs-${LINEAGE[i]}.txt
+    done < BuscosPurged-genes-${LINEAGES[i]}.txt | sort -u \
+        > BuscosPurged-contigs-${LINEAGES[i]}.txt
 done
 
 # get union of contigs from all lineages
