@@ -32,6 +32,8 @@ DIR_PURGED=$2
 # NOTE: find output to array only works if no directories have space or special characters
 MISSING_ORIGINAL=($(find $DIR_ORIGINAL -type f -name "missing_busco_list.tsv" -print | sort))
 MISSING_PURGED=($(find $DIR_PURGED -type f -name "missing_busco_list.tsv" -print | sort))
+# get files for Buscos/contig relationship
+FULL_TABLE=($(find $DIR_ORIGINAL -type f -name "full_table.tsv" -print | sort))
 
 # get lineage array from each file path, will use to check are making correct comps
 LINEAGES=()
@@ -44,10 +46,17 @@ for MP in ${MISSING_PURGED[*]}; do
     LINEAGES_PURGED+=($(echo $MP | sed 's/.*run_\([a-z]*\)_odb[0-9]*.*/\1/'))
 done
 
+LINEAGES_TABLE=()
+for FT in ${FULL_TABLE[*]}; do
+    LINEAGES_TABLE+=($(echo $FT | sed 's/.*run_\([a-z]*\)_odb[0-9]*.*/\1/'))
+done
+
+
 # check lineage lists the same, otherwise end
-if [[ "${LINEAGES[*]}" == "${LINEAGES_PURGED[*]}" ]]; then
+if [[ ("${LINEAGES[*]}" == "${LINEAGES_PURGED[*]}") && \
+      ("${LINEAGES[*]}" == "${LINEAGES_TABLE[*]}") ]]; then
     echo -e "Finding purged Buscos from lineages:\n ${LINEAGES[*]}"
-else
+else 
     echo "Lineages in $DIR_ORIGINAL and $DIR_PURGED do not match"
     echo -e "$DIR_ORIGINAL lineages:\n ${LINEAGES[*]}"
     echo -e "$DIR_PURGED lineages:\n ${LINEAGES_PURGED[*]}"
@@ -55,3 +64,14 @@ else
 fi
 
 
+for i in ${!LINEAGES[@]}; do 
+    comm -13 <(sort ${MISSING_PURGED[i]}) <(sort ${MISSING_ORIGINAL[i]}) \
+        > BuscosPurged-genes-${LINEAGE[i]}.txt
+    while read BUSCO; do
+        grep $BUSCO ${FULL_TABLE[i]} | awk '{print $3}'
+    done < BuscosPurged-genes-${LINEAGE[i]}.txt | sort -u \
+        > BuscosPurged-contigs-${LINEAGE[i]}.txt
+done
+
+# get union of contigs from all lineages
+cat BuscosPurged-contigs-*.txt | sort -u > BuscosPurged-contigs_union.txt
