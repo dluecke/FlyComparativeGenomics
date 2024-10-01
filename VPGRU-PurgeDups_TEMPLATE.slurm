@@ -31,6 +31,19 @@ echo -e " calcuts $PD_OUT/PB.stat > cutoffs.$PD_OUT 2>calcuts.$PD_OUT.log"
 pbcstat -O $PD_OUT $PAF_IN
 calcuts $PD_OUT/PB.stat > cutoffs.$PD_OUT 2>calcuts.$PD_OUT.log
 
+if [[ -n $M_CUT ]]; then
+    # get -l and -u values from auto-cutoff file
+    CUT_VALS=($(awk '{print $1, $NF}' cutoffs.$PD_OUT))
+    echo "Finding manual cutoff thresholds"
+    echo -e "command:\n calcuts -l ${CUT_VALS[0]} -m $M_CUT -u ${CUT_VALS[1]} $PD_OUT/PB.stat \
+        > cutoffs_manual.$PD_OUT 2>calcuts_manual.$PD_OUT.log"
+    calcuts -l ${CUT_VALS[0]} -m $M_CUT -u ${CUT_VALS[1]} $PD_OUT/PB.stat \
+        > cutoffs_manual.$PD_OUT 2>calcuts_manual.$PD_OUT.log
+    CUTOFFS=cutoffs_manual.$PD_OUT
+else
+    CUTOFFS=cutoffs.$PD_OUT
+fi
+
 echo "Starting assembly self-alignment"
 echo -e "Commands:\n split_fa $PRI_ASM > $ASM_SPLIT"
 echo " minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | gzip -c - > $ASM_SPLIT.self.paf.gz"
@@ -39,8 +52,9 @@ minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | \
     gzip -c - > $ASM_SPLIT.self.paf.gz
 
 echo "Running main purge_dups step"
-echo -e "Command:\n purge_dups -2 -T cutoffs.$PD_OUT -c $PD_OUT/PB.base.cov $ASM_SPLIT.self.paf.gz > dups.$PD_OUT.bed 2> purge_dups.$PD_OUT.log"
-purge_dups -2 -T cutoffs.$PD_OUT -c $PD_OUT/PB.base.cov \
+echo -e "Command:\n purge_dups -2 -T $CUTOFFS -c $PD_OUT/PB.base.cov $ASM_SPLIT.self.paf.gz \
+    > dups.$PD_OUT.bed 2> purge_dups.$PD_OUT.log"
+purge_dups -2 -T $CUTOFFS -c $PD_OUT/PB.base.cov \
     $ASM_SPLIT.self.paf.gz > \
     dups.$PD_OUT.bed 2> purge_dups.$PD_OUT.log
 
