@@ -74,4 +74,9 @@ singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juice
   mv $YAHS_OUT.JBAT.hic.part $YAHS_OUT.JBAT.hic
 
 echo "juicer steps finished"
-date
+
+echo "calculating assembly statistics"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img \
+   gfastats ${YAHS_OUT}_scaffolds_final.fa > ${YAHS_OUT}_scaffolds_final.fa.stats
+
+echo; date
