@@ -5,7 +5,6 @@
 #SBATCH -c 9
 #SBATCH -p mem
 #SBATCH -N 1
-#SBATCH -t 2-00:00:00
 
 module load samtools/1.17
 module load bcftools/1.20
