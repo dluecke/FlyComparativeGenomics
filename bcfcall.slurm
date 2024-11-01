@@ -29,7 +29,7 @@ date
 
 # write csv counting variant lines per scaffold
 echo "counting variants per scaffold, command:"
-echo "grep -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $1","$2}' > $BAM.nseg_by_scaffold.csv"
+echo "grep -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv"
 grep -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $1","$2}' > $BAM.nseg_by_scaffold.csv
 
 date
