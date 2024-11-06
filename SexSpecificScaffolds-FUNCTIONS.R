@@ -38,6 +38,7 @@ make_df.sexbias <- function(l.IN_FILES){
                         depthM = IN_DEPTHM[SCAFFOLDS,],
                         n_varF = IN_NVARIF[SCAFFOLDS,],
                         n_varM = IN_NVARIM[SCAFFOLDS,])
+  SEXBIAS[is.na(SEXBIAS)] = 0
   # proportion of total length per scaffold
   SEXBIAS$pr_length <- SEXBIAS$length / sum(SEXBIAS$length)
   # length-weighted normalized depths
