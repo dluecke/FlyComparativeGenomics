@@ -2,7 +2,7 @@
 #SBATCH -J bcfcall
 #SBATCH -o "bcf.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "bcf.%j.%N.stderr"
-#SBATCH -c 9
+#SBATCH -c 17
 #SBATCH -p mem
 #SBATCH -N 1
 
@@ -22,14 +22,14 @@ echo "indexing $BAM"
 samtools index -M $BAM
 
 echo "writing VCF file, command:"
-echo "bcftools mpileup --threads 8 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 8 -cv -Ov -o $BAM.vcf"
-bcftools mpileup --threads 8 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 8 -cv -Ov -o $BAM.vcf
+echo "bcftools mpileup --threads 16 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf"
+bcftools mpileup --threads 16 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf
 echo "VCF file done"
 date
 
 # write csv counting variant lines per scaffold
 echo "counting variants per scaffold, command:"
-echo "grep -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv"
-grep -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv
+echo "grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > $BAM.nseg_by_scaffold.csv"
+grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv
 
 date
