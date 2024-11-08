@@ -5,6 +5,7 @@
 #SBATCH -c 32
 #SBATCH -p medium
 #SBATCH -N 1
+#SBATCH -C INTEL
 
 # USAGE: sbatch path/to/bwa.slurm ASSEMBLY INDEX READS.tsv
 # INDEX the string for bwa index
