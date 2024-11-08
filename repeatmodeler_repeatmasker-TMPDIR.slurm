@@ -30,6 +30,15 @@ echo "RepeatModeler -threads 32 -database $DB_NAME"
 RepeatModeler -threads 32 -database $DB_NAME
 date
 
+echo "RepeadModeler finished. Moving results from $TMPDIR to $WORKDIR"
+echo "commands:"
+echo " rsync -rv ${TMPDIR}/RM* $WORKDIR"
+echo " rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR"
+rsync -rv ${TMPDIR}/RM* $WORKDIR
+rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR
+
+date
+
 echo "Running RepeatMasker on $ASM with library RM_*/consensi.fa.classified"
 which RepeatMasker
 
@@ -40,13 +49,9 @@ RepeatMasker -pa 32 -xsmall -dir repmask_RepModLib_${DB_NAME} -e rmblast -lib co
 
 date
 
-echo "Moving results from $TMPDIR to $WORKDIR"
+echo "RepeatMasker done. Moving results from $TMPDIR to $WORKDIR"
 echo "commands:"
 echo " rsync -rv ${TMPDIR}/repmask_RepModLib_${DB_NAME} $WORKDIR"
-echo " rsync -rv ${TMPDIR}/RM* $WORKDIR"
-echo " rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR"
 rsync -rv ${TMPDIR}/repmask_RepModLib_${DB_NAME} $WORKDIR
-rsync -rv ${TMPDIR}/RM* $WORKDIR
-rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR
 
 date
