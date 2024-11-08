@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J repeatModMask-TMPDIR
+#SBATCH -J repeatMask-TMPDIR
 #SBATCH -o "rm-%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "rm-%j.%N.stderr"
 #SBATCH -c 32
