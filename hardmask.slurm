@@ -12,12 +12,19 @@
 # writes assembly.hardmasked.fa.nmasked.csv file with
 #    total length and number masked bases per scaffold
 
+date 
+
 module load seqtk
+which seqtk
 
 ASM=$1
 HMASM=$(echo $ASM | sed 's/masked/hardmasked/')
 
+echo "writing hardmasked verison of $ASM: $HMASM"
+
 tr '[actg]' 'N' < $ASM | sed 's/sNNffold/scaffold/' > $HMASM
+
+echo "writing CSV with scaffold lengths and number masked bp: $HMASM.nmasked.csv"
 
 while read SCAF; do 
     LENGTH=$(seqtk subseq $HMASM <(echo $SCAF) | tail -n1 | wc -c)
@@ -25,3 +32,4 @@ while read SCAF; do
     echo $SCAF,$LENGTH,$MASKED
 done < <(grep ">" $HMASM | tr -d '>') > $HMASM.nmasked.csv
 
+date
