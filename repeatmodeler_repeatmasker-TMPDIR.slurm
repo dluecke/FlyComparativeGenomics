@@ -34,7 +34,7 @@ echo "Running RepeatMasker on $ASM with library RM_*/consensi.fa.classified"
 which RepeatMasker
 
 cp RM_*/consensi.fa.classified .
-echo "command:"ls
+echo "command:"
 echo "RepeatMasker -pa 32 -xsmall -dir repmask_RepModLib_${DB_NAME} -e rmblast -lib consensi.fa.classified $ASM"
 RepeatMasker -pa 32 -xsmall -dir repmask_RepModLib_${DB_NAME} -e rmblast -lib consensi.fa.classified $ASM
 
@@ -42,9 +42,10 @@ date
 
 echo "Moving results from $TMPDIR to $WORKDIR"
 echo "commands:"
-echo " rsync -rv repmask_RepModLib_${DB_NAME}"
+echo " rsync -rv ${TMPDIR}/repmask_RepModLib_${DB_NAME} $WORKDIR"
 echo " rsync -rv ${TMPDIR}/RM* $WORKDIR"
 echo " rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR"
+rsync -rv ${TMPDIR}/repmask_RepModLib_${DB_NAME} $WORKDIR
 rsync -rv ${TMPDIR}/RM* $WORKDIR
 rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR
 
