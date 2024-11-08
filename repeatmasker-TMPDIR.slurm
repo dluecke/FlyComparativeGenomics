@@ -14,20 +14,20 @@ ASM=$1
 DB_NAME=$2
 WORKDIR=$PWD
 
-echo "Running repeatmodeler on assembly $1 with output $2"
-which RepeatModeler
+#echo "Running repeatmodeler on assembly $1 with output $2"
+#which RepeatModeler
 
 echo "Running in TMPDIR: ${TMPDIR} to avoid I/O limit"
 cp $ASM ${TMPDIR}
 cp RM_*/consensi.fa.classified ${TMPDIR}
 cd ${TMPDIR}
 
-echo "command:"
-echo "BuildDatabase -name $DB_NAME $ASM"
+#echo "command:"
+#echo "BuildDatabase -name $DB_NAME $ASM"
 #BuildDatabase -name $DB_NAME $ASM
 
-echo "command:"
-echo "RepeatModeler -threads 32 -database $DB_NAME"
+#echo "command:"
+#echo "RepeatModeler -threads 32 -database $DB_NAME"
 #RepeatModeler -threads 32 -database $DB_NAME
 #date
 
