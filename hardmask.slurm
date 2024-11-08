@@ -12,6 +12,8 @@
 # writes assembly.hardmasked.fa.nmasked.csv file with
 #    total length and number masked bases per scaffold
 
+module load seqtk
+
 ASM=$1
 HMASM=$(echo $ASM | sed 's/masked/hardmasked/')
 
