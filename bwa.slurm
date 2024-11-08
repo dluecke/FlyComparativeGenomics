@@ -12,6 +12,8 @@
 # READS.tsv in this format:
 # SampleID  path/to/R1.fastq    path/to/R2.fastq
 
+date
+
 module load bwa_mem2/2.2.1
 module load samtools/1.17
 
@@ -29,6 +31,8 @@ which samtools
 echo "indexing assembly, command:"
 echo " bwa-mem2 index -p $INDEX $ASSEMBLY"
 bwa-mem2 index -p $INDEX $ASSEMBLY
+echo "indexing complete"
+date
 
 # function for mapping steps, call with SAMPLE, R1, R2
 Map_GetDepths() {
