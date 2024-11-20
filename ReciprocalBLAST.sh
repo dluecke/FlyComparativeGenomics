@@ -37,3 +37,9 @@ while read QRY; do
     echo -e "$QRY\t$TOPHIT\t$RECIP\t$CHECK"
 done < $QUERYLIST > ReciprocalBlastResults.tsv
 
+# BLAST results for hit pairs, grep from full results for multiple hits of same pair
+while read Y; do 
+  Q=$(echo $Y | cut -f1 -d' ')
+  T=$(echo $Y | cut -f2 -d' ')
+  grep "$Q" blastp_out6-query_on_target.tsv | grep "$T"
+done < <(grep "yes" ReciprocalBlastResults.tsv) > blastp_out6-ReciprocalHitPairs.tsv
