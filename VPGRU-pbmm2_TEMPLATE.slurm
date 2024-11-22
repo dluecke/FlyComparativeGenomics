@@ -24,6 +24,8 @@ echo -e "Job name:\n pbmm2-${OUT_PREFIX}\n"
 pbmm2 --version
 echo -e "\nCommand:\n pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
 pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
+echo -e "\n pbmm2 align finished at:"
+date
 
 # load samtools if needed
 if [[ -n $SAM_OUT || -n $PAF_OUT || -n $GET_DEPTH ]]; then
@@ -35,6 +37,8 @@ if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
     echo -e "\nUsing samtools to produce SAM file ${OUT_PREFIX}.sam"
     echo -e "\nCommand:\n samtools view -h ${OUT_PREFIX}.bam > ${OUT_PREFIX}.sam\n"
     samtools view -h ${OUT_PREFIX}.bam > ${OUT_PREFIX}.sam
+    echo -e "\n samtools view finished at:"
+    date
 fi
 
 if [[ -n $PAF_OUT ]]; then
@@ -44,6 +48,8 @@ if [[ -n $PAF_OUT ]]; then
     minimap2 --version
     echo -e "\nCommand:\n paftools.js sam2paf ${OUT_PREFIX}.sam | gzip -c - > ${OUT_PREFIX}.paf.gz"
     paftools.js sam2paf ${OUT_PREFIX}.sam | gzip -c - > ${OUT_PREFIX}.paf.gz
+    echo -e "\n paftools.js sam2paf finshed at:"
+    date
 fi
 
 if [[ -n $GET_DEPTH ]]; then
@@ -51,6 +57,9 @@ if [[ -n $GET_DEPTH ]]; then
     echo -e "\nUsing samtools to write ${OUT_PREFIX}.depth.tsv"
     echo -e "\nCommand:\n samtools depth ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv"
     samtools depth ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
+    echo -e "\n samtools depth finished at:"
+    date
+    
     # get average per scaffold, asorti() to sort by scaffold name
     awk '{ 
             sum[$1] += $3
