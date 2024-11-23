@@ -27,6 +27,14 @@ pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OU
 echo -e "\n pbmm2 align finished at:"
 date
 
+# submit BAM to bcfcall.slurm if requested
+if [[ -n $CALL_VARS ]]; then
+    echo -e "\nUsing bcftools to write:\n ${OUT_PREFIX}.bam.vcf\n \
+    ${OUT_PREFIX}.bam.nseg_by_scaffold.csv"
+    echo -e "Command:\n sbatch bcfcall.slurm ${OUT_PREFIX}.bam ${ASM_FASTA}"
+    sbatch bcfcall.slurm ${OUT_PREFIX}.bam ${ASM_FASTA}
+fi
+
 # load samtools if needed
 if [[ -n $SAM_OUT || -n $PAF_OUT || -n $GET_DEPTH ]]; then
     module load samtools
@@ -59,7 +67,7 @@ if [[ -n $GET_DEPTH ]]; then
     samtools depth ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
     echo -e "\n samtools depth finished at:"
     date
-    
+
     # get average per scaffold, asorti() to sort by scaffold name
     awk '{ 
             sum[$1] += $3
