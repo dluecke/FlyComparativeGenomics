@@ -51,7 +51,7 @@ make_l.coords_breaks <- function(INFILE, INFILE_BREAKS){
   df.breaksRef <- df.breaksRef[-nrow(df.breaksRef),]
   df.breaksQry <- df.breaksQry[-nrow(df.breaksQry),]
   
-  return( list(coords = df.coords, breaksRef = df.breaksRef, breaksQry = df.breaksQry) )
+  return( list(coords = df.coords, breaksRef = df.breaksRef, breaksQry = df.breaksQry, filename = INFILE) )
 }
 
 # Function to build a df with subset of coordinates from given sequence names in order given, by default returns df.coords
@@ -292,4 +292,69 @@ GetMatchStats <- function(L.COORDS){
 }
 
 
+# Function to get scaffold clusters of mutual homology based on top pairwise sum of match lengths
+# written to be embedded in GetHomologs() below
+# takes main reference and query scaffold as definted in GetHomologs() df.HOMOLOGS
+# takes full pairwise list of match lengths sums as GetHomologs() df.MATCHES
+GetHomologCluster <- function(MainRef, MainQry, DF.MATCHES){
+  
+  MatchedRefs <- DF.MATCHES %>% 
+    filter(qry_SeqName == MainQry, matchsum > 0) %>% select(ref_SeqName)
+  ClusterRefs <- DF.MATCHES %>% 
+    filter(ref_SeqName %in% MatchedRefs$ref_SeqName) %>% 
+    group_by(ref_SeqName) %>% slice(which.max(matchsum)) %>% 
+    filter(qry_SeqName == MainQry) %>% select(ref_SeqName) %>% 
+    arrange(nchar(ref_SeqName))
+  
+  MatchedQrys <- DF.MATCHES %>% 
+    filter(ref_SeqName == MainRef, matchsum > 0) %>% select(qry_SeqName)
+  ClusterQrys <- DF.MATCHES %>% 
+    filter(qry_SeqName %in% MatchedQrys$qry_SeqName) %>% 
+    group_by(qry_SeqName) %>% slice(which.max(matchsum)) %>% 
+    filter(ref_SeqName == MainRef) %>% select(qry_SeqName) %>% 
+    arrange(nchar(qry_SeqName))
+  
+  return(list(RefScafs = ClusterRefs$ref_SeqName,
+              QryScafs = ClusterQrys$qry_SeqName))
+}
+
+# Function to get unambiguous homologous scaffolds across female/male assemblies
+# takes L.COORDS from make_l.coords_breaks()
+# outputs list with unambiguous list and all matches sorted by sum of match lengths
+GetHomologs <- function(L.COORDS){
+  
+  # sum of match lengths for each pair
+  df.MATCHES <- L.COORDS$coords %>% group_by(ref_SeqName, qry_SeqName) %>% 
+    summarize(matchsum=sum(ref_length)) %>% arrange(desc(matchsum)) %>% ungroup
+  
+  # top partner for each scaffold in both assemblies
+  df.HOMOLOGS <- rbind(df.MATCHES[!duplicated(df.MATCHES$ref_SeqName),], 
+                       df.MATCHES[!duplicated(df.MATCHES$qry_SeqName),]) %>% 
+    # keep reciprocal pairs (present in both lists)
+    group_by(ref_SeqName, qry_SeqName) %>% count %>% filter(n == 2) %>% 
+    # keep scaffold name columns and order by name length
+    select(ref_SeqName, qry_SeqName) %>% arrange(nchar(ref_SeqName)) %>% ungroup
+  
+  # find homology clusters based on unambiguous pairs in df.HOMOLOGS
+  HomologsIndex <- paste("Homolog", sprintf("%03d", seq_len(nrow(df.HOMOLOGS))), sep = "_")
+  l.CLUSTERS <- by(df.HOMOLOGS, HomologsIndex , function(x) 
+    GetHomologCluster(x$ref_SeqName, x$qry_SeqName, df.MATCHES) )
+  # check that clusters are non-overlapping
+  AllClusterRefs <- lapply(l.CLUSTERS, function(x){ x$RefScafs }) %>% unlist
+  if( sum(duplicated(AllClusterRefs) ) > 0) {
+    warning( paste0(c("Homology clusters have overlapping reference scaffolds:",
+                     AllClusterRefs[duplicated(AllClusterRefs)]), 
+                   sep = " " ) )
+  }
+  AllClusterQrys <- lapply(l.CLUSTERS, function(x){ x$QryScafs }) %>% unlist
+  if( sum(duplicated(AllClusterQrys) ) > 0) {
+    warning( paste0(c("Homology clusters have overlapping query scaffolds:",
+                      AllClusterQrys[duplicated(AllClusterQrys)]), 
+                    sep = " " ) )
+  }
+  
+  return(list(homologs = df.HOMOLOGS,
+              matches = df.MATCHES,
+              clusters = l.CLUSTERS))
+}
 
