@@ -100,8 +100,8 @@ horizontal_synteny_plot(ft_1 = FT_ScalF, ft_2 = FT_ScalM, karyotype_1 = KT_ScalF
 horizontal_synteny_plot(ft_1 = FT_FcanF, ft_2 = FT_HaenF, karyotype_1 = KT_FcanF, karyotype_2 = KT_HaenF, output_path = 'synteny_FcanF-HaenF.png')
 horizontal_synteny_plot(ft_1 = FT_FcanM, ft_2 = FT_HaenM, karyotype_1 = KT_FcanM, karyotype_2 = KT_HaenM, output_path = 'synteny_FcanM-HaenM.png')
 
-horizontal_synteny_plot(ft_1 = FT_FcanF, ft_2 = FT_MautF, karyotype_1 = KT_MautF, karyotype_2 = KT_HaenF, output_path = 'synteny_FcanF-MautF.png')
-horizontal_synteny_plot(ft_1 = FT_FcanM, ft_2 = FT_MautM, karyotype_1 = KT_MautM, karyotype_2 = KT_HaenM, output_path = 'synteny_FcanM-MautM.png')
+horizontal_synteny_plot(ft_1 = FT_FcanF, ft_2 = FT_MautF, karyotype_1 = KT_FcanF, karyotype_2 = KT_MautF, output_path = 'synteny_FcanF-MautF.png')
+horizontal_synteny_plot(ft_1 = FT_FcanM, ft_2 = FT_MautM, karyotype_1 = KT_FcanM, karyotype_2 = KT_MautM, output_path = 'synteny_FcanM-MautM.png')
 
 horizontal_synteny_plot(ft_1 = FT_FcanF, ft_2 = FT_ScalF, karyotype_1 = KT_FcanF, karyotype_2 = KT_ScalF, output_path = 'synteny_FcanF-ScalF.png')
 horizontal_synteny_plot(ft_1 = FT_FcanM, ft_2 = FT_ScalM, karyotype_1 = KT_FcanM, karyotype_2 = KT_ScalM, output_path = 'synteny_FcanM-ScalM.png')
