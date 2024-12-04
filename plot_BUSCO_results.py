@@ -82,14 +82,14 @@ horizontal_synteny_plot(ft_1 = FT_MautF, ft_2 = FT_MautM, karyotype_1 = KT_MautF
 # Scal
 FT_ScalF = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Scal/female/Scal_F-v1_diptera/run_diptera_odb10/full_table.tsv')
 KT_ScalF = pd.read_csv('/90daydata/vpgru/DavidLuecke/Finished/Scal/female/ScalF_karyotype.tsv', sep='\t')
-KT_ScalF['organism'] = 'M autumnalis female'
+KT_ScalF['organism'] = 'S. calcitrans female'
 KT_ScalF['color'] = '#d43a3f'
 
 karyoplot(karyotype = KT_ScalF, fulltable = FT_ScalF, output_file = "karyoplot_ScalF.png")
 
 FT_ScalM = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Scal/male/Scal_M-v1_diptera/run_diptera_odb10/full_table.tsv')
 KT_ScalM = pd.read_csv('/90daydata/vpgru/DavidLuecke/Finished/Scal/male/ScalM_karyotype.tsv', sep='\t')
-KT_ScalM['organism'] = 'M autumnalis male'
+KT_ScalM['organism'] = 'S. calcitrans male'
 KT_ScalM['color'] = '#9b2226'
 
 karyoplot(karyotype = KT_ScalM, fulltable = FT_ScalM, output_file = "karyoplot_ScalM.png")
