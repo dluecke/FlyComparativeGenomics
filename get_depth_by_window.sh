@@ -16,6 +16,6 @@ awk -v win=$WINDOW -v OFS='\t' '{w=int($2/win)} {print $0, $1"-"w}' $DEPTHFILE |
     awk -v OFS='\t' '{
         split($1, arr, "-")
     } END {
-        print length(arr[1]), arr[1], arr[2], $00015}' depth_windows.tsv |\
+        print length(arr[1]), arr[1], arr[2], $00015}' |\
     sort -k1,1n -k2,2 -k3,3n | cut -f2-6 > $OUTFILE
 
