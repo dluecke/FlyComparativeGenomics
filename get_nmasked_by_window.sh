@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # get n masked bases per window
-
+# requires seqtk, written with v1.3
 
 HMASM=$1
 WINDOW=100000
@@ -14,9 +14,9 @@ while read SCAF; do
         END0=$(((i+1)*WINDOW-1))
         END=$((END0 < LENGTH ? END0 : LENGTH))
         WINDOW_LENGTH=$((END-BEG+1))
-        WINDOW_MASKED=$(seqtk subseq Cmac_v2h.fasta \
+        WINDOW_MASKED=$(seqtk subseq $HMASM \
             <(echo -e "$SCAF\t$BEG\t$END") | \
             tr -c -d 'N' | wc -c)
         echo $SCAF-$i, $WINDOW_LENGTH, $WINDOW_MASKED
     done
-done < <(grep ">" $HMASM | tr -d '>') > $HMASM.windows_nmasked.csv
+done < <(grep ">" $HMASM | tr -d '>' | awk '{print $1}') > $HMASM.windows_nmasked.csv
