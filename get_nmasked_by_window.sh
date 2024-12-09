@@ -13,10 +13,12 @@ while read SCAF; do
         BEG=$((i*WINDOW))
         END0=$(((i+1)*WINDOW-1))
         END=$((END0 < LENGTH ? END0 : LENGTH))
-        WINDOW_LENGTH=$((END-BEG+1))
+        WINDOW_LENGTH=$(seqtk subseq $HMASM \
+            <(echo -e "$SCAF\t$BEG\t$END") | \
+            tail -n1 | tr -d '\n' | wc -c)
         WINDOW_MASKED=$(seqtk subseq $HMASM \
             <(echo -e "$SCAF\t$BEG\t$END") | \
-            tr -c -d 'N' | wc -c)
+            tail -n1 | tr -c -d 'N' | wc -c)
         echo $SCAF-$i, $WINDOW_LENGTH, $WINDOW_MASKED
     done
 done < <(grep ">" $HMASM | tr -d '>' | awk '{print $1}') > $HMASM.windows_nmasked.csv
