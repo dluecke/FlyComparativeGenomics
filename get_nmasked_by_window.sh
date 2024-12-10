@@ -4,7 +4,10 @@
 # requires seqtk, written with v1.3
 
 HMASM=$1
-WINDOW=100000
+
+[[ -n $2 ]] && WIN_KB=$2 || WIN_KB=100
+
+WINDOW=$((WIN_KB*1000))
 
 while read SCAF; do 
     LENGTH=$(seqtk subseq $HMASM <(echo $SCAF) | tail -n1 | wc -c)
@@ -21,4 +24,4 @@ while read SCAF; do
             tail -n1 | tr -c -d 'N' | wc -c)
         echo $SCAF-$i, $WINDOW_LENGTH, $WINDOW_MASKED
     done
-done < <(grep ">" $HMASM | tr -d '>' | awk '{print $1}') > $HMASM.windows_nmasked.csv
+done < <(grep ">" $HMASM | tr -d '>' | awk '{print $1}') > $HMASM.windows${WIN_KB}kb_nmasked.csv

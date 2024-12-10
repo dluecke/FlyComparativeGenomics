@@ -9,9 +9,10 @@
 date
 
 DEPTHFILE=$1
+WIN_KB=$2
 
-echo "Counting average depth in 100kb windows of $DEPTHFILE"
-echo "output: $(echo $DEPTHFILE | sed 's/depth/depth_by_windows/')"
+echo "Counting average depth in ${WIN_KB}kb windows of $DEPTHFILE"
+echo "output: $(echo $DEPTHFILE | sed "s/depth/depth_by_windows${WIN_KB}kb/")"
 echo "command:"
-echo "~/FlyComparativeGenomics/get_depth_by_window.sh $DEPTHFILE"
-~/FlyComparativeGenomics/get_depth_by_window.sh $DEPTHFILE
+echo "~/FlyComparativeGenomics/get_depth_by_window.sh $DEPTHFILE $WIN_KB"
+~/FlyComparativeGenomics/get_depth_by_window.sh $DEPTHFILE $WIN_KB

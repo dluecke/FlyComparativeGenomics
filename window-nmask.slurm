@@ -10,10 +10,11 @@ date
 module load seqtk/1.3
 
 HMASM=$1
+WIN_KB=$2
 
-echo "Counting number masked bp in 100kb windows of $HMASM using"
+echo "Counting number masked bp in ${WIN_KB}kb windows of $HMASM using"
 which seqtk
-echo "output: $HMASM.windows_nmasked.csv"
+echo "output: $HMASM.windows${WIN_KB}kb_nmasked.csv"
 echo "command:"
-echo "~/FlyComparativeGenomics/get_nmasked_by_window.sh $HMASM"
-~/FlyComparativeGenomics/get_nmasked_by_window.sh $HMASM
+echo "~/FlyComparativeGenomics/get_nmasked_by_window.sh $HMASM $WIN_KB"
+~/FlyComparativeGenomics/get_nmasked_by_window.sh $HMASM $WIN_KB

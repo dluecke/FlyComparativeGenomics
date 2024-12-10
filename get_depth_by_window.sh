@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # get depth by windows
-WINDOW=100000
 DEPTHFILE=$1
-OUTFILE=$(echo $DEPTHFILE | sed 's/depth/depth_by_windows/')
+
+[[ -n $2 ]] && WIN_KB=$2 || WIN_KB=100
+
+WINDOW=$((WIN_KB*1000))
+
+OUTFILE=$(echo $DEPTHFILE | sed "s/depth/depth_by_windows${WIN_KB}kb/")
+
 awk -v win=$WINDOW -v OFS='\t' '{w=int($2/win)} {print $0, $1"-"w}' $DEPTHFILE | \
     awk -v OFS='\t' '{
         sum[$4] += $3; count[$4]++

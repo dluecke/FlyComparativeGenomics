@@ -9,9 +9,10 @@
 date
 
 VCFFILE=$1
+WIN_KB=$2
 
-echo "Counting variants in 100kb windows of $VCFFILE"
-echo "output: $VCFFILE.nvar_by_windows.tsv"
+echo "Counting variants in ${WIN_KB}kb windows of $VCFFILE"
+echo "output: $VCFFILE.nvar_by_windows${WIN_KB}kb.tsv"
 echo "command:"
-echo "~/FlyComparativeGenomics/get_variants_by_window.sh $VCFFILE"
-~/FlyComparativeGenomics/get_variants_by_window.sh $VCFFILE
+echo "~/FlyComparativeGenomics/get_variants_by_window.sh $VCFFILE $WIN_KB"
+~/FlyComparativeGenomics/get_variants_by_window.sh $VCFFILE $WIN_KB
