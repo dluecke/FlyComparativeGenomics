@@ -63,8 +63,8 @@ fi
 if [[ -n $GET_DEPTH ]]; then
     # considered using mpileup instead of depth but much slower and don't gain towards VCF pipeline (use bcftools mpileup for that)
     echo -e "\nUsing samtools to write ${OUT_PREFIX}.depth.tsv"
-    echo -e "\nCommand:\n samtools depth ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv"
-    samtools depth ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
+    echo -e "\nCommand:\n samtools depth -a ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv"
+    samtools depth -a ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
     echo -e "\n samtools depth finished at:"
     date
 

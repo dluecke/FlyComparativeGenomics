@@ -11,8 +11,8 @@ module load samtools/1.17
 BAM=$1
 
 echo -e "\nUsing samtools to write ${BAM}.depth.tsv"
-echo -e "\nCommand:\n samtools depth ${BAM} > ${BAM}.depth.tsv"
-samtools depth ${BAM} > ${BAM}.depth.tsv
+echo -e "\nCommand:\n samtools depth -a ${BAM} > ${BAM}.depth.tsv"
+samtools depth -a ${BAM} > ${BAM}.depth.tsv
 # get average per scaffold, asorti() to sort by scaffold name
 awk '{ 
         sum[$1] += $3

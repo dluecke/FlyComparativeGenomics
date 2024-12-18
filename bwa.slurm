@@ -47,8 +47,8 @@ Map_GetDepths() {
   echo "Submitting bcfcall.slurm job"
   sbatch ~/FlyComparativeGenomics/bcfcall.slurm $OUT.bam $ASSEMBLY
   echo -e "\nCalculating depth in $OUT.bam, command:"
-  echo " samtools depth $OUT.bam > $OUT.depth.tsv"
-  samtools depth $OUT.bam > $OUT.depth.tsv
+  echo " samtools depth -a $OUT.bam > $OUT.depth.tsv"
+  samtools depth -a $OUT.bam > $OUT.depth.tsv
   echo "Writing $OUT.depth_by_scaffold.tsv"
   awk '{
           sum[$1] += $3
