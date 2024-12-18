@@ -2,6 +2,7 @@
 
 # get depth by scaffold
 # takes samtools depth output TSV with 3 columns: seqid position depth
+# make sure to use -a option for samtools depth to report sites with depth=0
 # outputs depth_by_scaffold.tsv with 3 columns: seqid n_positions sum(depth)/n_positions
 DEPTHFILE=$1
 
