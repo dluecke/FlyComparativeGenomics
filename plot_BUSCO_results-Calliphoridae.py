@@ -89,5 +89,5 @@ horizontal_synteny_plot(ft_1 = FT_Lcup, ft_2 = FT_Bpan, karyotype_1 = KT_Lcup, k
 horizontal_synteny_plot(ft_1 = FT_Bpan, ft_2 = FT_Cvic, karyotype_1 = KT_Bpan, karyotype_2 = KT_Cvic, output_path = 'synteny_Bpan-Cvic.png')
 horizontal_synteny_plot(ft_1 = FT_Cvic, ft_2 = FT_Pter, karyotype_1 = KT_Cvic, karyotype_2 = KT_Pter, output_path = 'synteny_Cvic-Pter.png')
 horizontal_synteny_plot(ft_1 = FT_Pter, ft_2 = FT_Cmac, karyotype_1 = KT_Pter, karyotype_2 = KT_Cmac, output_path = 'synteny_Pter-Cmac.png')
-horizontal_synteny_plot(ft_1 = FT_Cmac, ft_2 = FT_Chom_old, karyotype_1 = KT_Cmac, karyotype_2 = KT_Chom_old, output_path = 'synteny_Lcup-Chom_old.png')
-horizontal_synteny_plot(ft_1 = FT_Cmac, ft_2 = FT_Chom_v1, karyotype_1 = KT_Cmac, karyotype_2 = KT_Chom_v1, output_path = 'synteny_Lcup-Chom_v1.png')
+horizontal_synteny_plot(ft_1 = FT_Cmac, ft_2 = FT_Chom_old, karyotype_1 = KT_Cmac, karyotype_2 = KT_Chom_old, output_path = 'synteny_Cmac-Chom_old.png')
+horizontal_synteny_plot(ft_1 = FT_Cmac, ft_2 = FT_Chom_v1, karyotype_1 = KT_Cmac, karyotype_2 = KT_Chom_v1, output_path = 'synteny_Cmac-Chom_v1.png')
