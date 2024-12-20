@@ -14,14 +14,14 @@ echo -e "\nUsing samtools to write ${BAM}.depth.tsv"
 echo -e "\nCommand:\n samtools depth -a ${BAM} > ${BAM}.depth.tsv"
 samtools depth -a ${BAM} > ${BAM}.depth.tsv
 # get average per scaffold, asorti() to sort by scaffold name
-awk '{ 
+awk -v OFS='\t' '{ 
         sum[$1] += $3
         count[$1]++
     } 
     END {
         n=asorti(count, indices); 
         for (i=1; i<=n; i++) {
-            print indices[i], "\t", sum[indices[i]]/count[indices[i]]
+            print indices[i], count[indices[i]], sum[indices[i]]/count[indices[i]]
         }
     }' ${BAM}.depth.tsv > ${BAM}.depth_by_scaffold.tsv
 

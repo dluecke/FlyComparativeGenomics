@@ -5,8 +5,8 @@
 #SBATCH -n 32                #number of cores/tasks in this job, you get all 20 physical cores with 2 threads per core with hyper-threading
 #SBATCH --mail-user=David.Luecke@usda.gov  #enter your email address to receive emails
 #SBATCH --mail-type=BEGIN,END,FAIL #will receive an email when job starts, ends or fails
-#SBATCH -o "stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
-#SBATCH -e "stderr.%j.%N"     #optional, prints our standard error
+#SBATCH -o "pbmm2.stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
+#SBATCH -e "pbmm2.stderr.%j.%N"     #optional, prints our standard error
 
 module load smrtlink
 
@@ -68,17 +68,12 @@ if [[ -n $GET_DEPTH ]]; then
     echo -e "\n samtools depth finished at:"
     date
 
-    # get average per scaffold, asorti() to sort by scaffold name
-    awk '{ 
-            sum[$1] += $3
-            count[$1]++
-        } 
-        END {
-            n=asorti(count, indices); 
-            for (i=1; i<=n; i++) {
-                print indices[i], "\t", sum[indices[i]]/count[indices[i]]
-            }
-        }' ${OUT_PREFIX}.depth.tsv > ${OUT_PREFIX}.depth_by_scaffold.tsv
+    echo -e "\nUsing get_depth_by_scaffold.sh to write ${OUT_PREFIX}.depth_by_scaffold.tsv"
+    echo -e "\nCommand:\n ${GITLOC}/get_depth_by_scaffold.sh ${OUT_PREFIX}.depth.tsv"
+    ${GITLOC}/get_depth_by_scaffold.sh ${OUT_PREFIX}.depth.tsv
+    echo -e "\n get_depth_by_scaffold.sh finished at:"
+    date
+
 fi
 
 date
