@@ -15,7 +15,7 @@ from buscoplotpy.graphics.synteny import horizontal_synteny_plot, vertical_synte
 FT_Dmel = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic_diptera/run_diptera_odb10/full_table.tsv')
 KT_Dmel = pd.read_csv('/90daydata/vpgru/DavidLuecke/Dmel/Dmel-karyotype.tsv', sep='\t')
 KT_Dmel['organism'] = 'D. melanogaster'
-KT_Dmel['color'] = '#52b765'
+KT_Dmel['color'] = '#808080'
 
 karyoplot(karyotype = KT_Dmel, fulltable = FT_Dmel, output_file = "karyoplot_Dmel.png")
 
@@ -24,7 +24,7 @@ karyoplot(karyotype = KT_Dmel, fulltable = FT_Dmel, output_file = "karyoplot_Dme
 FT_Bpan = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Bpan/Bpan_diptera/run_diptera_odb10/full_table.tsv')
 KT_Bpan = pd.read_csv('/90daydata/vpgru/DavidLuecke/Bpan/Bpan-karyotype.tsv', sep='\t')
 KT_Bpan['organism'] = 'B. pandia'
-KT_Bpan['color'] = '#52b765'
+KT_Bpan['color'] = '#800000'
 
 karyoplot(karyotype = KT_Bpan, fulltable = FT_Bpan, output_file = "karyoplot_Bpan.png")
 
@@ -33,7 +33,7 @@ karyoplot(karyotype = KT_Bpan, fulltable = FT_Bpan, output_file = "karyoplot_Bpa
 FT_Chom_old = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Chom/Chom_old_diptera/run_diptera_odb10/full_table.tsv')
 KT_Chom_old = pd.read_csv('/90daydata/vpgru/DavidLuecke/Chom/Chom_old-karyotype.tsv', sep='\t')
 KT_Chom_old['organism'] = 'C. hominivorax - old assembly'
-KT_Chom_old['color'] = '#52b765'
+KT_Chom_old['color'] = '#808000'
 
 karyoplot(karyotype = KT_Chom_old, fulltable = FT_Chom_old, output_file = "karyoplot_Chom_old.png")
 
@@ -41,7 +41,7 @@ karyoplot(karyotype = KT_Chom_old, fulltable = FT_Chom_old, output_file = "karyo
 FT_Chom_v1 = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Chom/Chom_v1_diptera/run_diptera_odb10/full_table.tsv')
 KT_Chom_v1 = pd.read_csv('/90daydata/vpgru/DavidLuecke/Chom/Chom_v1-karyotype.tsv', sep='\t')
 KT_Chom_v1['organism'] = 'C. hominivorax - v1'
-KT_Chom_v1['color'] = '#52b765'
+KT_Chom_v1['color'] = '#808000'
 
 karyoplot(karyotype = KT_Chom_v1, fulltable = FT_Chom_v1, output_file = "karyoplot_Chom_v1.png")
 
@@ -50,7 +50,7 @@ karyoplot(karyotype = KT_Chom_v1, fulltable = FT_Chom_v1, output_file = "karyopl
 FT_Cmac = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Cmac/Cmac_v2_diptera/run_diptera_odb10/full_table.tsv')
 KT_Cmac = pd.read_csv('/90daydata/vpgru/DavidLuecke/Cmac/Cmac-karyotype.tsv', sep='\t')
 KT_Cmac['organism'] = 'C. macellaria'
-KT_Cmac['color'] = '#52b765'
+KT_Cmac['color'] = '#008000'
 
 karyoplot(karyotype = KT_Cmac, fulltable = FT_Cmac, output_file = "karyoplot_Cmac.png")
 
@@ -59,7 +59,7 @@ karyoplot(karyotype = KT_Cmac, fulltable = FT_Cmac, output_file = "karyoplot_Cma
 FT_Cvic = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Cvic/Cvic_diptera/run_diptera_odb10/full_table.tsv')
 KT_Cvic = pd.read_csv('/90daydata/vpgru/DavidLuecke/Cvic/Cvic-karyotype.tsv', sep='\t')
 KT_Cvic['organism'] = 'Ca. vicina'
-KT_Cvic['color'] = '#52b765'
+KT_Cvic['color'] = '#800080'
 
 karyoplot(karyotype = KT_Cvic, fulltable = FT_Cvic, output_file = "karyoplot_Cvic.png")
 
@@ -68,7 +68,7 @@ karyoplot(karyotype = KT_Cvic, fulltable = FT_Cvic, output_file = "karyoplot_Cvi
 FT_Lcup = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Lcup/Lcup_diptera/run_diptera_odb10/full_table.tsv')
 KT_Lcup = pd.read_csv('/90daydata/vpgru/DavidLuecke/Lcup/Lcup-karyotype.tsv', sep='\t')
 KT_Lcup['organism'] = 'L. cuprina'
-KT_Lcup['color'] = '#52b765'
+KT_Lcup['color'] = '#008080'
 
 karyoplot(karyotype = KT_Lcup, fulltable = FT_Lcup, output_file = "karyoplot_Lcup.png")
 
@@ -77,7 +77,7 @@ karyoplot(karyotype = KT_Lcup, fulltable = FT_Lcup, output_file = "karyoplot_Lcu
 FT_Pter = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Pter/Pter_diptera/run_diptera_odb10/full_table.tsv')
 KT_Pter = pd.read_csv('/90daydata/vpgru/DavidLuecke/Pter/Pter-karyotype.tsv', sep='\t')
 KT_Pter['organism'] = 'P. terraenovae'
-KT_Pter['color'] = '#52b765'
+KT_Pter['color'] = '#000080'
 
 karyoplot(karyotype = KT_Pter, fulltable = FT_Pter, output_file = "karyoplot_Pter.png")
 
