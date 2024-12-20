@@ -7,6 +7,8 @@
 #   nmasked: nmasked.csv file with per-scaffold lengths and masked bp counts
 #   depthF: depth_per_scaffold.tsv from female reads against hardmasked assembly
 #   depthM: depth_per_scaffold.tsv from male reads against hardmasked assembly
+#     depth_per_scaffold.tsv w/ 3 columns: scaffold n_sites depth -- via get_depth_scaffold.sh
+#     (needed to account for ambiguity reporting in masked or depth=0 sites)
 #   nvariF: nseg_per_scaffold.csv from female reads, count of variant sites of hardmasked scaffolds
 #   nvariM: nseg_per_scaffold.csv from male reads, count of variant sites of hardmasked scaffolds
 # reads in all files, sorts by scaffold length, calculates for each scaffold:
@@ -25,9 +27,9 @@ make_df.sexbias <- function(l.IN_FILES){
   NMASKED <- NMASKED[order(-NMASKED$unmasked),]
   # input dataframes
   IN_DEPTHF <- read.table(l.IN_FILES$depthF, header = F, row.names = 1, 
-                          col.names = c('scaffold', 'depth'))
+                          col.names = c('scaffold', 'n_sites', 'depth'))
   IN_DEPTHM <- read.table(l.IN_FILES$depthM, header = F, row.names = 1, 
-                          col.names = c('scaffold', 'depth'))
+                          col.names = c('scaffold', 'n_sites', 'depth'))
   IN_NVARIF <- read.csv(l.IN_FILES$nvariF, header = F, row.names = 1, 
                         col.names = c('scaffold','n_variants'))
   IN_NVARIM <- read.csv(l.IN_FILES$nvariM, header = F, row.names = 1, 
@@ -38,8 +40,10 @@ make_df.sexbias <- function(l.IN_FILES){
   SEXBIAS <- data.frame(length = NMASKED$length,
                         masked = NMASKED$masked,
                         unmasked = NMASKED$unmasked,
-                        depthF = IN_DEPTHF[SCAFFOLDS,],
-                        depthM = IN_DEPTHM[SCAFFOLDS,],
+                        nsitesF = IN_DEPTHF[SCAFFOLDS,]$n_sites,
+                        depthF = IN_DEPTHF[SCAFFOLDS,]$depth,
+                        nsitesM = IN_DEPTHM[SCAFFOLDS,]$n_sites,
+                        depthM = IN_DEPTHM[SCAFFOLDS,]$depth,
                         n_varF = IN_NVARIF[SCAFFOLDS,],
                         n_varM = IN_NVARIM[SCAFFOLDS,],
                         row.names = SCAFFOLDS)
@@ -161,4 +165,206 @@ make_df.HomologSexBias <- function(CLUSTERS, DF.SEXBIAS.F, DF.SEXBIAS.M){
   
   return(DF.HOMOLOGS[order(-DF.HOMOLOGS$AvgTotalLength),])
 }
+
+
+# function to link depth windows to unmasked lengths and 
+#  normalize depths by unmasked-weighted average
+make_df.DepthWindows <- function(INFILE_DEPTH, INFILE_NMASKED){
+  # read in csv with total and masked bases per window, calculate unmasked per window
+  DF.NMASKED <- read.csv(INFILE_NMASKED, header = F, row.names = 1, 
+                          col.names = c('window', 'total', 'masked'))
+  DF.NMASKED$unmasked <- DF.NMASKED$total - DF.NMASKED$masked
+  
+  # read in tsv with average depths per window and number sites used
+  DF.DEPTH <- read.csv(INFILE_DEPTH, sep = '\t',
+                       col.names = c('scaffold', 'position',
+                                     'window', 'nsites', 'depth'))
+  # add unmasked and total lengths for each window from NMASKED df
+  DF.DEPTH$unmasked <- DF.NMASKED[DF.DEPTH$window,]$unmasked
+  DF.DEPTH$total <- DF.NMASKED[DF.DEPTH$window,]$total
+  # account for missing 0s in depth average
+  DF.DEPTH <- DF.DEPTH %>% filter(unmasked > 0) %>% 
+    mutate(depth_w0s = depth * nsites/unmasked)
+  # length-weighted average depth
+  DEPTH_AVG = sum(DF.DEPTH$depth_w0s * DF.DEPTH$unmasked/sum(DF.DEPTH$unmasked))
+  # normalize by length-weighed average
+  DF.DEPTH <- DF.DEPTH %>% mutate(depth_norm = depth / DEPTH_AVG)
+  
+  return(DF.DEPTH)
+}
+
+
+# function to link variant count windows to unmasked lengths 
+#  and find variant frequencies per unmasked bp
+make_df.VariantWindows <- function(INFILE_VARIANT, INFILE_NMASKED){
+  # read in csv with total and masked bases per window, calculate unmasked per window
+  DF.NMASKED <- read.csv(INFILE_NMASKED, header = F, row.names = 1, 
+                         col.names = c('window', 'total', 'masked'))
+  DF.NMASKED$unmasked <- DF.NMASKED$total - DF.NMASKED$masked
+  
+  # read in tsv with variant site count per window 
+  DF.VARIANT <- read.csv(INFILE_VARIANT, sep = '\t',
+                       col.names = c('scaffold', 'position',
+                                     'window', 'n_variants'))
+  # add unmasked and total lengths for each window from NMASKED df
+  DF.VARIANT$unmasked <- DF.NMASKED[DF.VARIANT$window,]$unmasked
+  DF.VARIANT$total <- DF.NMASKED[DF.VARIANT$window,]$total
+  # frequency variant sites per window
+  DF.VARIANT <- DF.VARIANT %>% mutate(fr_var = n_variants / unmasked)
+
+  return(DF.VARIANT)
+}
+
+
+# Functions for plotting windows data
+# make the dataframe for plotting 
+make_df.WindowPlots <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED){
+  PLOTDF <- DF_WINDOWS %>% filter(scaffold %in% SEQ_LIST, unmasked >= MIN_UNMASKED)
+  OFFSETS <- PLOTDF %>% group_by(scaffold) %>% 
+    # highest value per scaffold, add 1 for plot spacing
+    summarise(lastpos=max(position)+1) %>% arrange(desc(lastpos))
+  OFFSETS$offset <- (c(0,OFFSETS$lastpos[1:nrow(OFFSETS)-1]) %>% cumsum())
+  PLOTDF$offset <- apply(PLOTDF, 1, function(x){
+    OFFSETS$offset[OFFSETS$scaffold == x[1]]
+  })
+  return(PLOTDF)
+}
+
+PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, 
+                             ASSEMBLY_NAME, WINDOW_LABEL,
+                             SPAN=0.4, ALPHA=0.05, 
+                             Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
+  # get dataframe for plotting
+  PLOTDF <- make_df.WindowPlots(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED)
+  
+  # set color scale for sex based on how many sexes represented
+  N_SEX = PLOTDF$sex %>% factor() %>% levels() %>% length()
+  if( N_SEX == 2 ){
+    SCALE_VALUES = c('red', 'blue')
+  } else {
+    SCALE_VALUES=c('slateblue')
+  }
+  
+  # set Y min and max based on PLOTDF unless set by command call
+  if(Y_MIN == 'auto'){
+    Y_MIN <- min(PLOTDF$depth_norm)
+  }
+  if(Y_MAX == 'auto'){
+    Y_MAX <- max(PLOTDF$depth_norm)
+  }
+  
+  if(FLIP_SCAF_LAB){
+    ANNO_Y = Y_MAX
+    ANNO_ANGLE = 90
+    ANNO_HJUST = 1
+    ANNO_VJUST = 1.1
+  } else {
+    ANNO_Y = Y_MIN
+    ANNO_ANGLE = 0
+    ANNO_HJUST = -0.1
+    ANNO_VJUST = 1
+  }
+  
+  # get names and x-positions for scaffold annotation
+  OFFSETS <- PLOTDF %>% group_by(scaffold) %>% summarise(offset=max(offset))
+  
+  PLOT <- ggplot(PLOTDF, aes(x = position+offset, 
+                             y = depth_norm, 
+                             color = sex, 
+                             shape = rep, linetype = rep, 
+                             lineend = scaffold)) +
+    # point cloud
+    geom_point(alpha=ALPHA) + 
+    # smoothed lines
+    geom_smooth(se=F, method = 'loess', span=SPAN) +
+    # improve legibility of legend for rep
+    guides(shape = guide_legend(override.aes = list(alpha=0.6, size=3, color='black')) ) +
+    # colors for sex (set above)
+    scale_color_manual(values = SCALE_VALUES) +
+    # lines and labels for sequences
+    geom_vline(xintercept = OFFSETS$offset, color='darkgrey', lty=2, linewidth=0.8) +
+    annotate("text", label=OFFSETS$scaffold, x=OFFSETS$offset, 
+             y = ANNO_Y, angle = ANNO_ANGLE, 
+             hjust = ANNO_HJUST, vjust = ANNO_VJUST) +
+    # other plot formatting
+    coord_cartesian(ylim = c(Y_MIN,Y_MAX)) + 
+    theme_light() +
+    labs( y = 'normalized depth', 
+          x = paste0(ASSEMBLY_NAME, " - ", WINDOW_LABEL, " windows, >", 
+                   MIN_UNMASKED, " unmasked bp, loess span=", SPAN) )
+  
+  return(PLOT)
+
+}
+
+
+PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, 
+                             ASSEMBLY_NAME, WINDOW_LABEL,
+                             SPAN=0.4, ALPHA=0.05, 
+                             Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
+  # get dataframe for plotting
+  PLOTDF <- make_df.WindowPlots(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED)
+  
+  # set color scale for sex based on how many sexes represented
+  N_SEX = PLOTDF$sex %>% factor() %>% levels() %>% length()
+  if( N_SEX == 2 ){
+    SCALE_VALUES = c('red', 'blue')
+  } else {
+    SCALE_VALUES=c('slateblue')
+  }
+
+  # set Y min and max based on PLOTDF unless set by command call
+  if(Y_MIN == 'auto'){
+    Y_MIN <- min(PLOTDF$fr_var)
+  }
+  if(Y_MAX == 'auto'){
+    Y_MAX <- max(PLOTDF$fr_var)
+  }
+  
+  if(FLIP_SCAF_LAB){
+    ANNO_Y = Y_MAX
+    ANNO_ANGLE = 90
+    ANNO_HJUST = 1
+    ANNO_VJUST = 1.1
+  } else {
+    ANNO_Y = Y_MIN
+    ANNO_ANGLE = 0
+    ANNO_HJUST = -0.1
+    ANNO_VJUST = 1
+  }
+  
+  # get names and x-positions for scaffold annotation
+  OFFSETS <- PLOTDF %>% group_by(scaffold) %>% summarise(offset=max(offset))
+  
+  PLOT <- ggplot(PLOTDF, aes(x = position+offset, 
+                             y = fr_var, 
+                             color = sex, 
+                             shape = rep, linetype = rep, 
+                             lineend = scaffold)) +
+    # point cloud
+    geom_point(alpha=ALPHA) + 
+    # smoothed lines
+    geom_smooth(se=F, method = 'loess', span=SPAN) +
+    # improve legibility of legend for rep
+    guides(shape = guide_legend(override.aes = list(alpha=0.6, size=3, color='black')) ) +
+    # colors for sex (set above)
+    scale_color_manual(values = SCALE_VALUES) +
+    # lines and labels for sequences
+    geom_vline(xintercept = OFFSETS$offset, color='darkgrey', lty=2, linewidth=0.8) +
+    annotate("text", label=OFFSETS$scaffold, x=OFFSETS$offset, 
+             y = ANNO_Y, angle = ANNO_ANGLE, 
+             hjust = ANNO_HJUST, vjust = ANNO_VJUST) +
+    # other plot formatting
+    coord_cartesian(ylim = c(Y_MIN,Y_MAX)) + 
+    theme_light() +
+    labs( y = 'frequency variant sites', 
+          x = paste0(ASSEMBLY_NAME, " - ", WINDOW_LABEL, " windows, >", 
+                     MIN_UNMASKED, " unmasked bp, loess span=", SPAN) )
+  
+  return(PLOT)
+  
+}
+
+
+
 
