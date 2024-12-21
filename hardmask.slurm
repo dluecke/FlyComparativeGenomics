@@ -27,7 +27,7 @@ tr '[actg]' 'N' < $ASM | sed 's/sNNffold/scaffold/' > $HMASM
 echo "writing CSV with scaffold lengths and number masked bp: $HMASM.nmasked.csv"
 
 while read SCAF; do 
-    LENGTH=$(seqtk subseq $HMASM <(echo $SCAF) | tail -n1 | wc -c)
+    LENGTH=$(seqtk subseq $HMASM <(echo $SCAF) | tail -n1 | tr -d '\n' | wc -c)
     MASKED=$(seqtk subseq $HMASM <(echo $SCAF) | tr -c -d 'N' | wc -c)
     echo $SCAF,$LENGTH,$MASKED
 done < <(grep ">" $HMASM | tr -d '>') > $HMASM.nmasked.csv
