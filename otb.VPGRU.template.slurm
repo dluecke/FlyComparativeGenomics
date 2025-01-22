@@ -14,10 +14,12 @@
 module load nextflow/22.04.3
 
 # need to use an older verion of apptainer (singularity replacement)
-module load apptainer/1.1.8
+#module load apptainer/1.1.8
+# UPDATE 01/2025 - Ceres removed older apptainer module, will try newer version again
+module load apptainer/1.3.1
 
 # We need an assembly name, generally this is just the name of the organism
-Assembly_Name="Species_Sex-Merfin-a"
+Assembly_Name="Species_Sex-phased01"
 
 # READS
 # HiFi Reads, ours are stored as BAM files, can use fastq
@@ -50,14 +52,14 @@ HiFi_Type="phasing" # attempt to generate haplotigs using Hi-C if available
 PurgeDups=3
 
 #Comment/Uncomment for Polishing (only select one of)
-#Polish_Type="" #No polishing
+Polish_Type="" #No polishing
 #Polish_Type="--polish-type simple" #Simple Polishing
 #Polish_Type="--polish-type dv" #Deep Variant Polishing
-Polish_Type="--polish-type merfin" #merfin Polishing
+#Polish_Type="--polish-type merfin" #merfin Polishing
 
 #Comment/Uncommment for Yahs scaffolding with Hi-C reads
-#Yahs="" #Yahs will not be run
-Yahs="-y" #Yahs will be run
+Yahs="" #Yahs will not be run
+#Yahs="-y" #Yahs will be run
 
 #Comment/Uncomment for Runner (only select one of)
 #Runner="slurm_usda"
