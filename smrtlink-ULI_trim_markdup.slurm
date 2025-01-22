@@ -20,7 +20,7 @@ RAW_BAM=$1
 echo -e ">ULI_adaptor\nAAGCAGTGGTATCAACGCAGAGTACT" > ULI_adaptor.fa
 
 # intermediate/output file names
-TMP_BAM=$RAW_BAM.trim.tmp
+TMP_BAM=$RAW_BAM.trim.tmp.bam
 OUT_BAM=$(echo $RAW_BAM | sed 's/.bam/.ULItrim_markdups.bam/')
 
 # run lima to trim adaptors, by default uses all available cores
