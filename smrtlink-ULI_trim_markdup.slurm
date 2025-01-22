@@ -20,17 +20,17 @@ RAW_BAM=$1
 echo -e ">ULI_adaptor\nAAGCAGTGGTATCAACGCAGAGTACT" > ULI_adaptor.fa
 
 # intermediate/output file names
-TMP_BAM=$RAW_BAM.trim.tmp.bam
+TMP_BAM=$(echo $RAW_BAM | sed 's/.bam/.tmptrim.bam/')
 OUT_BAM=$(echo $RAW_BAM | sed 's/.bam/.ULItrim_markdups.bam/')
 
-# run lima to trim adaptors, by default uses all available cores
+# run lima to trim adaptors
 echo "running lima to trim ULI adaptors, command:"
-echo " lima $RAW_BAM ULI_adaptor.fa $TMP_BAM"
-lima $RAW_BAM ULI_adaptor.fa $TMP_BAM
+echo " lima --num-threads 15 $RAW_BAM ULI_adaptor.fa $TMP_BAM"
+lima --num-threads 15 $RAW_BAM ULI_adaptor.fa $TMP_BAM
 
 # run pbmarkdups to remove PCR duplicates
 echo "running pbmarkdups to remove PCR duplicates, command:"
 echo " pbmarkdup $TMP_BAM $OUT_BAM"
 pbmarkdup $TMP_BAM $OUT_BAM 
 
-rm $TMP_BAM
+# rm $TMP_BAM
