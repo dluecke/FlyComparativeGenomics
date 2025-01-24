@@ -44,12 +44,16 @@ else
     CUTOFFS=cutoffs.$PD_OUT
 fi
 
-echo "Starting assembly self-alignment"
-echo -e "Commands:\n split_fa $PRI_ASM > $ASM_SPLIT"
-echo " minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | gzip -c - > $ASM_SPLIT.self.paf.gz"
-split_fa $PRI_ASM > $ASM_SPLIT
-minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | \
-    gzip -c - > $ASM_SPLIT.self.paf.gz
+if [[ -f $ASM_SPLIT.self.paf.gz ]]; then
+    echo "Using previously generated self-alignment file $ASM_SPLIT.self.paf.gz"
+else
+    echo "Starting assembly self-alignment"
+    echo -e "Commands:\n split_fa $PRI_ASM > $ASM_SPLIT"
+    echo " minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | gzip -c - > $ASM_SPLIT.self.paf.gz"
+    split_fa $PRI_ASM > $ASM_SPLIT
+    minimap2 -xasm5 -DP $ASM_SPLIT $ASM_SPLIT | \
+        gzip -c - > $ASM_SPLIT.self.paf.gz
+fi
 
 echo "Running main purge_dups step"
 echo -e "Command:\n purge_dups -2 -T $CUTOFFS -c $PD_OUT/PB.base.cov $ASM_SPLIT.self.paf.gz \

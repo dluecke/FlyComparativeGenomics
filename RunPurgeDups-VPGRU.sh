@@ -6,8 +6,8 @@
 #    Ceres modules for purge_dups and minimap2
 
 usage() { 
-    echo "USAGE: $0 [-o|-m|-t|-p|-h] PCTG_ASM.fa[sta] HIFI_ASM_ALIGN.paf[.gz]"
-    echo "  -o STRING prefix for purged output, default PCTG_ASM-DeDup"
+    echo "USAGE: $0 [-o|-m|-t|-p|-h] CTG_ASM.fa[sta] HIFI_ASM_ALIGN.paf[.gz]"
+    echo "  -o STRING prefix for purged output, default CTG_ASM-DeDup[_cutoffMVAL]"
     echo "  -m INT depth for manual cutoff, default NULL and auto-cutoff"
     echo "  -t INT threads, default 32"
     echo "  -p STRING slurm partition, default medium"
@@ -24,6 +24,7 @@ usage() {
 PRI_ASM="${@: -2:1}"
 PAF_IN="${@: -1}"
 M_CUT=""
+O_SET=""
 N_THREAD=32
 QUEUE="medium"
 ASM_NAME=$(basename $PRI_ASM)
@@ -35,6 +36,7 @@ while getopts ":hp:o:t:m:" arg; do
     case $arg in
         o) # name for RunID and output directory, default filename
             PD_OUT="${OPTARG}"
+            O_SET="set"
             ;;
         m) # cutoff value for manual cutoff, flag to run manual cutoff
             M_CUT=${OPTARG}
@@ -60,11 +62,15 @@ done
 # Print info to screen pre-submission
 echo -e "Starting purge_dups on assembly:\n ${PRI_ASM}"
 echo -e "using HiFi alignment:\n ${PAF_IN}\nRun in :\n $PWD"
-echo -e "with output file prefix:\n ${PD_OUT}"
 
 if [[ -n $M_CUT ]]; then
     echo "Manual cutoff with -m $M_CUT"
+    if [[ -z $O_SET ]]; then
+        PD_OUT="${PD_OUT}_cutoff$M_CUT"
+    fi
 fi
+
+echo -e "Output file prefix:\n ${PD_OUT}"
 
 echo -e "using purge_dups and minimap2 modules\n"
 echo -e "Submitting to $QUEUE partition with $N_THREAD threads\n"
