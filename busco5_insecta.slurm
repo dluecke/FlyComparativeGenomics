@@ -6,8 +6,8 @@
 #SBATCH --job-name="busco5_dipt"
 #SBATCH --mail-user=david.luecke@usda.gov   # email address
 #SBATCH --mail-type=FAIL
-#SBATCH --output="busco5_diptera-%j-%N.stdout" # job standard output file (%j replaced by job id)
-#SBATCH --error="busco5_diptera-%j-%N.stderr" # job standard error file (%j replaced by job id)
+#SBATCH --output="busco5_insecta-%j-%N.stdout" # job standard output file (%j replaced by job id)
+#SBATCH --error="busco5_insecta-%j-%N.stderr" # job standard error file (%j replaced by job id)
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 
@@ -17,5 +17,5 @@ assembly=$1
 
 busco -m genome -c 48 \
     -i ${assembly} \
-    -o ${assembly%.*}_diptera \
-    -l /project/vpgru/databases/busco/busco_downloads/lineages/diptera_odb10
+    -o ${assembly%.*}_insecta \
+    -l /project/vpgru/databases/busco/busco_downloads/lineages/insecta_odb10
