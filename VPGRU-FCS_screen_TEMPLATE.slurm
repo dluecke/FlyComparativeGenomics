@@ -56,7 +56,7 @@ ${FCG_REPO}/collect_FCS_taxa_summaries.sh $OUTDIR
 
 if [[ -n $CLEAN ]]; then
     # get output filename without path for output
-    SEQFILE_NAME=$(basename $SEQFILE)
+    SEQFILE_NAME=$(basename ${SEQFILE%.*})
     echo "Running FCS clean genome with action report $OUTDIR/*fcs_gx_report.txt"
     echo "command:"
     echo "cat $SEQFILE | fcs.py clean genome --action-report $OUTDIR/*fcs_gx_report.txt --output $SEQFILE_NAME-clean.fa --contam-fasta-out $SEQFILE_NAME-contam.fa"
