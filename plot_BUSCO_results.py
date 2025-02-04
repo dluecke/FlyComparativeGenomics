@@ -6,10 +6,10 @@
 # $ module load python_3
 # $ source /project/vpgru/software/python_envs/buscoplotpy/bin/activate
 
-import pandas as pd
-from buscoplotpy.utils.load_busco_fulltable import load_busco_fulltable
-from buscoplotpy.graphics.karyoplot import karyoplot
-from buscoplotpy.graphics.synteny import horizontal_synteny_plot, vertical_synteny_plot
+import pandas as pd # type: ignore
+from buscoplotpy.utils.load_busco_fulltable import load_busco_fulltable # type: ignore
+from buscoplotpy.graphics.karyoplot import karyoplot # type: ignore
+from buscoplotpy.graphics.synteny import horizontal_synteny_plot, vertical_synteny_plot # type: ignore
 
 # Fcan
 FT_FcanF = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Fcan/female/Fcan_F-v1_diptera/run_diptera_odb10/full_table.tsv')
@@ -53,14 +53,14 @@ KT_HirrF['color'] = '#dccd45'
 
 karyoplot(karyotype = KT_HirrF, fulltable = FT_HirrF, output_file = "karyoplot_HirrF.png")
 
-# FT_MautM = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Maut/male/Maut_M-v3.masked_diptera/run_diptera_odb10/full_table.tsv')
-# KT_MautM = pd.read_csv('/90daydata/vpgru/DavidLuecke/Finished/Maut/male/MautM_karyotype.tsv', sep='\t')
-# KT_MautM['organism'] = 'M autumnalis male'
-# KT_HirrM['color'] = '#afa021'
+FT_HirrM = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Hirr/male/Hirr_M-v1_diptera/run_diptera_odb10/full_table.tsv')
+KT_HirrM = pd.read_csv('/90daydata/vpgru/DavidLuecke/Finished/Hirr/male/HirrM_karyotype.tsv', sep='\t')
+KT_HirrM['organism'] = 'M autumnalis male'
+KT_HirrM['color'] = '#afa021'
 
-# karyoplot(karyotype = KT_MautM, fulltable = FT_MautM, output_file = "karyoplot_MautM.png")
+karyoplot(karyotype = KT_HirrM, fulltable = FT_HirrM, output_file = "karyoplot_HirrM.png")
 
-# horizontal_synteny_plot(ft_1 = FT_MautF, ft_2 = FT_MautM, karyotype_1 = KT_MautF, karyotype_2 = KT_MautM, output_path = 'synteny_Maut.png')
+horizontal_synteny_plot(ft_1 = FT_HirrF, ft_2 = FT_HirrM, karyotype_1 = KT_HirrF, karyotype_2 = KT_HirrM, output_path = 'synteny_Hirr.png')
 
 # Maut
 FT_MautF = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Maut/female/Maut_F-v2.masked_diptera/run_diptera_odb10/full_table.tsv')
@@ -113,5 +113,6 @@ horizontal_synteny_plot(ft_1 = FT_MautF, ft_2 = FT_ScalF, karyotype_1 = KT_MautF
 horizontal_synteny_plot(ft_1 = FT_MautM, ft_2 = FT_ScalM, karyotype_1 = KT_MautM, karyotype_2 = KT_ScalM, output_path = 'synteny_MautM-ScalM.png')
 
 horizontal_synteny_plot(ft_1 = FT_ScalF, ft_2 = FT_HirrF, karyotype_1 = KT_ScalF, karyotype_2 = KT_HirrF, output_path = 'synteny_ScalF-HirrF.png')
+horizontal_synteny_plot(ft_1 = FT_ScalM, ft_2 = FT_HirrM, karyotype_1 = KT_ScalM, karyotype_2 = KT_HirrM, output_path = 'synteny_ScalM-HirrM.png')
 
 
