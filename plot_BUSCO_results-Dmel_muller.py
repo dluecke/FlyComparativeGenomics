@@ -18,7 +18,7 @@ from buscoplotpy.graphics.synteny import horizontal_synteny_plot, vertical_synte
 
 # Dmel
 FT_Dmel = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Dmel/GCF_000001215.4_Release_6_plus_ISO1_MT_genomic_diptera/run_diptera_odb10/full_table.tsv')
-KT_Dmel = pd.read_csv('/90daydata/vpgru/DavidLuecke/Dmel/Dmel_karyotype.tsv', sep='\t')
+KT_Dmel = pd.read_csv('/90daydata/vpgru/DavidLuecke/Dmel/Dmel-karyotype.tsv', sep='\t')
 KT_Dmel['organism'] = 'F. canicularis female'
 KT_Dmel['color'] = '#808080'
 
