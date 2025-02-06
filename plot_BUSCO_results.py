@@ -55,7 +55,7 @@ karyoplot(karyotype = KT_HirrF, fulltable = FT_HirrF, output_file = "karyoplot_H
 
 FT_HirrM = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Finished/Hirr/male/Hirr_M-v1_diptera/run_diptera_odb10/full_table.tsv')
 KT_HirrM = pd.read_csv('/90daydata/vpgru/DavidLuecke/Finished/Hirr/male/HirrM_karyotype.tsv', sep='\t')
-KT_HirrM['organism'] = 'M autumnalis male'
+KT_HirrM['organism'] = 'H. irritans male'
 KT_HirrM['color'] = '#afa021'
 
 karyoplot(karyotype = KT_HirrM, fulltable = FT_HirrM, output_file = "karyoplot_HirrM.png")
