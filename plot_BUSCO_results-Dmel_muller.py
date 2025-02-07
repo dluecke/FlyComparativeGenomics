@@ -55,12 +55,12 @@ KT_ScalF['color'] = '#d43a3f'
 # all Muscids vs Dmel
 
 link_colors = {
-    'NC_004354.4': '#47a651',
+    'NC_004354.4': '#800080',
     'NT_033779.5': '#3f4c99',
     'NT_033778.4': '#851d1d',
     'NT_037436.4': '#ff9900',
     'NT_033777.3': '#368244',
-    'NC_004353.4': '#ca6702',
+    'NC_004353.4': '#000000',
 }
 
 horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_FcanF, karyotype_1 = KT_Dmel, karyotype_2 = KT_FcanF, link_colors=link_colors, output_path = 'synteny_Dmel-FcanF.png')
