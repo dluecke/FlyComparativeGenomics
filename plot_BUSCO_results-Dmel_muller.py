@@ -53,13 +53,23 @@ KT_ScalF['organism'] = 'S. calcitrans female'
 KT_ScalF['color'] = '#d43a3f'
 
 # all Muscids vs Dmel
-horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_FcanF, karyotype_1 = KT_Dmel, karyotype_2 = KT_FcanF, output_path = 'synteny_Dmel-FcanF.png')
 
-horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HaenF, karyotype_1 = KT_Dmel, karyotype_2 = KT_HaenF, output_path = 'synteny_Dmel-HaenF.png')
+link_colors = {
+    'NC_004354.4': '#47a651',
+    'NT_033779.5': '#3f4c99',
+    'NT_033778.4': '#851d1d',
+    'NT_037436.4': '#ff9900',
+    'NT_033777.3': '#368244',
+    'NC_004353.4': '#ca6702',
+}
 
-horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HirrF, karyotype_1 = KT_Dmel, karyotype_2 = KT_HirrF, output_path = 'synteny_Dmel-HirrF.png')
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_FcanF, karyotype_1 = KT_Dmel, karyotype_2 = KT_FcanF, link_colors=link_colors, output_path = 'synteny_Dmel-FcanF.png')
 
-horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_MautF, karyotype_1 = KT_Dmel, karyotype_2 = KT_MautF, output_path = 'synteny_Dmel-MautF.png')
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HaenF, karyotype_1 = KT_Dmel, karyotype_2 = KT_HaenF, link_colors=link_colors, output_path = 'synteny_Dmel-HaenF.png')
 
-horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_ScalF, karyotype_1 = KT_Dmel, karyotype_2 = KT_ScalF, output_path = 'synteny_Dmel-ScalF.png')
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HirrF, karyotype_1 = KT_Dmel, karyotype_2 = KT_HirrF, link_colors=link_colors, output_path = 'synteny_Dmel-HirrF.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_MautF, karyotype_1 = KT_Dmel, karyotype_2 = KT_MautF, link_colors=link_colors, output_path = 'synteny_Dmel-MautF.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_ScalF, karyotype_1 = KT_Dmel, karyotype_2 = KT_ScalF, link_colors=link_colors, output_path = 'synteny_Dmel-ScalF.png')
 
