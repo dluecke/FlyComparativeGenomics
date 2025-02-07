@@ -3,6 +3,9 @@
 # plot_BUSCO_results.py uses the buscoplotpy package 
 # to plot Muscid busco results as karyotype and synteny pairs
 
+# see repository at github.com/lorenzo-arcioni/BUSCO-Plot-Py
+# with example scripts in test.ipynb
+
 # first need to activate the environment (in salloc):
 # $ module load python_3
 # $ source /project/vpgru/software/python_envs/buscoplotpy/bin/activate
