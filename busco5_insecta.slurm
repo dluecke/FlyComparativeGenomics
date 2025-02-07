@@ -3,7 +3,7 @@
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --ntasks-per-node=48   # 20 processor core(s) per node X 2 threads per core
 #SBATCH --partition=short    # standard node(s)
-#SBATCH --job-name="busco5_dipt"
+#SBATCH --job-name="busco5_inse"
 #SBATCH --mail-user=david.luecke@usda.gov   # email address
 #SBATCH --mail-type=FAIL
 #SBATCH --output="busco5_insecta-%j-%N.stdout" # job standard output file (%j replaced by job id)
