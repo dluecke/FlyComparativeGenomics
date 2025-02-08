@@ -24,12 +24,15 @@ AGP=$4
 REVIEW=$5
 
 # need newer version of yahs for juicer post tool
+echo -e "command:\n /project/vpgru/software/yahs/juicer pre -a -o $JBAT_OUT $ALN_BAM $AGP $PCTG_ASM.fai >$JBAT_OUT.log 2>&1"
 /project/vpgru/software/yahs/juicer pre -a -o $JBAT_OUT $ALN_BAM $AGP $PCTG_ASM.fai >$JBAT_OUT.log 2>&1
 
+echo -e "command:\n /project/vpgru/software/yahs/juicer post -o $JBAT_OUT.review $REVIEW $JBAT_OUT.liftover.agp $PCTG_ASM"
 /project/vpgru/software/yahs/juicer post -o $JBAT_OUT.review $REVIEW $JBAT_OUT.liftover.agp $PCTG_ASM
 
 #singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juicer-tools.img java -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar pre $JBAT_OUT.txt $JBAT_OUT.hic.part <(cat $JBAT_OUT.log | grep PRE_C_SIZE | awk '{print $2" "$3}') && mv $JBAT_OUT.hic.part $JBAT_OUT.hic
 
+echo -e "command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img gfastats $JBAT_OUT.review.FINAL.fa > $JBAT_OUT.review.FINAL.fa.stats"
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img gfastats $JBAT_OUT.review.FINAL.fa > $JBAT_OUT.review.FINAL.fa.stats
 
 date
