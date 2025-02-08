@@ -21,8 +21,8 @@ usage() {
 
 # last 2 args the reference and query seq files
 SEQFILE="${@: -1}"
-OUT_DIR="$(basename $SEQFILE)-FCSout"
-#OUT_DIR="${SEQNAME%%.[A-Za-z]*}"
+#OUT_DIR="$(basename $SEQFILE)-FCSout"
+OUT_DIR="${SEQFILE%.*}"
 # default run parameters
 CLEAN=""
 N_THREAD=32
