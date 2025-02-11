@@ -47,8 +47,9 @@ karyoplot(karyotype = KT_Chom_v1, fulltable = FT_Chom_v1, output_file = "karyopl
 
 
 # Cmac
-FT_Cmac = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Cmac/Cmac_v2_diptera/run_diptera_odb10/full_table.tsv')
-KT_Cmac = pd.read_csv('/90daydata/vpgru/DavidLuecke/Cmac/Cmac-karyotype.tsv', sep='\t')
+#FT_Cmac = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Cmac/Cmac_v2_diptera/run_diptera_odb10/full_table.tsv')
+FT_Cmac = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/Cmac/FINAL/Cmac_final_diptera/run_diptera_odb10/full_table.tsv')
+KT_Cmac = pd.read_csv('/90daydata/vpgru/DavidLuecke/Cmac/FINAL/Cmac-karyotype.tsv', sep='\t')
 KT_Cmac['organism'] = 'C. macellaria'
 KT_Cmac['color'] = '#008000'
 
@@ -91,3 +92,19 @@ horizontal_synteny_plot(ft_1 = FT_Cvic, ft_2 = FT_Pter, karyotype_1 = KT_Cvic, k
 horizontal_synteny_plot(ft_1 = FT_Pter, ft_2 = FT_Cmac, karyotype_1 = KT_Pter, karyotype_2 = KT_Cmac, output_path = 'synteny_Pter-Cmac.png')
 horizontal_synteny_plot(ft_1 = FT_Cmac, ft_2 = FT_Chom_old, karyotype_1 = KT_Cmac, karyotype_2 = KT_Chom_old, output_path = 'synteny_Cmac-Chom_old.png')
 horizontal_synteny_plot(ft_1 = FT_Cmac, ft_2 = FT_Chom_v1, karyotype_1 = KT_Cmac, karyotype_2 = KT_Chom_v1, output_path = 'synteny_Cmac-Chom_v1.png')
+
+horizontal_synteny_plot(ft_1 = FT_Lcup, ft_2 = FT_Cmac, karyotype_1 = KT_Lcup, karyotype_2 = KT_Cmac, output_path = 'synteny_Lcup-Cmac.png')
+
+# Muller elements
+link_colors = {
+    'NC_004354.4': '#800080',
+    'NT_033779.5': '#3f4c99',
+    'NT_033778.4': '#851d1d',
+    'NT_037436.4': '#ff9900',
+    'NT_033777.3': '#368244',
+    'NC_004353.4': '#000000',
+}
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_Cmac, karyotype_1 = KT_Dmel, karyotype_2 = KT_Cmac, link_colors=link_colors, output_path = 'synteny_Dmel-Cmac.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_Chom_v1, karyotype_1 = KT_Dmel, karyotype_2 = KT_Chom_v1, link_colors=link_colors, output_path = 'synteny_Dmel-Chom.png')
