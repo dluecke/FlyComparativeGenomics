@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --nodes=1   # number of nodes
-#SBATCH --ntasks-per-node=48   # 20 processor core(s) per node X 2 threads per core
+#SBATCH --ntasks-per-node=64   # 20 processor core(s) per node X 2 threads per core
 #SBATCH --partition=short    # standard node(s)
 #SBATCH --job-name="busco5_arth"
 #SBATCH --mail-user=david.luecke@usda.gov   # email address
@@ -15,7 +15,7 @@ module load busco5/5.7.1
 
 assembly=$1
 
-busco -m genome -c 48 \
+busco -m genome -c 64 \
     -i ${assembly} \
     -o ${assembly%.*}_arthropoda \
     -l /project/vpgru/databases/busco/busco_downloads/lineages/arthropoda_odb10
