@@ -84,7 +84,7 @@ ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
 # HiFi read processing pre-OTB
 # Current OTB needs a single HiFi input file, so if there's multiple we need to concatenate
 if [[ $(ls $CCS | wc -w) -gt 1 ]]; then
-  HiFi_fastq="${CCS%%\**}.combined.reads.fastq"
+  HiFi_fastq="${CCS%%\**}.${Assembly_Name}.combined.reads.fastq"
   # takes a long time so make sure this isn't already done
   if [[ ! -f "$HiFi_fastq" ]]; then
     echo "combining:"
