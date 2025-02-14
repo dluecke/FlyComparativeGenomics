@@ -52,6 +52,12 @@ KT_ScalF = pd.read_csv('/90daydata/vpgru/DavidLuecke/Finished/Scal/female/ScalF_
 KT_ScalF['organism'] = 'S. calcitrans female'
 KT_ScalF['color'] = '#d43a3f'
 
+#Mdom aabys reference v6b
+FT_Mdom = load_busco_fulltable('/90daydata/vpgru/DavidLuecke/MusD/MY/aabys_v6b_diptera/run_diptera_odb10/full_table.tsv')
+KT_Mdom = pd.read_csv('/90daydata/vpgru/DavidLuecke/MusD/MY/MdomMY_karyotype.tsv', sep='\t')
+KT_Mdom['organism'] = 'M. domestica aabys v6b'
+KT_Mdom['color'] = '#5C4033'
+
 # all Muscids vs Dmel
 
 link_colors = {
@@ -73,3 +79,4 @@ horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_MautF, karyotype_1 = KT_Dmel, 
 
 horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_ScalF, karyotype_1 = KT_Dmel, karyotype_2 = KT_ScalF, link_colors=link_colors, output_path = 'synteny_Dmel-ScalF.png')
 
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_Mdom, karyotype_1 = KT_Dmel, karyotype_2 = KT_Mdom, link_colors=link_colors, output_path = 'synteny_Dmel-Mdom.png')
