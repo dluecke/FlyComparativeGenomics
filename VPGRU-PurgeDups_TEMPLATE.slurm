@@ -10,7 +10,7 @@
 
 date
 
-module load purge_dups
+module load purge_dups/1.2.6
 module load minimap2
 
 # Print info to stdout
@@ -19,6 +19,9 @@ echo -e "using HiFi alignment:\n ${PAF_IN}\nRun in :\n $PWD"
 echo -e "with output file prefix:\n ${PD_OUT}"
 echo -e "using purge_dups and minimap2 modules\n"
 echo -e "Submitting to $QUEUE partition with $N_THREAD threads"
+
+purge_dups -h 2>&1 | head -n5
+echo -e "minimap2 version: $(minimap2 --version)\n"
 
 mkdir $PD_OUT
 
