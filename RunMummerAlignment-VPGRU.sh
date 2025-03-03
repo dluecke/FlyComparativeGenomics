@@ -37,7 +37,7 @@ QRYFILE=$(basename $QRY_FASTA)
 [[ "$QRYFILE" == *".fa" ]] && QRYNAME="${QRYFILE%%.fa}"
 [[ "$QRYFILE" == *".fasta" ]] && QRYNAME="${QRYFILE%%.fasta}"
 # default run name
-RUN_ID="${REFNAME}_vs_${QRYNAME}"
+RUN_ID="${REFNAME}-vs-${QRYNAME}"
 
 # get options, including call usage if -h flag
 while getopts ":hc:o:p:t:g:" arg; do
