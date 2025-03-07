@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J samtools_depth
+#SBATCH -J fastq-HiFi
 #SBATCH -o "fq.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "fq.%j.%N.stderr"
 #SBATCH -c 4
