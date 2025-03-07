@@ -8,7 +8,7 @@
 #SBATCH -o "pbmm2.stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "pbmm2.stderr.%j.%N"     #optional, prints our standard error
 
-module load smrtlink
+module load smrtlink/13.0.0.207600
 
 date
 
