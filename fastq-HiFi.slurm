@@ -12,10 +12,11 @@ date
 module load samtools/1.17
 
 BAM=$1
+FQ_OUT=$(basename ${BAM%.*}.fastq)
 
-echo -e "\nUsing samtools fastq to convert ${BAM} to ${BAM%.*}.fastq"
-echo -e "\nCommand:\n samtools fastq --threads 3 -o ${BAM%.*}.fastq ${BAM}"
-samtools fastq --threads 3 -o ${BAM%.*}.fastq ${BAM}
+echo -e "\nUsing samtools fastq to convert ${BAM} to $FQ_OUT"
+echo -e "\nCommand:\n samtools fastq --threads 3 -o $FQ_OUT"
+samtools fastq --threads 3 -o $FQ_OUT ${BAM}
 
 date
 samtools --version
