@@ -15,8 +15,8 @@ BAM=$1
 FQ_OUT=$(basename ${BAM%.*}.fastq)
 
 echo -e "\nUsing samtools fastq to convert ${BAM} to $FQ_OUT"
-echo -e "\nCommand:\n samtools fastq --threads 3 -o $FQ_OUT"
-samtools fastq --threads 3 -o $FQ_OUT ${BAM}
+echo -e "\nCommand:\n samtools fastq --threads 3 ${BAM} > $FQ_OUT"
+samtools fastq --threads 3 ${BAM} > $FQ_OUT
 
 date
 samtools --version
