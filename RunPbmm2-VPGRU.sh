@@ -92,8 +92,7 @@ if [[ -n $GET_DEPTH ]]; then
 fi
 
 if [[ -n $CALL_VARS ]]; then
-    echo -e "\nUsing bcftools to write:\n ${OUT_PREFIX}.bam.vcf\n \
-    ${OUT_PREFIX}.bam.nseg_by_scaffold.csv"
+    echo -e "\nUsing bcftools to write:\n ${OUT_PREFIX}.bam.vcf\n ${OUT_PREFIX}.bam.nseg_by_scaffold.csv"
     # copy slurm script to current directory, easier to submit from inside job
     cp ${GITLOC}/bcfcall.slurm .
 fi
