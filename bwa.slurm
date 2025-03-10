@@ -17,8 +17,8 @@ date
 module load bwa_mem2/2.2.1
 module load samtools/1.17
 
-ASSEMBLY=$1
-INDEX=$2
+ASSEMBLY=$1 # assembly file
+INDEX=$2 # prefix string for index 
 THREADS=32
 
 echo "Mapping reads:"
@@ -46,6 +46,8 @@ Map_GetDepths() {
   echo "Finished writing $OUT.bam"
   echo "Submitting bcfcall.slurm job"
   sbatch ~/FlyComparativeGenomics/bcfcall.slurm $OUT.bam $ASSEMBLY
+  echo -e "\nGetting statistics for $OUT.bam, command:\n samtools stats $OUT.bam > $OUT.bam.stats"
+  samtools stats $OUT.bam > $OUT.bam.stats
   echo -e "\nCalculating depth in $OUT.bam, command:"
   echo " samtools depth -a $OUT.bam > $OUT.depth.tsv"
   samtools depth -a $OUT.bam > $OUT.depth.tsv

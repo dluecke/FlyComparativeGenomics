@@ -45,6 +45,11 @@ singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-align
 echo "BWA steps done"
 date
 
+echo -e "\nGenerating stats file for $ALN_BAM"
+echo -e "Command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools stats $ALN_BAM > $ALN_BAM.stats"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools stats $ALN_BAM > $ALN_BAM.stats
+date
+
 echo -e "\nStarting YaHS scaffolding"
 echo -e "command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img yahs -o $YAHS_OUT --no-contig-ec $PCTG_ASM $ALN_BAM"
 

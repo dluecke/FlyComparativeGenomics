@@ -9,6 +9,7 @@
 #SBATCH -e "pbmm2.stderr.%j.%N"     #optional, prints our standard error
 
 module load smrtlink/13.0.0.207600
+module load samtools
 
 date
 
@@ -25,6 +26,12 @@ pbmm2 --version
 echo -e "\nCommand:\n pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
 pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
 echo -e "\n pbmm2 align finished at:"
+date
+
+echo -e "\nUsing samtools to generate statistics for ${OUT_PREFIX}.bam"
+samtools --version
+echo -e "\nCommand:\n samtools stats ${OUT_PREFIX}.bam > ${OUT_PREFIX}.bam.stats"
+samtools stats ${OUT_PREFIX}.bam > ${OUT_PREFIX}.bam.stats
 date
 
 # submit BAM to bcfcall.slurm if requested
