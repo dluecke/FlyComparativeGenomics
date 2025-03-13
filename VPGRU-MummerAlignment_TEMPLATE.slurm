@@ -22,7 +22,7 @@ echo "  Job Name: ${RUN_ID}-mummer"
 echo "  Partition:  ${PARTITION}"
 echo "  Cores/Threads:  ${THREADS}"
 
-nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} -c ${C_VAL} ${REFERENCE} ${QUERY}
+nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} -maxmatch -c ${C_VAL} ${REFERENCE} ${QUERY}
 
 echo "Finished alignment, using mummerplot to generate alignment coordinates"
 mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGNMENT_NAME}.delta
