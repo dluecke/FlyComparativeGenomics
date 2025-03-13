@@ -42,7 +42,7 @@ QRYFILE=$(basename $QRY_FASTA)
 RUN_ID="${REFNAME}-vs-${QRYNAME}"
 
 # get options, including call usage if -h flag
-while getopts ":hc:o:p:t:g:" arg; do
+while getopts ":hmc:o:p:t:g:" arg; do
     case $arg in
         c) # min match length, default 1000
             C_VAL=${OPTARG}
