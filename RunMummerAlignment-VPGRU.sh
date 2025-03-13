@@ -9,6 +9,7 @@
 usage() { 
     echo "USAGE: $0 [-c|-o|-p|-t|-g|-h] REFERENCE.fa QUERY.fa"
     echo "  -c INT minimum match length, default=2000"
+    echo "  -m FLAG run nucmer with --maxmatch, also sets -p mem"
     echo "  -o STRING alignment name, default REFERENCE-vs-QUERY (c value appended automatically)"
     echo "  -p STRING slurm partition, default short"
     echo "  -t INT threads, default 8"
@@ -26,6 +27,7 @@ REF_FASTA="${@: -2:1}"
 QRY_FASTA="${@: -1}"
 # default run parameters
 C_VAL=2000
+MAXMATCH=""
 N_CORES=8
 PARTITION="short"
 TOOLS_PATH=~/annotation_tools
@@ -44,6 +46,10 @@ while getopts ":hc:o:p:t:g:" arg; do
     case $arg in
         c) # min match length, default 1000
             C_VAL=${OPTARG}
+            ;;
+        m) # command passed to nucmer
+            MAXMATCH="--maxmatch"
+            PARTITION="mem"
             ;;
         o) # name for RunID and output directory, default filename
             RUN_ID="${OPTARG}"
@@ -103,5 +109,5 @@ sbatch --job-name="${RUN_ID}-mummer" \
     --export=ALL,REFERENCE=${REF_FASTA},QUERY=${QRY_FASTA},\
 C_VAL=${C_VAL},ALIGNMENT_NAME=${ALIGNMENT_NAME},\
 RUN_ID=${RUN_ID},PARTITION=${PARTITION},\
-THREADS=${N_CORES},TOOLS_PATH=${TOOLS_PATH} \
+THREADS=${N_CORES},TOOLS_PATH=${TOOLS_PATH},MAXMATCH=${MAXMATCH} \
     ${GITLOC}/VPGRU-MummerAlignment_TEMPLATE.slurm
