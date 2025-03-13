@@ -21,14 +21,17 @@ echo "  Seed Match Length: ${C_VAL}"
 echo "  Job Name: ${RUN_ID}-mummer"
 echo "  Partition:  ${PARTITION}"
 echo "  Cores/Threads:  ${THREADS}"
+echo -e "Command:\n nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} --maxmatch -c ${C_VAL} ${REFERENCE} ${QUERY}"
 
-nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} -maxmatch -c ${C_VAL} ${REFERENCE} ${QUERY}
+nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} --maxmatch -c ${C_VAL} ${REFERENCE} ${QUERY}
 
 echo "Finished alignment, using mummerplot to generate alignment coordinates"
+echo -e "Command:\n mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGNMENT_NAME}.delta"
 mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGNMENT_NAME}.delta
 echo "Finished mummerplot. Rough draft dotplot file: ${ALIGNMENT_NAME}.ps"
 
 echo "Extracting alignment coordinates into tsv format"
+echo -e "Command:\n ${TOOLS_PATH}/alignment_and_visualization/convert_gnuplot_to_tsv.sh ${ALIGNMENT_NAME}"
 ${TOOLS_PATH}/alignment_and_visualization/convert_gnuplot_to_tsv.sh ${ALIGNMENT_NAME}
 echo "Finished extracting tsv files for use by alignment_region_dotplot.R:"
 echo "  ${ALIGNMENT_NAME}.plot.tsv"
