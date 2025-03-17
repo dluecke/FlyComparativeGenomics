@@ -10,9 +10,22 @@ module load samtools/1.17
 
 BAM=$1
 
-echo -e "\nUsing samtools to write ${BAM}.depth.tsv"
-echo -e "\nCommand:\n samtools depth -a ${BAM} > ${BAM}.depth.tsv"
-samtools depth -a ${BAM} > ${BAM}.depth.tsv
+# check if BAM sorted
+SORTCHECK=$(samtools stats --threads 3 $BAM | grep "is sorted:" | awk '{print $NF}') # 0 if unsorted, 1 if sorted
+echo "SORTCHECK=$SORTCHECK"
+if [[ $SORTCHECK == 0 ]]; then
+    echo -e "\nBAM is unsorted, sorting now."
+    echo -e "\nCommand:\n samtools sort --threads 3 $BAM > ${BAM%.*}.sort.bam"
+    samtools sort --threads 3 $BAM > ${BAM%.*}.sort.bam
+    echo -e "\nUsing samtools to write ${BAM}.depth.tsv"
+    echo -e "\nCommand:\n samtools depth --threads 3 -a ${BAM%.*}.sort.bam > ${BAM}.depth.tsv"
+    samtools depth --threads 3 -a ${BAM%.*}.sort.bam > ${BAM}.depth.tsv
+else
+    echo -e "\nUsing samtools to write ${BAM}.depth.tsv"
+    echo -e "\nCommand:\n samtools depth --threads 3 -a ${BAM} > ${BAM}.depth.tsv"
+    samtools depth --threads 3 -a ${BAM} > ${BAM}.depth.tsv
+fi
+
 # get average per scaffold, asorti() to sort by scaffold name
 awk -v OFS='\t' '{ 
         sum[$1] += $3
