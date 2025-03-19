@@ -59,9 +59,16 @@ echo "yahs step finished"
 date
 
 echo -e "\nStarting juicer steps to prepare for JBAT curation"
+# the in-built yahs juicer (for pre, post) has issues with larger genomes (doesn't calculate scale in same way as juicer_tools) 
+# and was dropping ~1/2 of assembly when incorporating review.
+# a branch of yahs (https://github.com/zengxiaofei/yahs.git) has a fix for the juicer script, 
+# see this thread on yahs issues page: https://github.com/c-zhou/yahs/issues/94
+# I added this yahs branch to projects software as yahs-juicer and will use this version for appropriate steps
+# also need to use BAM not BIN for this approach, runs fine just slower
+
 echo "commands:"
-echo " singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img juicer_pre \
-  -a -o $YAHS_OUT.JBAT $YAHS_OUT.bin ${YAHS_OUT}_scaffolds_final.agp $PCTG_ASM.fai 2> $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log"
+echo " /project/vpgru/software/yahs-juicer/juicer pre \
+  -a -o $YAHS_OUT.JBAT $ALN_BAM ${YAHS_OUT}_scaffolds_final.agp $PCTG_ASM.fai 2> $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log"
 echo " singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juicer-tools.img java \
   -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar pre $YAHS_OUT.JBAT.txt $YAHS_OUT.JBAT.hic.part \
   <(cat $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log |\
@@ -69,13 +76,12 @@ echo " singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmoli
   mv $YAHS_OUT.JBAT.hic.part $YAHS_OUT.JBAT.hic"
 
 mkdir $YAHS_OUT.JBAT
-singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img juicer_pre \
-  -a -o $YAHS_OUT.JBAT $YAHS_OUT.bin ${YAHS_OUT}_scaffolds_final.agp $PCTG_ASM.fai 2> $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log
+/project/vpgru/software/yahs-juicer/juicer pre \
+  -a -o $YAHS_OUT.JBAT $ALN_BAM ${YAHS_OUT}_scaffolds_final.agp $PCTG_ASM.fai 2> $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log
 
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juicer-tools.img java \
   -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar pre $YAHS_OUT.JBAT.txt $YAHS_OUT.JBAT.hic.part \
-  <(cat $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log |\
-    grep PRE_C_SIZE | awk '{print $2" "$3}') && \
+  <(cat $YAHS_OUT.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print $2" "$3}') && \
   mv $YAHS_OUT.JBAT.hic.part $YAHS_OUT.JBAT.hic
 
 echo "juicer steps finished"
