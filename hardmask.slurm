@@ -11,6 +11,8 @@
 # writes hardmasked assembly assembly.hardmasked.fa
 # writes assembly.hardmasked.fa.nmasked.csv file with
 #    total length and number masked bases per scaffold
+# Also useful to get number of Ns in scaffold gaps for any assembly
+#   (ignore "-hm" tag on nmask.csv file, "hm.fa" will be copy of unmasked)
 
 date 
 
@@ -32,8 +34,12 @@ tr '[actg]' 'N' < $ASM | sed 's/sNNffold/scaffold/' > $HMASM
 echo "writing CSV with scaffold lengths and number masked bp: $HMASM.nmasked.csv"
 
 while read SCAF; do 
-    LENGTH=$(seqtk subseq $HMASM <(echo $SCAF) | tail -n1 | tr -d '\n' | wc -c)
-    MASKED=$(seqtk subseq $HMASM <(echo $SCAF) | tr -c -d 'N' | wc -c)
+    # writing tmp file for both LENGTH and MASKED bc I was paranoid about +/-1 errors
+    # have to do seqtk subseq to get count of Ns anyway 
+    seqtk subseq $HMASM <(echo $SCAF) > tmp.Scaf-$HMASM-$SCAF.fa
+    LENGTH=$(tail -n1 tmp.Scaf-$HMASM-$SCAF.fa | tr -d '\n' | wc -c)
+    MASKED=$(tr -c -d 'N' tmp.Scaf-$HMASM-$SCAF.fa | wc -c)
+    rm tmp.Scaf-$HMASM-$SCAF.fa
     echo $SCAF,$LENGTH,$MASKED
 done < <(grep ">" $HMASM | tr -d '>') > $HMASM.nmasked.csv
 

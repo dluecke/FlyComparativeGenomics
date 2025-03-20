@@ -16,13 +16,12 @@ while read SCAF; do
         BEG=$((i*WINDOW))
         END0=$(((i+1)*WINDOW))
         END=$((END0 < LENGTH ? END0 : LENGTH))
-        # it's stupidly inefficient to get LENGTH like this, I was paranoid about +/- 1 errors
-        WINDOW_LENGTH=$(seqtk subseq $HMASM \ 
-            <(echo -e "$SCAF\t$BEG\t$END") | \
-            tail -n1 | tr -d '\n' | wc -c)
-        WINDOW_MASKED=$(seqtk subseq $HMASM \
-            <(echo -e "$SCAF\t$BEG\t$END") | \
-            tail -n1 | tr -c -d 'N' | wc -c)
+        # writing tmp file for both LENGTH and MASKED bc I was paranoid about LENGTH=END-BEG giving +/-1 errors
+        # have to do seqtk subseq to get count of Ns anyway 
+        seqtk subseq $HMASM <(echo -e "$SCAF\t$BEG\t$END") > tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa
+        WINDOW_LENGTH=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -d '\n' | wc -c)
+        WINDOW_MASKED=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -c -d 'N' | wc -c)
+        rm tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa
         echo $SCAF-$i, $WINDOW_LENGTH, $WINDOW_MASKED
     done
 done < <(grep ">" $HMASM | tr -d '>' | awk '{print $1}') > $HMASM.windows${WIN_KB}kb_nmasked.csv
