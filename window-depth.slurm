@@ -9,7 +9,7 @@
 date
 
 DEPTHFILE=$1
-WIN_KB=$2
+[[ -n $2 ]] && WIN_KB=$2 || WIN_KB=100
 
 echo "Counting average depth in ${WIN_KB}kb windows of $DEPTHFILE"
 echo "output: $(echo $DEPTHFILE | sed "s/depth/depth_by_windows${WIN_KB}kb/")"

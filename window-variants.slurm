@@ -9,7 +9,7 @@
 date
 
 VCFFILE=$1
-WIN_KB=$2
+[[ -n $2 ]] && WIN_KB=$2 || WIN_KB=100
 
 echo "Counting variants in ${WIN_KB}kb windows of $VCFFILE"
 echo "output: $VCFFILE.nvar_by_windows${WIN_KB}kb.tsv"

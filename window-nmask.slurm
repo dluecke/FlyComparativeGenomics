@@ -10,7 +10,7 @@ date
 module load seqtk/1.3
 
 HMASM=$1
-WIN_KB=$2
+[[ -n $2 ]] && WIN_KB=$2 || WIN_KB=100
 
 echo "Counting number masked bp in ${WIN_KB}kb windows of $HMASM using"
 which seqtk
