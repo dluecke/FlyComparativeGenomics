@@ -20,6 +20,11 @@ which seqtk
 ASM=$1
 HMASM=$(echo $ASM | sed 's/masked/hardmasked/')
 
+# make sure rename worked, otherwise will delete $ASM file
+if [[ "$ASM" == "$HMASM" ]]; then
+    HMASM="${ASM%.*}-hm.fa"
+fi
+
 echo "writing hardmasked verison of $ASM: $HMASM"
 
 tr '[actg]' 'N' < $ASM | sed 's/sNNffold/scaffold/' > $HMASM
