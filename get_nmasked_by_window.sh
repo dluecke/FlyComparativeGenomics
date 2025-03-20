@@ -16,7 +16,8 @@ while read SCAF; do
         BEG=$((i*WINDOW))
         END0=$(((i+1)*WINDOW))
         END=$((END0 < LENGTH ? END0 : LENGTH))
-        WINDOW_LENGTH=$(seqtk subseq $HMASM \
+        # it's stupidly inefficient to get LENGTH like this, I was paranoid about +/- 1 errors
+        WINDOW_LENGTH=$(seqtk subseq $HMASM \ 
             <(echo -e "$SCAF\t$BEG\t$END") | \
             tail -n1 | tr -d '\n' | wc -c)
         WINDOW_MASKED=$(seqtk subseq $HMASM \
