@@ -38,7 +38,7 @@ while read SCAF; do
     # have to do seqtk subseq to get count of Ns anyway 
     seqtk subseq $HMASM <(echo $SCAF) > tmp.Scaf-$HMASM-$SCAF.fa
     LENGTH=$(tail -n1 tmp.Scaf-$HMASM-$SCAF.fa | tr -d '\n' | wc -c)
-    MASKED=$(tr -c -d 'N' tmp.Scaf-$HMASM-$SCAF.fa | wc -c)
+    MASKED=$(tail -n1 tmp.Scaf-$HMASM-$SCAF.fa | tr -c -d 'N' | wc -c)
     rm tmp.Scaf-$HMASM-$SCAF.fa
     echo $SCAF,$LENGTH,$MASKED
 done < <(grep ">" $HMASM | tr -d '>') > $HMASM.nmasked.csv
