@@ -117,6 +117,9 @@ horizontal_synteny_plot(ft_1 = FT_FcanM, ft_2 = FT_ScalM, karyotype_1 = KT_FcanM
 horizontal_synteny_plot(ft_1 = FT_HaenF, ft_2 = FT_MautF, karyotype_1 = KT_HaenF, karyotype_2 = KT_MautF, output_path = 'synteny_HaenF-MautF2025.png')
 horizontal_synteny_plot(ft_1 = FT_HaenM, ft_2 = FT_MautM, karyotype_1 = KT_HaenM, karyotype_2 = KT_MautM, output_path = 'synteny_HaenM-MautM2025.png')
 
+horizontal_synteny_plot(ft_1 = FT_HaenF, ft_2 = FT_HirrF, karyotype_1 = KT_HaenF, karyotype_2 = KT_HirrF, output_path = 'synteny_HaenF-HirrF2025.png')
+horizontal_synteny_plot(ft_1 = FT_HaenM, ft_2 = FT_HirrM, karyotype_1 = KT_HaenM, karyotype_2 = KT_HirrM, output_path = 'synteny_HaenM-HirrM2025.png')
+
 horizontal_synteny_plot(ft_1 = FT_MautF, ft_2 = FT_ScalF, karyotype_1 = KT_MautF, karyotype_2 = KT_ScalF, output_path = 'synteny_MautF-ScalF2025.png')
 horizontal_synteny_plot(ft_1 = FT_MautM, ft_2 = FT_ScalM, karyotype_1 = KT_MautM, karyotype_2 = KT_ScalM, output_path = 'synteny_MautM-ScalM2025.png')
 
