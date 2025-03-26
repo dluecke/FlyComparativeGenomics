@@ -155,3 +155,13 @@ horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HirrF, karyotype_1 = KT_Dmel, 
 horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_MautF, karyotype_1 = KT_Dmel, karyotype_2 = KT_MautF, link_colors=link_colors, output_path = 'synteny_Dmel-MautF2025.png')
 
 horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_ScalF, karyotype_1 = KT_Dmel, karyotype_2 = KT_ScalF, link_colors=link_colors, output_path = 'synteny_Dmel-ScalF2025.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_FcanM, karyotype_1 = KT_Dmel, karyotype_2 = KT_FcanM, link_colors=link_colors, output_path = 'synteny_Dmel-FcanM2025.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HaenM, karyotype_1 = KT_Dmel, karyotype_2 = KT_HaenM, link_colors=link_colors, output_path = 'synteny_Dmel-HaenM2025.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_HirrM, karyotype_1 = KT_Dmel, karyotype_2 = KT_HirrM, link_colors=link_colors, output_path = 'synteny_Dmel-HirrM2025.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_MautM, karyotype_1 = KT_Dmel, karyotype_2 = KT_MautM, link_colors=link_colors, output_path = 'synteny_Dmel-MautM2025.png')
+
+horizontal_synteny_plot(ft_1 = FT_Dmel, ft_2 = FT_ScalM, karyotype_1 = KT_Dmel, karyotype_2 = KT_ScalM, link_colors=link_colors, output_path = 'synteny_Dmel-ScalM2025.png')
