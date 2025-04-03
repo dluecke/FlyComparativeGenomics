@@ -145,9 +145,11 @@ while read HIT; do
     Lh2_HomP=$(( Eh2_HomP - Sh2_HomP ))
 
     # compare hom implied hit lengths from both hap assemblies
-    # size of difference, including taking absolute value (drop any leading '-')
-    dLh1=${$((Lh1_HomP - L_Het1))#-}
-    dLh2=${$((Lh2_HomP - L_Het2))#-}
+    # difference and absolute value (drop any leading '-')
+    dLh1=$((Lh1_HomP - L_Het1))
+    dLh1=${dLh1#-}
+    dLh2=$((Lh2_HomP - L_Het2))
+    dLh2=${dLh2#-}
     if(( $dLh1 -gt $dLh2 )); then
         S_HomP=$Sh2_HomP
         E_HomP=$Eh2_HomP
