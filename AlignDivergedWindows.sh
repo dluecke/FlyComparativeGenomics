@@ -109,8 +109,12 @@ while read HIT; do
 
     # closest corresponding coords in hom primary (using hap1 alignment, could use either)
     # find_closest_value output lines
-    ClosestOut_S1=$(find_closest_value $S_Het1 4 1 $COORDS_HomPvsHet1)
-    ClosestOut_E1=$(find_closest_value $E_Het1 5 2 $COORDS_HomPvsHet1)
+    ClosestOut_S1=$(find_closest_value $S_Het1 4 1 <(awk -v scaf=$FOCAL_SCAF '
+                                                    $12 == scaf && $13 == scaf
+                                                    ' $COORDS_HomPvsHet1))
+    ClosestOut_E1=$(find_closest_value $E_Het1 5 2 <(awk -v scaf=$FOCAL_SCAF '
+                                                    $12 == scaf && $13 == scaf
+                                                    ' $COORDS_HomPvsHet1))
     # adjust hit to difference between hap1 target and closest match
     S_HomP=$(( $(echo $ClosestOut_S1 | awk {'print $3'}) \
                + $(echo $ClosestOut_S1 | awk {'print $1'}) \
