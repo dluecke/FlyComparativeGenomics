@@ -150,7 +150,7 @@ while read HIT; do
     dLh1=${dLh1#-}
     dLh2=$((Lh2_HomP - L_Het2))
     dLh2=${dLh2#-}
-    if(( $dLh1 -gt $dLh2 )); then
+    if [[ $dLh1 -gt $dLh2 ]]; then
         S_HomP=$Sh2_HomP
         E_HomP=$Eh2_HomP
         L_HomP=$Lh2_HomP
