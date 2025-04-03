@@ -107,27 +107,67 @@ while read HIT; do
     E_Het2=$(echo $HIT | awk '{print $5}')
     L_Het2=$(echo $HIT | awk '{print $8}')
 
-    # closest corresponding coords in hom primary (using hap1 alignment, could use either)
+    # Closest corresponding coords in homogametic primary 
+    # ideally would do this with the hap corresponding to neo-X(Z), but not typically known
+    # find in both hap1 and hap2 alignments and go with the hit that has closest length
+    # hap1 alignment
     # find_closest_value output lines
-    ClosestOut_S1=$(find_closest_value $S_Het1 4 1 <(awk -v scaf=$FOCAL_SCAF '
+    ClosestOut_h1S1=$(find_closest_value $S_Het1 4 1 <(awk -v scaf=$FOCAL_SCAF '
                                                     $12 == scaf && $13 == scaf
                                                     ' $COORDS_HomPvsHet1))
-    ClosestOut_E1=$(find_closest_value $E_Het1 5 2 <(awk -v scaf=$FOCAL_SCAF '
+    ClosestOut_h1E1=$(find_closest_value $E_Het1 5 2 <(awk -v scaf=$FOCAL_SCAF '
                                                     $12 == scaf && $13 == scaf
                                                     ' $COORDS_HomPvsHet1))
     # adjust hit to difference between hap1 target and closest match
-    S_HomP=$(( $(echo $ClosestOut_S1 | awk {'print $3'}) \
-               + $(echo $ClosestOut_S1 | awk {'print $1'}) \
-               - $(echo $ClosestOut_S1 | awk {'print $2'}) ))
-    E_HomP=$(( $(echo $ClosestOut_E1 | awk {'print $3'}) \
-               + $(echo $ClosestOut_E1 | awk {'print $1'}) \
-               - $(echo $ClosestOut_E1 | awk {'print $2'}) ))
-    L_HomP=$(( E_HomP - S_HomP ))
+    Sh1_HomP=$(( $(echo $ClosestOut_h1S1 | awk {'print $3'}) \
+               + $(echo $ClosestOut_h1S1 | awk {'print $1'}) \
+               - $(echo $ClosestOut_h1S1 | awk {'print $2'}) ))
+    Eh1_HomP=$(( $(echo $ClosestOut_h1E1 | awk {'print $3'}) \
+               + $(echo $ClosestOut_h1E1 | awk {'print $1'}) \
+               - $(echo $ClosestOut_h1E1 | awk {'print $2'}) ))
+    Lh1_HomP=$(( Eh1_HomP - Sh1_HomP ))
+    
+    # hap2 alignment
+    # find_closest_value output lines
+    ClosestOut_h2S1=$(find_closest_value $S_Het2 4 1 <(awk -v scaf=$FOCAL_SCAF '
+                                                    $12 == scaf && $13 == scaf
+                                                    ' $COORDS_HomPvsHet1))
+    ClosestOut_h2E1=$(find_closest_value $E_Het2 5 2 <(awk -v scaf=$FOCAL_SCAF '
+                                                    $12 == scaf && $13 == scaf
+                                                    ' $COORDS_HomPvsHet1))
+    # adjust hit to difference between hap1 target and closest match
+    Sh2_HomP=$(( $(echo $ClosestOut_h2S1 | awk {'print $3'}) \
+               + $(echo $ClosestOut_h2S1 | awk {'print $1'}) \
+               - $(echo $ClosestOut_h2S1 | awk {'print $2'}) ))
+    Eh2_HomP=$(( $(echo $ClosestOut_h2E1 | awk {'print $3'}) \
+               + $(echo $ClosestOut_h2E1 | awk {'print $1'}) \
+               - $(echo $ClosestOut_h2E1 | awk {'print $2'}) ))
+    Lh2_HomP=$(( Eh2_HomP - Sh2_HomP ))
+
+    # compare hom implied hit lengths from both hap assemblies
+    # size of difference, including taking absolute value (drop any leading '-')
+    dLh1=${$((Lh1_HomP - L_Het1))#-}
+    dLh2=${$((Lh2_HomP - L_Het2))#-}
+    if(( $dLh1 -gt $dLh2 )); then
+        S_HomP=$Sh2_HomP
+        E_HomP=$Eh2_HomP
+        L_HomP=$Lh2_HomP
+    else
+        S_HomP=$Sh1_HomP
+        E_HomP=$Eh1_HomP
+        L_HomP=$Lh1_HomP
+   fi
 
     # lengths to pad coordinate ends to get to window length
     PAD_Het1=$(( (WINDOW_SIZE - L_Het1)/2 ))
     PAD_Het2=$(( (WINDOW_SIZE - L_Het2)/2 ))
     PAD_HomP=$(( (WINDOW_SIZE - L_HomP)/2 ))
+
+    echo $HIT
+    echo $ClosestOut_h1S1
+    echo $ClosestOut_h1E1
+    echo $ClosestOut_h2S1
+    echo $ClosestOut_h2E1
 
     # extract region from het1
     echo "${FOCAL_SCAF}:$((S_Het1 - PAD_Het1))-$((E_Het1 + PAD_Het1))"
