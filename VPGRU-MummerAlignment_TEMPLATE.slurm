@@ -25,7 +25,9 @@ echo -e "Command:\n nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} ${MAXMATCH}
 
 nucmer -p ${ALIGNMENT_NAME} --threads=${THREADS} ${MAXMATCH} -c ${C_VAL} ${REFERENCE} ${QUERY}
 
-echo "Finished alignment, using mummerplot to generate alignment coordinates"
+echo "Finished alignment, using show-coords and mummerplot to generate alignment coordinates"
+echo -e "Command:\n show-coords ${ALIGNMENT_NAME}.delta > ${ALIGNMENT_NAME}.coords"
+show-coords ${ALIGNMENT_NAME}.delta > ${ALIGNMENT_NAME}.coords
 echo -e "Command:\n mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGNMENT_NAME}.delta"
 mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGNMENT_NAME}.delta
 echo "Finished mummerplot. Rough draft dotplot file: ${ALIGNMENT_NAME}.ps"
