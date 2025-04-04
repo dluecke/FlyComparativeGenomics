@@ -87,13 +87,13 @@ find_closest_value() {
 # using maxid, for now opting for minlength approach
 #awk -v maxid=$MAX_ID -v scaf=$FOCAL_SCAF '
 #    $10 <= maxid && $12 == scaf && $13 == scaf
-#    ' $COORDS_Het1vsHet2 | sort -nr -k7,7 | head -n${N_HITS} > \
-#    $COORDS_Het1vsHet2.seedhits
+#    ' $COORDS_Het1vsHet2 | sort -nr -k7,7 | head -n${N_HITS} | sort -n -k1,1 \
+#    > $COORDS_Het1vsHet2.seedhits
 # using minlength
 awk -v minlength=$MIN_HIT_LENGTH -v scaf=$FOCAL_SCAF '
     $7 >= minlength && $12 == scaf && $13 == scaf
-    ' $COORDS_Het1vsHet2 | sort -n -k10,10 | head -n${N_HITS} > \
-    $COORDS_Het1vsHet2.seedhits
+    ' $COORDS_Het1vsHet2 | sort -n -k10,10 | head -n${N_HITS} | sort -n -k1,1 \
+    > $COORDS_Het1vsHet2.seedhits
 # possible that these hits are close enough that resulting alignments overlap
 
 # for each seed hit pull region and run alignment
@@ -185,12 +185,13 @@ while read HIT; do
         -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP
     
     # add assembly info to sequence names and concatenate into single fasta 
-    sed "s/scaffold/${ASM_Het1%.*}-scaffold/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > DivergedWindow$i.fa
-    sed "s/scaffold/${ASM_Het2%.*}-scaffold/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> DivergedWindow$i.fa
-    sed "s/scaffold/${ASM_HomP%.*}-scaffold/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> DivergedWindow$i.fa
+    WINDOW_FASTA=DivergedWindow$(printf "%02d" $i).fa
+    sed "s/scaffold/${ASM_Het1%.*}-scaffold/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > $WINDOW_FASTA
+    sed "s/scaffold/${ASM_Het2%.*}-scaffold/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> $WINDOW_FASTA
+    sed "s/scaffold/${ASM_HomP%.*}-scaffold/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> $WINDOW_FASTA
 
     # submit alignment job to SLURM
-    sbatch ~/FlyComparativeGenomics/muscle.slurm DivergedWindow$i.fa
+    sbatch ~/FlyComparativeGenomics/muscle.slurm $WINDOW_FASTA
 
     ((i+=1))
 done < $COORDS_Het1vsHet2.seedhits
