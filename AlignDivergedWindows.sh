@@ -97,6 +97,7 @@ awk -v minlength=$MIN_HIT_LENGTH -v scaf=$FOCAL_SCAF '
 # possible that these hits are close enough that resulting alignments overlap
 
 # for each seed hit pull region and run alignment
+i=1
 while read HIT; do
 
     # seed hit boundary coords and length for both het haps 
@@ -165,19 +166,31 @@ while read HIT; do
     PAD_Het2=$(( (WINDOW_SIZE - L_Het2)/2 ))
     PAD_HomP=$(( (WINDOW_SIZE - L_HomP)/2 ))
 
-    echo $HIT
-    echo $ClosestOut_h1S1
-    echo $ClosestOut_h1E1
-    echo $ClosestOut_h2S1
-    echo $ClosestOut_h2E1
-
     # extract region from het1
-    echo "${FOCAL_SCAF}:$((S_Het1 - PAD_Het1))-$((E_Het1 + PAD_Het1))"
+    S1=$((S_Het1 - PAD_Het1))
+    E1=$((E_Het1 + PAD_Het1))
+    samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa" \
+        -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1
 
     # extract region from het2
-    echo "${FOCAL_SCAF}:$((S_Het2 - PAD_Het2))-$((E_Het2 + PAD_Het2))"
+    S2=$((S_Het2 - PAD_Het2))
+    E2=$((E_Het2 + PAD_Het2))
+    samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa" \
+        -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2
 
     # extract region from homP
-    echo "${FOCAL_SCAF}:$((S_HomP - PAD_HomP))-$((E_HomP + PAD_HomP))"
+    SP=$((S_HomP - PAD_HomP))
+    EP=$((E_HomP + PAD_HomP))
+    samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa" \
+        -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP
+    
+    # add assembly info to sequence names and concatenate into single fasta 
+    sed "s/scaffold/${ASM_Het1%.*}-scaffold/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > DivergedWindow$i.fa
+    sed "s/scaffold/${ASM_Het2%.*}-scaffold/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> DivergedWindow$i.fa
+    sed "s/scaffold/${ASM_HomP%.*}-scaffold/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> DivergedWindow$i.fa
 
+    # submit alignment job to SLURM
+    sbatch ~/FlyComparativeGenomics/muscle.slurm DivergedWindow$i.fa
+
+    ((i+=1))
 done < $COORDS_Het1vsHet2.seedhits
