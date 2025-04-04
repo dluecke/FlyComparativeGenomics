@@ -39,7 +39,7 @@ ASM_Het2=$6
 ASM_HomP=$7
 
 # constant (for now) variables 
-WINDOW_SIZE=20000 # window size in bp
+WINDOW_SIZE=15000 # window size in bp
 N_HITS=5 # number of regions to align
 # can either filter by max percent identity then take longest hits
 MAX_ID=95 # percent identity max for divergence windows
