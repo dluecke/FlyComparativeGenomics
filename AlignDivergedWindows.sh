@@ -121,11 +121,11 @@ while read HIT; do
                                                     ' $COORDS_HomPvsHet1))
     # adjust hit to difference between hap1 target and closest match
     Sh1_HomP=$(( $(echo $ClosestOut_h1S1 | awk {'print $3'}) \
-               + $(echo $ClosestOut_h1S1 | awk {'print $1'}) \
-               - $(echo $ClosestOut_h1S1 | awk {'print $2'}) ))
+               + $(echo $ClosestOut_h1S1 | awk {'print $2'}) \
+               - $(echo $ClosestOut_h1S1 | awk {'print $1'}) ))
     Eh1_HomP=$(( $(echo $ClosestOut_h1E1 | awk {'print $3'}) \
-               + $(echo $ClosestOut_h1E1 | awk {'print $1'}) \
-               - $(echo $ClosestOut_h1E1 | awk {'print $2'}) ))
+               + $(echo $ClosestOut_h1E1 | awk {'print $2'}) \
+               - $(echo $ClosestOut_h1E1 | awk {'print $1'}) ))
     Lh1_HomP=$(( Eh1_HomP - Sh1_HomP ))
     
     # hap2 alignment
@@ -136,13 +136,13 @@ while read HIT; do
     ClosestOut_h2E1=$(find_closest_value $E_Het2 5 2 <(awk -v scaf=$FOCAL_SCAF '
                                                     $12 == scaf && $13 == scaf
                                                     ' $COORDS_HomPvsHet2))
-    # adjust hit to difference between hap1 target and closest match
+    # adjust hit to difference between hap2 target and closest match
     Sh2_HomP=$(( $(echo $ClosestOut_h2S1 | awk {'print $3'}) \
-               + $(echo $ClosestOut_h2S1 | awk {'print $1'}) \
-               - $(echo $ClosestOut_h2S1 | awk {'print $2'}) ))
+               + $(echo $ClosestOut_h2S1 | awk {'print $2'}) \
+               - $(echo $ClosestOut_h2S1 | awk {'print $1'}) ))
     Eh2_HomP=$(( $(echo $ClosestOut_h2E1 | awk {'print $3'}) \
-               + $(echo $ClosestOut_h2E1 | awk {'print $1'}) \
-               - $(echo $ClosestOut_h2E1 | awk {'print $2'}) ))
+               + $(echo $ClosestOut_h2E1 | awk {'print $2'}) \
+               - $(echo $ClosestOut_h2E1 | awk {'print $1'}) ))
     Lh2_HomP=$(( Eh2_HomP - Sh2_HomP ))
 
     # compare hom implied hit lengths from both hap assemblies
