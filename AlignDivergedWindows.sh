@@ -132,10 +132,10 @@ while read HIT; do
     # find_closest_value output lines
     ClosestOut_h2S1=$(find_closest_value $S_Het2 4 1 <(awk -v scaf=$FOCAL_SCAF '
                                                     $12 == scaf && $13 == scaf
-                                                    ' $COORDS_HomPvsHet1))
+                                                    ' $COORDS_HomPvsHet2))
     ClosestOut_h2E1=$(find_closest_value $E_Het2 5 2 <(awk -v scaf=$FOCAL_SCAF '
                                                     $12 == scaf && $13 == scaf
-                                                    ' $COORDS_HomPvsHet1))
+                                                    ' $COORDS_HomPvsHet2))
     # adjust hit to difference between hap1 target and closest match
     Sh2_HomP=$(( $(echo $ClosestOut_h2S1 | awk {'print $3'}) \
                + $(echo $ClosestOut_h2S1 | awk {'print $1'}) \
