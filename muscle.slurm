@@ -14,8 +14,6 @@ IN_FASTA=$1
 
 # output files for different formats
 OUT_FASTA=${IN_FASTA%.*}.MSA.afa
-OUT_CLUSTAL=${IN_FASTA%.*}.MSA.aln
-OUT_PHYLIP=${IN_FASTA%.*}.MSA.phy
 
-muscle -in $IN_FASTA -threads 32 -fastaout $OUT_FASTA -clwout $OUT_CLUSTAL -phyiout $OUT_PHYLIP
+muscle -align $IN_FASTA -threads 32 -output $OUT_FASTA
 
