@@ -12,7 +12,10 @@ module load muscle/5.1.0
 
 IN_FASTA=$1
 
-OUT_FASTA=${IN_FASTA%.*}.MSA.fa
+# output files for different formats
+OUT_FASTA=${IN_FASTA%.*}.MSA.afa
+OUT_CLUSTAL=${IN_FASTA%.*}.MSA.aln
+OUT_PHYLIP=${IN_FASTA%.*}.MSA.phy
 
-muscle -align $IN_FASTA -output $OUT_FASTA -threads 32
+muscle -align $IN_FASTA -threads 32 -fastaout $OUT_FASTA -clwout $OUT_CLUSTAL -phyiout $OUT_PHYLIP
 
