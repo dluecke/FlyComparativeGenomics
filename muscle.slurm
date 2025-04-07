@@ -18,7 +18,7 @@ OUT_FASTA=${IN_FASTA%.*}.MSA.afa
 OUT_INTERLEAVED=${IN_FASTA%.*}.MSA.iafa
 
 # Running multiple sequence alignment
-echo -n "Running muscle aligner on sequences in $IN_FASTA, producing $OUT_FASTA\nUsing:"
+echo -e "Running muscle aligner on sequences in $IN_FASTA, producing $OUT_FASTA\nUsing:"
 muscle --version
 echo -e "Command:\n muscle -align $IN_FASTA -threads 32 -output $OUT_FASTA\n"
 muscle -align $IN_FASTA -threads 32 -output $OUT_FASTA
@@ -54,5 +54,5 @@ for i in $(seq 1 $N_PER); do
         sed -n "${LINEij}p" $OUT_FASTA
     done
     # starting coordinate for next block (block 1 is headers), skip last
-    [[ $i -ne $N_PER ]] && echo $((1+N_PERLINE*(i-1)))
+    [[ $i -ne $N_PER ]] && echo $((1+N_PERLINE*(i-1))) || exit 0
 done > $OUT_INTERLEAVED
