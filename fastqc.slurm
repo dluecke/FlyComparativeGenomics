@@ -8,6 +8,6 @@
 #SBATCH --mail-user=david.luecke@usda.gov
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
-module load fastqc
-
+module load fastqc/0.12.1
+fastqc --version
 fastqc $1
