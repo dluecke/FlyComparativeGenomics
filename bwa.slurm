@@ -52,16 +52,7 @@ Map_GetDepths() {
   echo " samtools depth -a $OUT.bam > $OUT.depth.tsv"
   samtools depth -a $OUT.bam > $OUT.depth.tsv
   echo "Writing $OUT.depth_by_scaffold.tsv"
-  awk '{
-          sum[$1] += $3
-          count[$1]++
-      }
-      END {
-          n=asorti(count, indices);
-          for (i=1; i<=n; i++) {
-              print indices[i], "\t", sum[indices[i]]/count[indices[i]]
-          }
-      }' $OUT.depth.tsv > $OUT.depth_by_scaffold.tsv
+  ~/FlyComparativeGenomics/get_depth_by_scaffold.sh $OUT.depth.tsv
   echo -e "Done with $SAMPLE.\n"
   date
 }
