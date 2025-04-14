@@ -8,7 +8,7 @@
 #  target COORDinate (bp on target sequence)
 #  SPAN length (distance from target coordinate required to cover on both sides, default 1kb)
 # writes:
-#  MAPPING-SEQ_COORDspanSPAN.sam file with all reads spanning target coordinate +/- span distance
+#  MAPPING-SEQ_COORDspanSPANbp.sam file with all reads spanning target coordinate +/- span distance
 
 # REQUIRES: samtools sort (written with samtools 1.17)
 
@@ -20,7 +20,7 @@ TARGET_COORD=$3
 [[ -n $4 ]] && SPAN_LENGTH=$4 || SPAN_LENGTH=1000
 
 # output filename
-OUT_SAM="${IN_BAM%.*}-${TARGET_SEQ}_${TARGET_COORD}span${SPAN_LENGTH}.sam"
+OUT_SAM="${IN_BAM%.*}-${TARGET_SEQ}_${TARGET_COORD}span${SPAN_LENGTH}bp.sam"
 
 # samtools view to extract reads covering target seq/coord
 samtools view $IN_BAM ${TARGET_SEQ}:${TARGET_COORD}:${TARGET_COORD} |\
