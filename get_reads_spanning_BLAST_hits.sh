@@ -36,7 +36,7 @@ while read SEQ; do
         awk -v seq=$SEQ '
             $2 == seq
         ' $BLAST_HITS | \
-        cut -f9,10 | sort -n | \
+        cut -f9,10 | tr '\t' '\n' | sort -n | \
         awk -v OFS='\n' -v gap=$MIN_GAP '
             NR == 1 {
                 print $1; last=$1
