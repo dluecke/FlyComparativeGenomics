@@ -65,7 +65,7 @@ while read SEQ; do
     # loop through seed hits
     for s in ${SEED_STARTS[@]}; do
         # check every potential cluster edge
-        for i in $(seq 0 $((${#ALL_CLUSTER_EDGES[@]-1))}); do
+        for i in $(seq 0 $((${#ALL_CLUSTER_EDGES[@]}-1))); do
             # loop until seed coordinate greater than or equal to edge position
             if [[ ! ${ALL_CLUSTER_EDGES[$i]} -lt $s ]]; then
                 # break to next seed if the same cluster as previous so no duplicate clusters
@@ -84,7 +84,7 @@ while read SEQ; do
     done
 
     # loop through all clusters/regions in SEQ
-    for j in $(seq 0 $((${#CLUSTER_BEGS[@]-1))}); do
+    for j in $(seq 0 $((${#CLUSTER_BEGS[@]}-1))); do
 
         # cluster edges
         REGION_BEG=${CLUSTER_BEGS[$j]}
