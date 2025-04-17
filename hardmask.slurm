@@ -29,7 +29,8 @@ fi
 
 echo "writing hardmasked verison of $ASM: $HMASM"
 
-tr '[actg]' 'N' < $ASM | sed 's/sNNffold/scaffold/' > $HMASM
+# on lines that don't start with > replace any of a, c, t, or g with N
+sed '/^>/!s/[actg]/N/g' $ASM > $HMASM
 
 echo "writing CSV with scaffold lengths and number masked bp: $HMASM.nmasked.csv"
 
