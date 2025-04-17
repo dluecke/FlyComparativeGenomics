@@ -232,7 +232,10 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     scale_y_continuous(breaks = c(QRY_STARTPOS, df.QRY_TICS$position),
                        labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = "right" ,
                        minor_breaks = NULL ) + #, expand = c(0.05,0), limits = c(-QRY_MAX*1.1, QRY_MAX)) +
-    scale_color_brewer(palette = "Dark2") + 
+    # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
+    # so set manually to keep consistent, but still use the nice palette
+    scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
+                                  "reverse" = brewer.pal(3,"Dark2")[2])) + 
     theme_minimal() +
     theme(plot.margin = margin(10,0,5,10), axis.title.y.right = element_text(angle = 90),
           axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0, color = "slateblue", face = "bold"), 
