@@ -3,6 +3,8 @@
 # get_uniquegenes_gff.sh takes 2 gffs of same assembly A.gff B.gff
 # produces gff gene lines for unique regions in each A.uniquegenes.gff B.uniquegenes.gff
 
+# just use bedtools subtract, way faster 
+
 GFF_A=$1
 GFF_B=$2
 
