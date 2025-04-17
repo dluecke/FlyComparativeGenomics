@@ -120,7 +120,7 @@ while read SEQ; do
         echo -e "input hits file:\t$BLAST_HITS"
         echo -e "sequence name:\t$SEQ"
         echo -e "number of hits:\t$N_CLUSTER_HITS"
-        echo -e "region length:\t$((REGION_END - REGION_BEG))"
+        echo -e "region length:\t$((REGION_END - REGION_BEG + 1))"
         echo -e "region coordinates:\t$REGION_BEG - $REGION_END"
         echo -e "\nBLAST hits in cluster:"
         awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '
@@ -128,10 +128,10 @@ while read SEQ; do
         ' $BLAST_HITS | sort -n -k9,10
         echo -e "\nAligned reads"
         echo -e "input alignment file:\t$BAM_IN"
-        echo -e "number of reads in region:\t$(wc -l $REGION_SAM)"
+        echo -e "number of reads in region:\t$(wc -l $REGION_SAM | awk '{print $1}')"
         echo -e "all alignments in region:\t$REGION_SAM"
-        echo -e "number of reads spanning region start:\t$(wc -l $BOUNDARYBEG_SAM)"
-        echo -e "number of reads spanning region end:\t$(wc -l $BOUNDARYEND_SAM)"
+        echo -e "number of reads spanning region start:\t$(wc -l $BOUNDARYBEG_SAM | awk '{print $1}')"
+        echo -e "number of reads spanning region end:\t$(wc -l $BOUNDARYEND_SAM | awk '{print $1}')"
         echo -e "alignments spanning region start:\t$BOUNDARYBEG_SAM"
         echo -e "alignments spanning region end:\t$BOUNDARYEND_SAM"
         echo -e "read IDs spanning either boundary:\t$BOUNDARY_READS"
