@@ -121,7 +121,7 @@ GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL,
 PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F,  # reorder query names by ref position
                          MIN_REF_LENGTH = 0, MIN_QRY_LENGTH = 0, MIN_MATCH_LENGTH = 0, 
                          TIC_LABELS = FALSE, TIC_COUNT = 40, 
-                         DROP_EMPTY_SCAFFOLDS = T,
+                         DROP_EMPTY_SCAFFOLDS = T, FLIP_AXES = F,
                          ALPHA = 0.25, POINTSIZE = 0.8, COORD_OFFSET = 0.02,
                          LAB_REF = "", LAB_QRY = ""){
   
@@ -216,6 +216,14 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     df.QRY_TICS <- data.frame(position = c(QRY_MAX))
   }
   
+  if( FLIP_AXES ){
+    XPOS = "top"
+    YPOS = "left"
+  } else {
+    XPOS = "bottom"
+    YPOS = "right"
+  }
+  
   p <- ggplot(DF_COORDS, aes(x=R1, y=Q1))
   p2 <- p + 
     geom_segment(aes(xend=R2, yend=Q2, color=orientation)) + 
@@ -226,11 +234,11 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     geom_segment(data = data.frame(x=0, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
                  aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) +
     labs(x=LAB_REF, y=LAB_QRY) +
-    scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position),
-                       labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))),
+    scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position), 
+                       labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))), position = XPOS,
                        minor_breaks = NULL) + #, expand = c(0.05,0), limits = c(-REF_MAX*0.1,REF_MAX*1.1)) +
     scale_y_continuous(breaks = c(QRY_STARTPOS, df.QRY_TICS$position),
-                       labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = "right" ,
+                       labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = YPOS,
                        minor_breaks = NULL ) + #, expand = c(0.05,0), limits = c(-QRY_MAX*1.1, QRY_MAX)) +
     # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
     # so set manually to keep consistent, but still use the nice palette
@@ -242,13 +250,26 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
           axis.text.y = element_text(angle = 45, hjust = 0, vjust = 0, color = "slateblue", face = "bold") )
   
   if( TIC_LABELS ){
-    p2 <- p2 +
-      geom_text(data = df.REF_TICS, aes(x = position, y = -1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
-      geom_text(data = df.QRY_TICS, aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
-      coord_cartesian(xlim = c(COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(-COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
+    if( FLIP_AXES ){
+      p2 <- p2 +
+        geom_text(data = df.REF_TICS, aes(x = position, y = -1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+        geom_text(data = df.QRY_TICS, aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+        coord_flip(xlim = c(COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(-COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
+    } else {
+      p2 <- p2 +
+        geom_text(data = df.REF_TICS, aes(x = position, y = -1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+        geom_text(data = df.QRY_TICS, aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+        coord_cartesian(xlim = c(COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(-COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
+    }  
   } else {
-    p2 <- p2 +
-      coord_cartesian(xlim = c(COORD_OFFSET*REF_MAX, REF_MAX*(1-COORD_OFFSET)), ylim = c(COORD_OFFSET*QRY_MAX, (1-COORD_OFFSET)*QRY_MAX)) 
+    if( FLIP_AXES ){
+      p2 <- p2 +
+        coord_flip(xlim = c(COORD_OFFSET*REF_MAX, REF_MAX*(1-COORD_OFFSET)), ylim = c(COORD_OFFSET*QRY_MAX, (1-COORD_OFFSET)*QRY_MAX)) 
+    } else {
+      p2 <- p2 +
+        coord_cartesian(xlim = c(COORD_OFFSET*REF_MAX, REF_MAX*(1-COORD_OFFSET)), ylim = c(COORD_OFFSET*QRY_MAX, (1-COORD_OFFSET)*QRY_MAX)) 
+      
+    }
   }
   
   return(p2)
