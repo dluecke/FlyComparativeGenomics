@@ -14,6 +14,7 @@
 #   SAM file with all hits 
 #   SAM files for all boundary spanning hits via get_spanning_reads.sh
 #   union list of reads from both boundaries
+#   report file for cluster with edge coords, hits, boundary spanning reads
 # requires:
 #  samtools, written with version 1.17
 
@@ -83,7 +84,7 @@ while read SEQ; do
         done
     done
 
-    # loop through all clusters/regions in SEQ
+    # loop through all clusters/regions with high scoring hits in SEQ
     for j in $(seq 0 $((${#CLUSTER_BEGS[@]}-1))); do
 
         # cluster edges
@@ -98,6 +99,8 @@ while read SEQ; do
         BOUNDARYEND_SAM=${BAM_IN%.*}-${SEQ}_${REGION_END}span${BOUNDARY_SPAN}bp.sam
         # list of reads spanning either boundary (input to seqtk subseq)
         BOUNDARY_READS=${BLAST_HITS%.*}_bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
+        # report file
+        REGION_REPORT=HitClusterInfo-${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${SEQ}-cluster$(printf "%02d" $j).txt
 
         # samtools view to extract reads mapped to cluster region
         samtools view $BAM_IN ${SEQ}:${REGION_BEG}-${REGION_END} > $REGION_SAM
@@ -108,6 +111,35 @@ while read SEQ; do
 
         # list reads from both boundaries, non-redundant
         cat $BOUNDARYBEG_SAM $BOUNDARYEND_SAM | cut -f1 | sort -u > $BOUNDARY_READS
+
+        # cluster reporting
+        N_CLUSTER_HITS=$(awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '$2 == s && $9 >= b && $9 <= e' $BLAST_HITS | wc -l)
+        {
+        echo -e "Details for cluster $j of BLAST hits on $SEQ\n"
+        echo -e "BLAST results"
+        echo -e "input hits file:\t$BLAST_HITS"
+        echo -e "sequence name:\t$SEQ"
+        echo -e "number of hits:\t$N_CLUSTER_HITS"
+        echo -e "region length:\t$((REGION_END - REGION_BEG))"
+        echo -e "region coordinates:\t$REGION_BEG - $REGION_END"
+        echo -e "\nBLAST hits in cluster:"
+        awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '
+            $2 == s && $9 >= b && $9 <= e
+        ' $BLAST_HITS | sort -n -k9,10
+        echo -e "\nAligned reads"
+        echo -e "input alignment file:\t$BAM_IN"
+        echo -e "number of reads in region:\t$(wc -l $REGION_SAM)"
+        echo -e "all alignments in region:\t$REGION_SAM"
+        echo -e "number of reads spanning region start:\t$(wc -l $BOUNDARYBEG_SAM)"
+        echo -e "number of reads spanning region end:\t$(wc -l $BOUNDARYEND_SAM)"
+        echo -e "alignments spanning region start:\t$BOUNDARYBEG_SAM"
+        echo -e "alignments spanning region end:\t$BOUNDARYEND_SAM"
+        echo -e "read IDs spanning either boundary:\t$BOUNDARY_READS"
+        echo -e "IDs of reads spanning region start:"
+        printf "\t%s\n" $(cut -f1 $BOUNDARYBEG_SAM)
+        echo -e "IDs of reads spanning region end:"
+        printf "\t%s\n" $(cut -f1 $BOUNDARYEND_SAM)
+        } > $REGION_REPORT
 
     done
 
