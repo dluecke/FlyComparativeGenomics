@@ -113,7 +113,7 @@ while read SEQ; do
         BOUNDARYBEG_SAM=${BAM_IN%.*}-${SEQ}_${REGION_BEG}span${BOUNDARY_SPAN}bp.sam
         BOUNDARYEND_SAM=${BAM_IN%.*}-${SEQ}_${REGION_END}span${BOUNDARY_SPAN}bp.sam
         # list of reads spanning either boundary (input to seqtk subseq)
-        BOUNDARY_READS=${BLAST_HITS%.*}_bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
+        BOUNDARY_READS=${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
         # report filename
         REGION_REPORT=HitClusterInfo-bit${BIT_THRESH}_gap${MIN_GAP}_span${BOUNDARY_SPAN}-${CLUSTERTAG}.txt
 
