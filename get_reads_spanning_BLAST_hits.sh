@@ -6,10 +6,11 @@
 # takes positional arguments:
 #   BLAST output in outfmt 6
 #   BAM file for reads mapped to sequences matching BLAST target
-#  Optional (all or none, maybe use case getopts later):
+#  Optional (position sensitive, better flexibility submitting with VPGRU-write_breakpoint_fastas.slurm):
 #   Minimum bp distance between clusters, DEFAULT 50000
 #   bit score threshold to include cluster, DEFAULT 5000
 #   boundary span bp distance for get_spanning_reads.sh, DEFAULT 5000
+#   path to FlyComparativeGenomics repo/location of get_spanning_reads.sh
 # outputs for each cluster:
 #   SAM file with all hits 
 #   SAM files for all boundary spanning hits via get_spanning_reads.sh
@@ -18,14 +19,6 @@
 # requires:
 #  samtools, written with version 1.17
 
-# path for get_spanning_reads.sh
-# if called by path use the dirname, if called from $PATH use default
-if [[ "$(dirname $0)" != "." ]]; then
-    GIT_PATH=$(dirname $0)
-else
-    GIT_PATH=~/FlyComparativeGenomics
-fi
-
 # required positional arguments
 BLAST_HITS=$1
 BAM_IN=$2
@@ -33,6 +26,7 @@ BAM_IN=$2
 [[ -n $3 ]] && MIN_GAP=$3 || MIN_GAP=50000
 [[ -n $4 ]] && BIT_THRESH=$4 || BIT_THRESH=5000
 [[ -n $5 ]] && BOUNDARY_SPAN=$5 || BOUNDARY_SPAN=5000
+[[ -n $6 ]] && GIT_PATH=$6 || GIT_PATH=~/FlyComparativeGenomics
 
 # need to keep each target sequence separate, loop through each SEQ with hit above bit score threshold
 while read SEQ; do
