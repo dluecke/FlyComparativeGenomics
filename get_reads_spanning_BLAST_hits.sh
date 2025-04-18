@@ -86,7 +86,7 @@ while read SEQ; do
 
     # want an easy-to-read tag for cluster id
     # alphanumeric-only version of SEQ name
-    SEQ_ALNUM=$(echo $SEQ | tr -d -c '[:alnum]')
+    SEQ_ALNUM=$(echo $SEQ | tr -d -c '[:alnum:]')
     # using letters since sequences and coordinates already numeric
     if [[ ! ${#CLUSTER_BEGS[@]} -gt 26 ]]; then
         LETTER_ID=( {A..Z} )
