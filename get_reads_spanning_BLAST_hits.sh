@@ -128,7 +128,7 @@ while read SEQ; do
         # cluster reporting
         N_CLUSTER_HITS=$(awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '$2 == s && $9 >= b && $9 <= e' $BLAST_HITS | wc -l)
         {
-        echo -e "Details for cluster ${LETTER_ID[$j]} of BLAST hits on $SEQ\n"
+        echo -e "Details for cluster ${LETTER_ID[$j]} of $SEQ BLAST hits\n"
         echo -e "Clustering Parameters:"
         echo -e "cluster best hit score threshold:\t$BIT_THRESH"
         echo -e "minimum distance between clusters:\t$MIN_GAP"
