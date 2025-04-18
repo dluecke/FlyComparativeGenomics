@@ -129,7 +129,7 @@ while read SEQ; do
         N_CLUSTER_HITS=$(awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '$2 == s && $9 >= b && $9 <= e' $BLAST_HITS | wc -l)
         {
         echo -e "Details for cluster ${LETTER_ID[$j]} of BLAST hits on $SEQ\n"
-        echo -e "\nClustering Parameters:"
+        echo -e "Clustering Parameters:"
         echo -e "cluster best hit score threshold:\t$BIT_THRESH"
         echo -e "minimum distance between clusters:\t$MIN_GAP"
         echo -e "span distance for boundary reads:\t$BOUNDARY_SPAN"
