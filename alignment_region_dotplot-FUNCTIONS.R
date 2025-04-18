@@ -252,9 +252,9 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   if( TIC_LABELS ){
     if( FLIP_AXES ){
       p2 <- p2 +
-        geom_text(data = df.REF_TICS, aes(x = position, y = -1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
-        geom_text(data = df.QRY_TICS, aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
-        coord_flip(xlim = c(COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(-COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
+        geom_text(data = df.REF_TICS, aes(x = position, y = QRY_MAX + 1, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+        geom_text(data = df.QRY_TICS, aes(x = -1, y = position, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+        coord_flip(xlim = c(-COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
     } else {
       p2 <- p2 +
         geom_text(data = df.REF_TICS, aes(x = position, y = -1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
