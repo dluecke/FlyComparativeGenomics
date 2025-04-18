@@ -118,7 +118,7 @@ while read SEQ; do
         # list of reads spanning either boundary (input to seqtk subseq)
         BOUNDARY_READS=${BLAST_HITS%.*}_bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
         # report filename
-        REGION_REPORT=HitClusterInfo-${CLUSTERTAG}.txt
+        REGION_REPORT=HitClusterInfo-bit${BIT_THRESH}_gap${MIN_GAP}_span${BOUNDARY_SPAN}-${CLUSTERTAG}.txt
 
         # samtools view to extract reads mapped to cluster region
         samtools view $BAM_IN ${SEQ}:${REGION_BEG}-${REGION_END} > $REGION_SAM
