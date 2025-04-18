@@ -26,7 +26,7 @@ module load seqkit/2.4.0
 
 # SET VARIABLES
 # location of other scripts same as for this script in FlyComparativeGenomics repo
-FCG_PATH=$(dirname $0)
+FCG_PATH=~/FlyComparativeGenomics
 
 # Required variables, given as positional 
 [[ -n $1 ]] && REF_ASM=$1 || (echo "Nothing in position 1"; exit; )
