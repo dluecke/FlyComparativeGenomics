@@ -19,7 +19,12 @@
 #  samtools, written with version 1.17
 
 # path for get_spanning_reads.sh
-GIT_PATH=~/FlyComparativeGenomics
+# if called by path use the dirname, if called from $PATH use default
+if [[ "$(dirname $0)" != "." ]]; then
+    GIT_PATH=$(dirname $0)
+else
+    GIT_PATH=~/FlyComparativeGenomics
+fi
 
 # required positional arguments
 BLAST_HITS=$1
