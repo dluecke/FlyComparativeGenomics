@@ -28,6 +28,9 @@ BAM_IN=$2
 [[ -n $5 ]] && BOUNDARY_SPAN=$5 || BOUNDARY_SPAN=5000
 [[ -n $6 ]] && GIT_PATH=$6 || GIT_PATH=~/FlyComparativeGenomics
 
+# index BAM if not already
+[[ -f $BAM_IN.bai ]] || samtools index $BAM_IN
+
 # need to keep each target sequence separate, loop through each SEQ with hit above bit score threshold
 while read SEQ; do
 
