@@ -29,8 +29,8 @@ fi
 
 echo "writing hardmasked verison of $ASM: $HMASM"
 
-# on lines that don't start with > replace any of a, c, t, or g with N
-sed '/^>/!s/[actg]/N/g' $ASM > $HMASM
+# if line doesn't start with > replace any of a, c, t, g, or n with N
+sed '/^>/!s/[actgn]/N/g' $ASM > $HMASM
 
 echo "writing CSV with scaffold lengths and number masked bp: $HMASM.nmasked.csv"
 
@@ -42,6 +42,6 @@ while read SCAF; do
     MASKED=$(tail -n1 tmp.Scaf-$HMASM-$SCAF.fa | tr -c -d 'N' | wc -c)
     rm tmp.Scaf-$HMASM-$SCAF.fa
     echo $SCAF,$LENGTH,$MASKED
-done < <(grep ">" $HMASM | tr -d '>') > $HMASM.nmasked.csv
+done < <(grep ">" $HMASM | awk '{print $1}' | tr -d '>') > $HMASM.nmasked.csv
 
 date
