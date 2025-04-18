@@ -84,8 +84,21 @@ while read SEQ; do
         done
     done
 
+    # want an easy-to-read tag for cluster id
+    # alphanumeric-only version of SEQ name
+    SEQ_ALNUM=$(echo $SEQ | tr -d -c '[:alnum]')
+    # using letters since sequences and coordinates already numeric
+    if [[ ! ${#CLUSTER_BEGS[@]} -gt 26 ]]; then
+        LETTER_ID=( {A..Z} )
+    else # if more than 26 clusters use two-letter (AA AB .. AZ BA BB .. etc) which allows 676
+        LETTER_ID=( {A..Z}{A..Z} )
+    fi
+
     # loop through all clusters/regions with high scoring hits in SEQ
     for j in $(seq 0 $((${#CLUSTER_BEGS[@]}-1))); do
+
+        # cluster id tag
+        CLUSTERTAG=${SEQ_ALNUM}_${LETTER_ID[$j]}
 
         # cluster edges
         REGION_BEG=${CLUSTER_BEGS[$j]}
@@ -99,8 +112,8 @@ while read SEQ; do
         BOUNDARYEND_SAM=${BAM_IN%.*}-${SEQ}_${REGION_END}span${BOUNDARY_SPAN}bp.sam
         # list of reads spanning either boundary (input to seqtk subseq)
         BOUNDARY_READS=${BLAST_HITS%.*}_bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
-        # report file
-        REGION_REPORT=HitClusterInfo-${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${SEQ}-cluster$(printf "%02d" $j).txt
+        # report filename
+        REGION_REPORT=HitClusterInfo-${CLUSTERTAG}.txt
 
         # samtools view to extract reads mapped to cluster region
         samtools view $BAM_IN ${SEQ}:${REGION_BEG}-${REGION_END} > $REGION_SAM
@@ -115,8 +128,12 @@ while read SEQ; do
         # cluster reporting
         N_CLUSTER_HITS=$(awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '$2 == s && $9 >= b && $9 <= e' $BLAST_HITS | wc -l)
         {
-        echo -e "Details for cluster $j of BLAST hits on $SEQ\n"
-        echo -e "BLAST results"
+        echo -e "Details for cluster ${LETTER_ID[$j]} of BLAST hits on $SEQ\n"
+        echo -e "\nClustering Parameters:"
+        echo -e "cluster best hit score threshold:\t$BIT_THRESH"
+        echo -e "minimum distance between clusters:\t$MIN_GAP"
+        echo -e "span distance for boundary reads:\t$BOUNDARY_SPAN"
+        echo -e "\nBLAST Results"
         echo -e "input hits file:\t$BLAST_HITS"
         echo -e "sequence name:\t$SEQ"
         echo -e "number of hits:\t$N_CLUSTER_HITS"
@@ -126,7 +143,7 @@ while read SEQ; do
         awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '
             $2 == s && $9 >= b && $9 <= e
         ' $BLAST_HITS | sort -n -k9,10
-        echo -e "\nAligned reads"
+        echo -e "\nAligned Reads"
         echo -e "input alignment file:\t$BAM_IN"
         echo -e "number of reads in region:\t$(wc -l $REGION_SAM | awk '{print $1}')"
         echo -e "all alignments in region:\t$REGION_SAM"
@@ -134,7 +151,7 @@ while read SEQ; do
         echo -e "number of reads spanning region end:\t$(wc -l $BOUNDARYEND_SAM | awk '{print $1}')"
         echo -e "alignments spanning region start:\t$BOUNDARYBEG_SAM"
         echo -e "alignments spanning region end:\t$BOUNDARYEND_SAM"
-        echo -e "read IDs spanning either boundary:\t$BOUNDARY_READS"
+        echo -e "list of read IDs spanning either boundary:\t$BOUNDARY_READS"
         echo -e "IDs of reads spanning region start:"
         printf "\t%s\n" $(cut -f1 $BOUNDARYBEG_SAM)
         echo -e "IDs of reads spanning region end:"
