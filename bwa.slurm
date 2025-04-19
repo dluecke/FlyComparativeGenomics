@@ -19,6 +19,7 @@ module load samtools/1.17
 
 ASSEMBLY=$1 # assembly file
 INDEX=$2 # prefix string for index 
+SAMPLES=$3 # READS.tsv samples file
 THREADS=32
 
 echo "Mapping reads:"
@@ -62,4 +63,4 @@ while read SAMPLE_LINE; do
     R1=$(echo $SAMPLE_LINE | cut -f2)
     R2=$(echo $SAMPLE_LINE | cut -f3)
     Map_GetDepths $S $R1 $R2
-done < $3
+done < $SAMPLES
