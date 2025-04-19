@@ -46,9 +46,9 @@ echo "Moving results from $TMPDIR to $WORKDIR"
 echo "commands:"
 echo " rsync -rv ${TMPDIR}/repmask_RepModLib_${DB_NAME} $WORKDIR"
 #echo " rsync -rv ${TMPDIR}/RM* $WORKDIR"
-#echo " rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR"
+echo " rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR"
 rsync -rv ${TMPDIR}/repmask_RepModLib_${DB_NAME} $WORKDIR
 #rsync -rv ${TMPDIR}/RM* $WORKDIR
-#rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR
+rsync -rv ${TMPDIR}/${DB_NAME}* $WORKDIR
 
 date
