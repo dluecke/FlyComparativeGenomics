@@ -68,13 +68,13 @@ for CLUSTERFILE in Cluster_bit${SEED_BIT_THRESH}_gaps$((MIN_CLUSTER_GAP/1000))kb
     REGION_END=$(( CLUSTER_MID + TOTAL_REGION_LENGTH/2 )) # ok if upper end higher than seq length, samtools faidx will truncate
     # get region fasta with samtools faidx, into top cluster directory (same regardless of span)
     samtools faidx $REF_ASM ${CLUSTER_SEQ}:${REGION_BEG}-${REGION_END} \
-        > $(dirname CLUSTER_DIR)/${REF_ASM%.*}-${CLUSTER_SEQ}_${REGION_BEG}to${REGION_END}.fa
+        > $(dirname $CLUSTER_DIR)/${REF_ASM%.*}-${CLUSTER_SEQ}_${REGION_BEG}to${REGION_END}.fa
 
     # Cluster Boundary Spanning Reads
     # filename with read id list 
     READS_LIST=$(grep "list of read IDs spanning either boundary:" $CLUSTERFILE | cut -f2)
     # write fasta of reads with seqkit grep and fq2fa
-    seqkit grep -f $READS_LIST $READS_FQ | seqkit fq2fa \
+    seqkit grep -f $CLUSTER_DIR/$READS_LIST $READS_FQ | seqkit fq2fa \
         > $CLUSTER_DIR/${READS_FQ%.*}-${CLUSTER_ID}_span${READS_BOUNDARY_SPAN}bp.fa
 
 done
