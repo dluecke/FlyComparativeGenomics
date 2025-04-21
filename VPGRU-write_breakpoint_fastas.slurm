@@ -44,6 +44,8 @@ FCG_PATH=~/FlyComparativeGenomics
 # total length of region centered on hits to extract from assembly (bp)
 #  if cluster is closer to end of sequence than half this length will truncate (instead of extending to full length in other direction)
 [[ -n $TOTAL_REGION_LENGTH ]] || TOTAL_REGION_LENGTH=200000
+# coordinate rounding 
+[[ -n $ROUND ]] || ROUND=10000
 
 # HIT CLUSTERING
 $FCG_PATH/get_reads_spanning_BLAST_hits.sh $BLAST_HITS $ALN_BAM $MIN_CLUSTER_GAP $SEED_BIT_THRESH $READS_BOUNDARY_SPAN $FCG_PATH
@@ -63,7 +65,7 @@ for CLUSTERFILE in Cluster_bit${SEED_BIT_THRESH}_gaps$((MIN_CLUSTER_GAP/1000))kb
     CLUSTER_END=$(grep "region coordinates:" $CLUSTERFILE | cut -f2 | cut -d' ' -f3)
     CLUSTER_MID=$(( (CLUSTER_BEG + CLUSTER_END) / 2 ))
     # region coordinates
-    REGION_BEG=$(( CLUSTER_MID - TOTAL_REGION_LENGTH/2 ))
+    REGION_BEG=$(( (CLUSTER_MID - TOTAL_REGION_LENGTH/2)/ROUND * ROUND ))
     REGION_BEG=$(( REGION_BEG > 0 ? REGION_BEG : 0 )) # need 0 floor for start coord, samtools faidx won't take negative coordinate
     REGION_END=$(( CLUSTER_MID + TOTAL_REGION_LENGTH/2 )) # ok if upper end higher than seq length, samtools faidx will truncate
     # get region fasta with samtools faidx, into top cluster directory (same regardless of span)
