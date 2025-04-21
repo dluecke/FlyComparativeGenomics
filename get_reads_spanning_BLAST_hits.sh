@@ -156,17 +156,17 @@ while read SEQ; do
         ' $BLAST_HITS | sort -n -k9,10
         echo -e "\nAligned Reads"
         echo -e "input alignment file:\t$BAM_IN"
-        echo -e "number of reads in region:\t$(wc -l $REGION_SAM | awk '{print $1}')"
+        echo -e "number of reads in region:\t$(wc -l $CLUSTERTAG/$REGION_SAM | awk '{print $1}')"
         echo -e "all alignments in region:\t$REGION_SAM"
-        echo -e "number of reads spanning region start:\t$(wc -l $BOUNDARYBEG_SAM | awk '{print $1}')"
-        echo -e "number of reads spanning region end:\t$(wc -l $BOUNDARYEND_SAM | awk '{print $1}')"
+        echo -e "number of reads spanning region start:\t$(wc -l $CLUSTERTAG/span${BOUNDARY_SPAN}/$BOUNDARYBEG_SAM | awk '{print $1}')"
+        echo -e "number of reads spanning region end:\t$(wc -l $CLUSTERTAG/span${BOUNDARY_SPAN}/$BOUNDARYEND_SAM | awk '{print $1}')"
         echo -e "alignments spanning region start:\t$BOUNDARYBEG_SAM"
         echo -e "alignments spanning region end:\t$BOUNDARYEND_SAM"
         echo -e "list of read IDs spanning either boundary:\t$BOUNDARY_READS"
         echo -e "IDs of reads spanning region start:"
-        printf "\t%s\n" $(cut -f1 $BOUNDARYBEG_SAM)
+        printf "\t%s\n" $(cut -f1 $CLUSTERTAG/span${BOUNDARY_SPAN}/$BOUNDARYBEG_SAM)
         echo -e "IDs of reads spanning region end:"
-        printf "\t%s\n" $(cut -f1 $BOUNDARYEND_SAM)
+        printf "\t%s\n" $(cut -f1 $CLUSTERTAG/span${BOUNDARY_SPAN}/$BOUNDARYEND_SAM)
         } > $CLUSTERTAG/span${BOUNDARY_SPAN}/$REGION_REPORT
 
     done
