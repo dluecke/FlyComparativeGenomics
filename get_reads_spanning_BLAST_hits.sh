@@ -99,8 +99,11 @@ while read SEQ; do
     # loop through all clusters/regions with high scoring hits in SEQ
     for j in $(seq 0 $((${#CLUSTER_BEGS[@]}-1))); do
 
-        # cluster id tag
-        CLUSTERTAG=${SEQ_ALNUM}_${LETTER_ID[$j]}
+        # cluster id, will vary with bit and gap values
+        CLUSTERTAG=Cluster_bit${BIT_THRESH}_gaps$((MIN_GAP/1000))kbgap-${SEQ_ALNUM}_${LETTER_ID[$j]}
+        
+        [ -d $CLUSTERTAG ] || mkdir $CLUSTERTAG
+        mkdir $CLUSTERTAG/span${BOUNDARY_SPAN}
 
         # cluster edges
         REGION_BEG=${CLUSTER_BEGS[$j]}
@@ -108,17 +111,19 @@ while read SEQ; do
 
         # outfile names
         # all reads mapped to cluster region
-        REGION_SAM=${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}to${REGION_END}.sam
+        REGION_SAM=${CLUSTERTAG}.sam
+        #REGION_SAM=${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}to${REGION_END}.sam
         # reads spanning boundaries, default names from get_spanning_reads.sh
         BOUNDARYBEG_SAM=${BAM_IN%.*}-${SEQ}_${REGION_BEG}span${BOUNDARY_SPAN}bp.sam
         BOUNDARYEND_SAM=${BAM_IN%.*}-${SEQ}_${REGION_END}span${BOUNDARY_SPAN}bp.sam
         # list of reads spanning either boundary (input to seqtk subseq)
-        BOUNDARY_READS=${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
+        BOUNDARY_READS=${CLUSTERTAG}_BOUNDARIESspan${BOUNDARY_SPAN}bp.lst
+        #BOUNDARY_READS=${BLAST_HITS%.*}-bit${BIT_THRESH}-${MIN_GAP}gap-${BAM_IN%.*}-${SEQ}_${REGION_BEG}or${REGION_END}span${BOUNDARY_SPAN}bp.lst
         # report filename
-        REGION_REPORT=HitClusterInfo-bit${BIT_THRESH}_gap${MIN_GAP}_span${BOUNDARY_SPAN}-${CLUSTERTAG}.txt
+        REGION_REPORT=Report-${CLUSTERTAG}-span${BOUNDARY_SPAN}.txt
 
         # samtools view to extract reads mapped to cluster region
-        samtools view $BAM_IN ${SEQ}:${REGION_BEG}-${REGION_END} > $REGION_SAM
+        samtools view $BAM_IN ${SEQ}:${REGION_BEG}-${REGION_END} > $CLUSTERTAG/$REGION_SAM
 
         # boundary spanning reads
         $GIT_PATH/get_spanning_reads.sh $BAM_IN $SEQ $REGION_BEG $BOUNDARY_SPAN
@@ -126,6 +131,10 @@ while read SEQ; do
 
         # list reads from both boundaries, non-redundant
         cat $BOUNDARYBEG_SAM $BOUNDARYEND_SAM | cut -f1 | sort -u > $BOUNDARY_READS
+
+        mv $BOUNDARYBEG_SAM $CLUSTERTAG/span${BOUNDARY_SPAN}
+        mv $BOUNDARYEND_SAM $CLUSTERTAG/span${BOUNDARY_SPAN}
+        mv $BOUNDARY_READS $CLUSTERTAG/span${BOUNDARY_SPAN}
 
         # cluster reporting
         N_CLUSTER_HITS=$(awk -v s=$SEQ -v b=$REGION_BEG -v e=$REGION_END '$2 == s && $9 >= b && $9 <= e' $BLAST_HITS | wc -l)
@@ -158,7 +167,7 @@ while read SEQ; do
         printf "\t%s\n" $(cut -f1 $BOUNDARYBEG_SAM)
         echo -e "IDs of reads spanning region end:"
         printf "\t%s\n" $(cut -f1 $BOUNDARYEND_SAM)
-        } > $REGION_REPORT
+        } > $CLUSTERTAG/span${BOUNDARY_SPAN}/$REGION_REPORT
 
     done
 
