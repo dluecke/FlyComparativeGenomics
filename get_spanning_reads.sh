@@ -22,6 +22,17 @@ TARGET_COORD=$3
 # output filename
 OUT_SAM="${IN_BAM%.*}-${TARGET_SEQ}_${TARGET_COORD}span${SPAN_LENGTH}bp.sam"
 
+# screen output
+echo -e "Writing SAM file with reads aligned across specific coordinate"
+echo -e " target sequence name and coordinate: $TARGET_SEQ:$TARGET_COORD"
+echo -e " read bp span in both directions: $SPAN_LENGTH"
+echo -e " input alignment file: $IN_BAM"
+echo -e " output alignment file: $OUT_SAM\n"
+echo -e "Using samtools, version info:"
+samtools --version
+echo -e "\nCommand:\n samtools view $IN_BAM ${TARGET_SEQ}:${TARGET_COORD}-${TARGET_COORD} |\
+ awk -v t=$TARGET_COORD -v s=$SPAN_LENGTH '\$4 <= t-s && \$4+\$9 >= t+s' > $OUT_SAM"
+
 # samtools view to extract reads covering target seq/coord
 samtools view $IN_BAM ${TARGET_SEQ}:${TARGET_COORD}-${TARGET_COORD} |\
 # awk to filter for reads covering full span
