@@ -11,10 +11,14 @@
 date
 
 module load mummer/4.0.0rc1
+module load samtools/1.17 # just need for faidx
+
 echo "mummer aligner loaded, version:"
 mummer --version
+echo "samtools loaded for faidx to get sequence lengths, module:"
+which samtools
 
-echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
+echo -e "\nPerforming nucmer alignment ${ALIGNMENT_NAME}:"
 echo "  Reference: ${REFERENCE}"
 echo "  Query: ${QUERY}"
 echo "  Seed Match Length: ${C_VAL}"
@@ -32,12 +36,10 @@ echo -e "Command:\n mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} 
 mummerplot -p ${ALIGNMENT_NAME} -R ${REFERENCE} -Q ${QUERY} --postscript ${ALIGNMENT_NAME}.delta
 echo "Finished mummerplot. Rough draft dotplot file: ${ALIGNMENT_NAME}.ps"
 
-echo "Extracting alignment coordinates into tsv format"
-echo -e "Command:\n ${TOOLS_PATH}/alignment_and_visualization/convert_gnuplot_to_tsv.sh ${ALIGNMENT_NAME}"
-${TOOLS_PATH}/alignment_and_visualization/convert_gnuplot_to_tsv.sh ${ALIGNMENT_NAME}
-echo "Finished extracting tsv files for use by alignment_region_dotplot.R:"
-echo "  ${ALIGNMENT_NAME}.plot.tsv"
-echo "  ${ALIGNMENT_NAME}.breaks.tsv"
-echo "------------------------"
+samtools faidx $REFERENCE
+samtools faidx $QUERY
+
+echo "Use ${ALIGNMENT_NAME}.coords, $REFERENCE.fai, $QUERY.fai files\
+ with make_l.coords() and PlotDFCoords() functions in alignment_region_dotplot-FUNCTIONS.R"
 
 date

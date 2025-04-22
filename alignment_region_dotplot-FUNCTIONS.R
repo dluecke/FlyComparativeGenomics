@@ -9,10 +9,45 @@ library(tidyverse)
 
 # FUNCTIONS
 
+# new version using mummer's coord output format, along with fai index files for seq lengths
+# function to list dfs of match coordinates and sequence ref/qry lengths ("breaks")
+# copies format of older version l.coord header names etc
+make_l.coords <- function(COORDSFILE, REF_FAI, QRY_FAI){
+  # read coords format, skip first 5 header lines
+  df.coords <- read.table(COORDSFILE, stringsAsFactors = F, skip = 5)
+  # drop formatting separating columns
+  df.coords <- df.coords[,-c(3,6,9,11,14)]
+  # rename to work with downstream subsetting/plot functions
+  colnames(df.coords) <- c("R1", "R2", "Q1", "Q2", 
+                           "ref_length", "qry_length", 
+                           "pctID",
+                           "ref_SeqName", "qry_SeqName")
+  # assign orientation, in coords format reverse matches shown in query start/stop reversal
+  df.coords$orientation <- apply(df.coords, 1, FUN = function(x){
+    if( x[3] <= x[4] ){return("forward")}
+    if( x[3] >= x[4] ){return("reverse")}
+  })
+  
+  # "breaks" dfs for tracking sequence lengths
+  df.breaksRef <- read.table(REF_FAI)
+  df.breaksRef <- df.breaksRef[,c(1,2)]
+  colnames(df.breaksRef) <- c("SeqName", "SeqLength")
+  rownames(df.breaksRef) <- df.breaksRef$SeqName
+  
+  df.breaksQry <- read.table(QRY_FAI)
+  df.breaksQry <- df.breaksQry[,c(1,2)]
+  colnames(df.breaksQry) <- c("SeqName", "SeqLength")
+  rownames(df.breaksQry) <- df.breaksQry$SeqName
+  
+  return( list(coords = df.coords, breaksRef = df.breaksRef, breaksQry = df.breaksQry, filename = COORDSFILE) )
+}
+
+# old version which takes plot.tsv and breaks.tsv custom outputs produced from mummer .delta and .gp
 # function to get match coordinate and scaffold ref/qry breaks dataframes, in list format
 make_l.coords_breaks <- function(INFILE, INFILE_BREAKS){
   # Make df for coordinates of blast hits
   df.coords <- read.csv(INFILE, sep = "\t")
+  # not necessary for plotting but makes visually scanning df easier
   df.coords <- df.coords[order(df.coords$R1),]
   # use the match midpoint for sequence ID assignment to avoid boundary issues
   df.coords$Rmid <- rowMeans( subset(df.coords, select = c(R1, R2)) )
@@ -50,6 +85,13 @@ make_l.coords_breaks <- function(INFILE, INFILE_BREAKS){
   # drop last row, no Scaffold name (need to keep for previous step assigning ref/qry scaf IDs)
   df.breaksRef <- df.breaksRef[-nrow(df.breaksRef),]
   df.breaksQry <- df.breaksQry[-nrow(df.breaksQry),]
+  
+  # convert coordinates from alignment-space to sequence-space (shift back to aligment position when plotting)
+  df.coords[,c('R1','R2')] <- df.coords[,c('R1','R2')] - 
+    df.breaksRef[df.coords$ref_SeqName,]$Position
+  
+  df.coords[,c('Q1','Q2')] <- df.coords[,c('Q1','Q2')] - 
+    df.breaksQry[df.coords$qry_SeqName,]$Position
   
   return( list(coords = df.coords, breaksRef = df.breaksRef, breaksQry = df.breaksQry, filename = INFILE) )
 }
@@ -97,20 +139,25 @@ GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL,
   STARTPOS_QRY <- c(1, 1+cumsum(LENGTHS_QRY)[-length(LENGTHS_QRY)] )
   names(STARTPOS_QRY) <- QUERY
   
+  DF.COORDS_SUBSET$ref_StartPos <- STARTPOS_REF[DF.COORDS_SUBSET$ref_SeqName]
+  DF.COORDS_SUBSET$qry_StartPos <- STARTPOS_QRY[DF.COORDS_SUBSET$qry_SeqName]
   
-  DF.COORDS_SUBSET$ref_StartPos <- sapply(DF.COORDS_SUBSET$ref_SeqName, function(x) STARTPOS_REF[x])
-  DF.COORDS_SUBSET$qry_StartPos <- sapply(DF.COORDS_SUBSET$qry_SeqName, function(x) STARTPOS_QRY[x])
+  DF.COORDS_SUBSET$ref_SeqLength <- LENGTHS_REF[DF.COORDS_SUBSET$ref_SeqName]
+  DF.COORDS_SUBSET$qry_SeqLength <- LENGTHS_QRY[DF.COORDS_SUBSET$qry_SeqName]
   
-  DF.COORDS_SUBSET$ref_SeqLength <- sapply(DF.COORDS_SUBSET$ref_SeqName, function(x) LENGTHS_REF[x])
-  DF.COORDS_SUBSET$qry_SeqLength <- sapply(DF.COORDS_SUBSET$qry_SeqName, function(x) LENGTHS_QRY[x])
+  # as originally written, needlessly complicated
+  # DF.COORDS_SUBSET$ref_StartPos <- sapply(DF.COORDS_SUBSET$ref_SeqName, function(x) STARTPOS_REF[x])
+  # DF.COORDS_SUBSET$qry_StartPos <- sapply(DF.COORDS_SUBSET$qry_SeqName, function(x) STARTPOS_QRY[x])
+  # 
+  # DF.COORDS_SUBSET$ref_SeqLength <- sapply(DF.COORDS_SUBSET$ref_SeqName, function(x) LENGTHS_REF[x])
+  # DF.COORDS_SUBSET$qry_SeqLength <- sapply(DF.COORDS_SUBSET$qry_SeqName, function(x) LENGTHS_QRY[x])
   
-  
-  DF.COORDS_SUBSET[,c('R1','R2')] <- DF.COORDS_SUBSET[,c('R1','R2')] - 
-    BREAKS_REF[DF.COORDS_SUBSET$ref_SeqName,]$Position + 
+  DF.COORDS_SUBSET[,c('R1','R2')] <- DF.COORDS_SUBSET[,c('R1','R2')] + #- 
+#    BREAKS_REF[DF.COORDS_SUBSET$ref_SeqName,]$Position + # now doing this in make_l.coord_breaks()
     DF.COORDS_SUBSET$ref_StartPos 
   
-  DF.COORDS_SUBSET[,c('Q1','Q2')] <- DF.COORDS_SUBSET[,c('Q1','Q2')] - 
-    BREAKS_QRY[DF.COORDS_SUBSET$qry_SeqName,]$Position + 
+  DF.COORDS_SUBSET[,c('Q1','Q2')] <- DF.COORDS_SUBSET[,c('Q1','Q2')] + #- 
+#    BREAKS_QRY[DF.COORDS_SUBSET$qry_SeqName,]$Position + 
     DF.COORDS_SUBSET$qry_StartPos
   
   return(DF.COORDS_SUBSET)
