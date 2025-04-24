@@ -10,7 +10,7 @@
 
 date
 
-module load fcs-genome
+module load fcs-gx/0.5.5
 
 if [[ "$IN_SEQFILE" == *".bam" ]]; then
     module load samtools
