@@ -21,6 +21,9 @@
 # Outputs multifasta of windows and alignment MSA file
 
 # Written to run on SciNet Ceres cluster 4/3/2025
+# Runs fine interactively on salloc node, Muscle jobs submitted to queue
+
+date
 
 module load samtools/1.17
 module load muscle/5.1.0
@@ -45,6 +48,16 @@ N_HITS=9 # number of regions to align
 MAX_ID=95 # percent identity max for divergence windows
 # or filter by minimum hit length then take lowest identity
 MIN_HIT_LENGTH=7500 # shortest hit length for alignment seed
+MUSCLE_SLURM=~/FlyComparativeGenomics/muscle.slurm
+
+# report overview of analysis
+echo -e "\nFinding diverged regions of $FOCAL_SCAF between $ASM_Het1 and $ASM_Het2,\
+ along with homologous sequence from $ASM_HomP to polarize divergence."
+echo -e "Divergence rankings from:\n $COORDS_Het1vsHet2"
+echo -e "Most diverged $N_HITS $FOCAL_SCAF matches (both sequences) longer than $MIN_HIT_LENGTH\
+ saved in $COORDS_Het1vsHet2.seedhits. $WINDOW_SIZE bp windows around each extracted for alignment."
+echo -e "Sequence homology from:\n $COORDS_HomPvsHet1\n $COORDS_HomPvsHet2"
+echo -e "Sequence written to multi-fasta and aligned by $MUSCLE_SLURM\n"
 
 # function to get corresponding coordinates for hit boundaries in female
 # adapted from answer here https://stackoverflow.com/questions/17853037/in-a-column-of-numbers-find-the-closest-value-to-some-target-value
@@ -99,6 +112,8 @@ awk -v minlength=$MIN_HIT_LENGTH -v scaf=$FOCAL_SCAF '
 # for each seed hit pull region and run alignment
 i=1
 while read HIT; do
+
+    echo -e "Processing hit $i: $HIT"
 
     # seed hit boundary coords and length for both het haps 
     S_Het1=$(echo $HIT | awk '{print $1}')
@@ -169,29 +184,42 @@ while read HIT; do
     # extract region from het1
     S1=$((S_Het1 - PAD_Het1))
     E1=$((E_Het1 + PAD_Het1))
+    echo -e "Extracting region $i from $ASM_Het1."
+    echo -e "Command:\n\
+ samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa"\
+ -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1"
     samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa" \
         -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1
 
     # extract region from het2
     S2=$((S_Het2 - PAD_Het2))
     E2=$((E_Het2 + PAD_Het2))
+    echo -e "Extracting region $i from $ASM_Het2."
+    echo -e "Command:\n\
+ samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa"\
+ -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2"
     samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa" \
         -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2
 
     # extract region from homP
     SP=$((S_HomP - PAD_HomP))
     EP=$((E_HomP + PAD_HomP))
+    echo -e "Extracting region $i from $ASM_HomP."
+    echo -e "Command:\n\
+ samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa"\
+ -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP"
     samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa" \
         -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP
     
-    # add assembly info to sequence names and concatenate into single fasta 
+    # add assembly info to sequence names and concatenate into single fasta
     WINDOW_FASTA=DivergedWindow$(printf "%02d" $i).fa
+    echo -e "Combining into single multifasta $WINDOW_FASTA and submitting to $MUSCLE_SLURM."
     sed "s/scaffold/${ASM_Het1%.*}-scaffold/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > $WINDOW_FASTA
     sed "s/scaffold/${ASM_Het2%.*}-scaffold/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> $WINDOW_FASTA
     sed "s/scaffold/${ASM_HomP%.*}-scaffold/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> $WINDOW_FASTA
 
     # submit alignment job to SLURM
-    sbatch ~/FlyComparativeGenomics/muscle.slurm $WINDOW_FASTA
+    sbatch $MUSCLE_SLURM $WINDOW_FASTA
 
     ((i+=1))
 done < $COORDS_Het1vsHet2.seedhits
