@@ -10,6 +10,7 @@
 
 # Run MitoHiFi from a singularity image
 # Usage: sbatch ~/FlyComparativeGenomics mitohifi.slurm CONTIGS.fa REFMT.fa REFMT.gb
+# -o option for code, 5 = invertebrate mitochondrial
 
 module load apptainer
 
@@ -18,4 +19,5 @@ singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.s
     -c $1 \
     -f $2 \
     -g $3 \
+    -o 5 \
     -t 32
