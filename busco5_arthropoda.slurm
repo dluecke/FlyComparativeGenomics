@@ -18,4 +18,4 @@ assembly=$1
 busco -m genome -c 64 \
     -i ${assembly} \
     -o ${assembly%.*}_arthropoda \
-    -l /project/vpgru/databases/busco/busco_downloads/lineages/arthropoda_odb10
+    -l /project/vpgru/databases/busco/busco_downloads/lineages/arthropoda_odb12
