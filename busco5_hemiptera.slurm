@@ -17,5 +17,5 @@ assembly=$1
 
 busco -m genome -c 48 \
     -i ${assembly} \
-    -o ${assembly%.*}_insecta \
+    -o ${assembly%.*}_hemiptera \
     -l /project/vpgru/databases/busco/busco_downloads/lineages/hemiptera_odb10
