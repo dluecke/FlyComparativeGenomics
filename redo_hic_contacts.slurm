@@ -50,10 +50,12 @@ which split_fa
 echo -e "\ncommand:\n split_fa $SCAF_ASM > $CTG_ASM"
 split_fa $SCAF_ASM > $CTG_ASM
 
+module unload purge_dups # wasn't playing nice with samtools
+
 echo -e "\nIndexing contig assembly with samtools:"
 which samtools
 echo -e "\ncommand:\n samtools faidx $CTG_ASM"
-samtools faidx $CTG_ASM || (echo "samtools broken"; exit;)
+samtools faidx $CTG_ASM
 
 echo -e "\nMapping HiC reads $HIC_R1 and $HIC_R2 onto $CTG_ASM using bwa-mem2:"
 which bwa-mem2
