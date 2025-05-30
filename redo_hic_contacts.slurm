@@ -43,6 +43,10 @@ HIC_R2=$3
 CTG_ASM=${SCAF_ASM%.*}.split.fa
 HIC_BAM=${CTG_ASM%.*}.HiC.bam
 
+date
+which samtools || exit
+which bwa-mem2 || exit
+
 echo -e "\nSplitting scaffold assembly $SCAF_ASM into contig assembly $CTG_ASM using split_fa:"
 which split_fa
 echo -e "\ncommand:\n split_fa $SCAF_ASM > $CTG_ASM"
