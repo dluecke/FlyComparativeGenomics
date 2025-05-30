@@ -2,7 +2,8 @@
 #SBATCH -J mummer
 #SBATCH -N 1
 #SBATCH -c 8
-#SBATCH -p short 
+#SBATCH -p ceres
+#SBATCH -t 1-00:00:00 
 #SBATCH -o "mummer.stdout.%j.%N"          # standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "mummer.stderr.%j.%N"          #optional but it prints our standard error
 #SBATCH --mail-user=David.Luecke@usda.gov   # going to replace with $USER in the submission shell
