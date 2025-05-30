@@ -1,12 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name="FCS-VPGRU"   #name of this job
-#SBATCH -p mem              #name of the partition (queue) you are submitting to
+#SBATCH -p ceres              #name of the partition (queue) you are submitting to
+#SBATCH -t 36:00:00
+#SBATCH --mem-per-cpu=16G   # replacing mem queue
 #SBATCH -N 1                  #number of nodes in this job
-#SBATCH -n 32                #number of cores/tasks in this job, you get all 20 physical cores with 2 threads per core with hyper-threading
+#SBATCH -n 16                #number of cores/tasks in this job
 #SBATCH --mail-user=David.Luecke@usda.gov  #enter your email address to receive emails
 #SBATCH --mail-type=BEGIN,END,FAIL #will receive an email when job starts, ends or fails
-#SBATCH -o "stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
-#SBATCH -e "stderr.%j.%N"     #optional, prints our standard error
+#SBATCH -o "fcs.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
+#SBATCH -e "fcs.%j.%N.stderr"     #optional, prints our standard error
 
 date
 
@@ -43,11 +45,8 @@ echo -e "using taxonomic ID:\n $TAXID"
 echo -e "with output directed to:\n $OUTDIR"
 echo -e "\nRun on the mem partition with $THREADS tasks\n"
 
-which fcs.py
-echo 
-echo "command:"
-echo "fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID"
-echo
+which fcs.py 
+echo -e "\ncommand:\n fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID\n"
 fcs.py screen genome --fasta $SEQFILE --out-dir $OUTDIR --tax-id $TAXID
 
 echo "FCS-genome screen complete.  Collecting taxa summaries."

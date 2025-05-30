@@ -1,12 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name="merqury"   #name of this job
-#SBATCH -p short              #name of the partition (queue) you are submitting to
+#SBATCH -p ceres              #name of the partition (queue) you are submitting to
+#SBATCH -t 2-00:00:00
 #SBATCH -N 1                  #number of nodes in this job
 #SBATCH -n 32                 #number of cores/tasks in this job, you get all 20 physical cores with 2 threads per core with hyper-threading
 #SBATCH --mail-user=David.Luecke@usda.gov  #enter your email address to receive emails
 #SBATCH --mail-type=BEGIN,END,FAIL #will receive an email when job starts, ends or fails
-#SBATCH -o "stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
-#SBATCH -e "stderr.%j.%N"     #optional, prints our standard error
+#SBATCH -o "mqy.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
+#SBATCH -e "mqy.%j.%N.stderr"     #optional, prints our standard error
 
 date
 

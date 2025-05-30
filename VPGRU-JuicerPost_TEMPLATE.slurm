@@ -3,7 +3,7 @@
 #SBATCH -o "jp-stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "jp-stderr.%j.%N"
 #SBATCH -c 32
-#SBATCH -p short
+#SBATCH -p ceres
 #SBATCH -t 24:00:00
 #SBATCH -N 1
 

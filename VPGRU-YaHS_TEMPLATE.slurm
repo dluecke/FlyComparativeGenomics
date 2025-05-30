@@ -3,8 +3,11 @@
 #SBATCH -o "yahs.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "yahs.%j.%N.stderr"
 #SBATCH -c 32
-#SBATCH -p medium
+#SBATCH -p ceres
+#SBATCH -t 72:00:00
 #SBATCH -N 1
+#SBATCH --mail-user=david.luecke@usda.gov
+#SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
 date
 

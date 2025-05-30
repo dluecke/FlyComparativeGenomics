@@ -2,7 +2,8 @@
 #SBATCH --job-name="breakpoint_fastas"
 #SBATCH -N 1
 #SBATCH -n 4
-#SBATCH -p short
+#SBATCH -p ceres
+#SBATCH -t 12:00:00
 #SBATCH -o "bpfa.%j.%N.stdout"               # standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "bpfa.%j.%N.stderr"
 #SBATCH --mail-user=david.luecke@usda.gov
@@ -43,7 +44,7 @@ FCG_PATH=~/FlyComparativeGenomics
 [[ -n $READS_BOUNDARY_SPAN ]] || READS_BOUNDARY_SPAN=5000
 # total length of region centered on hits to extract from assembly (bp)
 #  if cluster is closer to end of sequence than half this length will truncate (instead of extending to full length in other direction)
-[[ -n $TOTAL_REGION_LENGTH ]] || TOTAL_REGION_LENGTH=200000
+[[ -n $TOTAL_REGION_LENGTH ]] || TOTAL_REGION_LENGTH=80000
 # coordinate rounding 
 [[ -n $ROUND ]] || ROUND=10000
 
@@ -67,7 +68,7 @@ for CLUSTERFILE in Cluster_bit${SEED_BIT_THRESH}_gaps$((MIN_CLUSTER_GAP/1000))kb
     # region coordinates
     REGION_BEG=$(( (CLUSTER_MID - TOTAL_REGION_LENGTH/2)/ROUND * ROUND ))
     REGION_BEG=$(( REGION_BEG > 0 ? REGION_BEG : 0 )) # need 0 floor for start coord, samtools faidx won't take negative coordinate
-    REGION_END=$(( CLUSTER_MID + TOTAL_REGION_LENGTH/2 )) # ok if upper end higher than seq length, samtools faidx will truncate
+    REGION_END=$(( REGION_BEG + TOTAL_REGION_LENGTH )) # ok if upper end higher than seq length, samtools faidx will truncate
     # get region fasta with samtools faidx, into top cluster directory (same regardless of span)
     samtools faidx $REF_ASM ${CLUSTER_SEQ}:${REGION_BEG}-${REGION_END} \
         > $(dirname $CLUSTER_DIR)/${REF_ASM%.*}-${CLUSTER_SEQ}_${REGION_BEG}to${REGION_END}.fa
