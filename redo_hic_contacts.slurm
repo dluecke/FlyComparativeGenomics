@@ -44,8 +44,6 @@ CTG_ASM=${SCAF_ASM%.*}.split.fa
 HIC_BAM=${CTG_ASM%.*}.HiC.bam
 
 date
-which samtools || exit
-which bwa-mem2 || exit
 
 echo -e "\nSplitting scaffold assembly $SCAF_ASM into contig assembly $CTG_ASM using split_fa:"
 which split_fa
@@ -55,7 +53,7 @@ split_fa $SCAF_ASM > $CTG_ASM
 echo -e "\nIndexing contig assembly with samtools:"
 which samtools
 echo -e "\ncommand:\n samtools faidx $CTG_ASM"
-samtools faidx $CTG_ASM
+samtools faidx $CTG_ASM || (echo "samtools broken"; exit;)
 
 echo -e "\nMapping HiC reads $HIC_R1 and $HIC_R2 onto $CTG_ASM using bwa-mem2:"
 which bwa-mem2
