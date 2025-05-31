@@ -4,7 +4,7 @@
 #SBATCH -e "hic.%j.%N.stderr"
 #SBATCH -c 32
 #SBATCH -p ceres
-#SBATCH -t 3-00:00:00
+#SBATCH -t 36:00:00
 #SBATCH -N 1
 #SBATCH -C INTEL
 
@@ -62,6 +62,7 @@ which bwa-mem2
 echo -e "and filtering using samtools and samblaster:"
 which samtools
 $SOFTWARE_DIR/samblaster/samblaster --version
+echo -e "\nOutput file: $HIC_BAM"
 echo -e "\ncommands:\n bwa-mem2 index -p ${CTG_ASM%.*} $CTG_ASM"
 echo -e " bwa-mem2 mem -5SP -t 32 ${CTG_ASM%.*} $HIC_R1 $HIC_R2 |\
  samtools view -h -F 2316 |\
@@ -72,6 +73,9 @@ bwa-mem2 mem -5SP -t 32 ${CTG_ASM%.*} $HIC_R1 $HIC_R2 |\
  samtools view -h -F 2316 |\
  $SOFTWARE_DIR/samblaster/samblaster |\
  samtools sort -n -@ 32 -o $HIC_BAM
+
+echo -e "Generating BAM stats file. Command:\n samtools stats $HIC_BAM > $HIC_BAM.stats"
+samtools stats $HIC_BAM > $HIC_BAM.stats
 
 echo -e "\nWriting files ${CTG_ASM%.*}.agp and ${CTG_ASM%.*}.assembly with juicebox_scripts:"
 grep -H version $SOFTWARE_DIR/juicebox_scripts/juicebox_scripts/setup.py
