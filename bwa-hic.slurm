@@ -2,9 +2,9 @@
 #SBATCH -J bwa_hic
 #SBATCH -o "bwahic.%j.%N.stdout"  # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "bwahic.%j.%N.stderr"
-#SBATCH -c 32
+#SBATCH -c 48
 #SBATCH -p ceres
-#SBATCH -t 36:00:00
+#SBATCH -t 48:00:00
 #SBATCH -N 1
 #SBATCH -C INTEL
 
@@ -17,6 +17,7 @@
 
 # directory with any non-module installs (samblaster)
 SOFTWARE_DIR=/project/vpgru/software
+THREADS=48
 
 module load bwa_mem2/2.2.1
 module load samtools/1.17
@@ -36,15 +37,15 @@ which samtools
 $SOFTWARE_DIR/samblaster/samblaster --version
 echo -e "\nOutput file: $HIC_BAM"
 echo -e "\ncommands:\n bwa-mem2 index -p ${ASM%.*} $ASM"
-echo -e " bwa-mem2 mem -5SP -t 32 ${ASM%.*} $HIC_R1 $HIC_R2 |\
+echo -e " bwa-mem2 mem -5SP -t $THREADS ${ASM%.*} $HIC_R1 $HIC_R2 |\
  samtools view -h -F 2316 |\
  $SOFTWARE_DIR/samblaster/samblaster |\
- samtools sort -n -@ 32 -o $HIC_BAM"
+ samtools sort -n -@ $THREADS -o $HIC_BAM"
 bwa-mem2 index -p ${ASM%.*} $ASM
-bwa-mem2 mem -5SP -t 32 ${ASM%.*} $HIC_R1 $HIC_R2 |\
+bwa-mem2 mem -5SP -t $THREADS ${ASM%.*} $HIC_R1 $HIC_R2 |\
  samtools view -h -F 2316 |\
  $SOFTWARE_DIR/samblaster/samblaster |\
- samtools sort -n -@ 32 -o $HIC_BAM
+ samtools sort -n -@ $THREADS -o $HIC_BAM
 
 echo -e "Generating BAM stats file. Command:\n samtools stats $HIC_BAM > $HIC_BAM.stats"
 samtools stats $HIC_BAM > $HIC_BAM.stats
