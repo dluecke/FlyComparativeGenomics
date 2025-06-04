@@ -2,7 +2,7 @@
 #SBATCH --job-name="gfastats"
 #SBATCH -N 1
 #SBATCH -n 2
-#SBATCH -p short
+#SBATCH -p ceres
 #SBATCH -o "gfastats.%j.%N.stdout"               # standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "gfastats.%j.%N.stderr"               #optional but it prints our standard error
 #SBATCH --mail-user=david.luecke@usda.gov

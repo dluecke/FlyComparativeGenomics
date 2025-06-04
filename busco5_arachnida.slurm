@@ -2,7 +2,7 @@
 
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --ntasks-per-node=48   # 20 processor core(s) per node X 2 threads per core
-#SBATCH --partition=short    # standard node(s)
+#SBATCH --partition=ceres    # standard node(s)
 #SBATCH --job-name="busco5_arac"
 #SBATCH --mail-user=david.luecke@usda.gov   # email address
 #SBATCH --mail-type=FAIL
