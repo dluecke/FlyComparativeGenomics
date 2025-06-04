@@ -2,7 +2,8 @@
 #SBATCH --job-name="ULI-lima_pbmarkdups"
 #SBATCH -N 1
 #SBATCH -n 16
-#SBATCH -p short
+#SBATCH -p ceres
+#SBATCH -t 6:00:00
 #SBATCH -o "ULI.%j.%N.stdout"               # standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "ULI.%j.%N.stderr"               #optional but it prints our standard error
 #SBATCH --mail-user=david.luecke@usda.gov
