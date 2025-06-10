@@ -34,6 +34,6 @@ seqtk subseq $ASM <(sort -nr -k2,2 $ASM.fai | tail -n+$((N_CHR+1)) | awk {'print
 
 # submit alignment job to SLURM
 $GIT_REPOS/FlyComparativeGenomics/RunMummerAlignment-VPGRU.sh \
-    -o ${ASM%.*}-Chrs-vs-unplaced
+    -o ${ASM%.*}-Chrs-vs-unplaced \
     ${ASM%.*}-Chrs.fa \
     ${ASM%.*}-unplaced.fa
