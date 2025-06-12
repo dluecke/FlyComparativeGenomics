@@ -9,4 +9,4 @@ ONT=$2
 
 OUT_SAM=${REF%.*}-${ONT%.*}-mm2.sam
 
-minimap2 -ax lr:hq $REF $ONT > $OUT_SAM
+minimap2 -a -k19 -w19 -U50,500 -g10k $REF $ONT > $OUT_SAM
