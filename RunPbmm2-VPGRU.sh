@@ -36,7 +36,7 @@ HIFI_FN="$(basename $HIFI_FOFN)"
 GITLOC=$(dirname $0)
 # default run parameters
 OUT_PREFIX="${ASM_FN%%.f*a}.${HIFI_FN%.fofn}.align"
-SLURM_QUEUE="mem"
+SLURM_QUEUE="ceres"
 SAM_OUT="" # empty string won't trigger SAM out section
 PAF_OUT="" # empty string won't trigger PAF out section
 GET_DEPTH=""
