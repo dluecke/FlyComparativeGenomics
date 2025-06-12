@@ -37,14 +37,16 @@ df.AxisLabels = INFILES_ALN[,c(4,5)]
 colnames(df.AxisLabels) = c("RefLab", "QryLab")
 
 # convert rest to list structure used by custom functions
-l.INFILES_ALN = setNames(split(INFILES_ALN[,c(1:3)], seq(nrow(INFILES_ALN))), 
+l.INFILES_ALN = setNames(split(as.matrix(INFILES_ALN[,c(1:3)]), 
+                               seq(nrow(INFILES_ALN))), 
                          rownames(INFILES_ALN))
 
 # read self alignment files
 INFILES_SELF = read.csv(args[2], row.names = 1, header = FALSE, stringsAsFactors = FALSE)
 
 # convert to list structure
-l.INFILES_SELF = setNames(split(INFILES_SELF, seq(nrow(INFILES_SELF))), 
+l.INFILES_SELF = setNames(split(as.matrix(INFILES_SELF), 
+                                seq(nrow(INFILES_SELF))), 
                           rownames(INFILES_SELF))
 
 
