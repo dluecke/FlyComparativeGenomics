@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # ragtag_correct.sh runs ragtag correct with reference reads
+# needs at least 16 threads
 
 # USAGE: ragtag_correct.sh REFERENCE.fa QUERY.fa QUERY_READS.f?
 
@@ -10,4 +11,4 @@ REF=$1
 QRY=$2
 READS=$3
 
-ragtag.py correct -R $READS -T corr $REF $QRY
+ragtag.py correct -R $READS -T corr -t 16 $REF $QRY
