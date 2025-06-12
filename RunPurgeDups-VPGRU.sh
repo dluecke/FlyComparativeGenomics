@@ -26,7 +26,7 @@ PAF_IN="${@: -1}"
 M_CUT=""
 O_SET=""
 N_THREAD=32
-QUEUE="medium"
+QUEUE="ceres"
 ASM_NAME=$(basename $PRI_ASM)
 [[ "$ASM_NAME" == *".fa" ]] && PD_OUT="${ASM_NAME%%.fa}-DeDup"
 [[ "$ASM_NAME" == *".fasta" ]] && PD_OUT="${ASM_NAME%%.fasta}-DeDup"
