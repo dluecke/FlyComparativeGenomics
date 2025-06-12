@@ -4,12 +4,14 @@
 # FUNCTIONS file to source by other scripts
 
 library(RColorBrewer)
-library(plotly)
+#library(plotly)
 library(tidyverse)
 
 # FUNCTIONS
 
 # new version using mummer's coord output format, along with fai index files for seq lengths
+#   FAI inputs need sequence ID and length columns, 
+#   can use/reuse any version so long as all aligned sequences represented
 # function to list dfs of match coordinates and sequence ref/qry lengths ("breaks")
 # copies format of older version l.coord header names etc
 make_l.coords <- function(COORDSFILE, REF_FAI, QRY_FAI){
@@ -30,7 +32,7 @@ make_l.coords <- function(COORDSFILE, REF_FAI, QRY_FAI){
   
   # "breaks" dfs for tracking sequence lengths
   df.breaksRef <- read.table(REF_FAI)
-  df.breaksRef <- df.breaksRef[,c(1,2)]
+  df.breaksRef <- df.breaksRef[,c(1,2)] 
   colnames(df.breaksRef) <- c("SeqName", "SeqLength")
   rownames(df.breaksRef) <- df.breaksRef$SeqName
   
@@ -100,6 +102,7 @@ make_l.coords_breaks <- function(INFILE, INFILE_BREAKS){
 GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, 
                                 DROP_EMPTY_SCAFFOLDS=T,
                                 MIN_REF_LENGTH=0, MIN_QRY_LENGTH=0,
+                                MAX_REF_LENGTH=F, MAX_QRY_LENGTH=F,
                                 MIN_MATCH_LENGTH=0){
   
   COORDS <- L.COORDS$coords
@@ -117,6 +120,13 @@ GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL,
   # filter qry and ref by length
   REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH]
   QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH]
+  # if filtering for MAX length (by default skip)
+  if( is.numeric(MAX_REF_LENGTH) ){
+    REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength < MAX_REF_LENGTH]
+  }
+  if( is.numeric(MAX_QRY_LENGTH) ){
+    QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength < MAX_QRY_LENGTH]
+  }
   
   # get matches for qry and reference
   DF.COORDS_SUBSET <- COORDS[ (COORDS$ref_SeqName %in% REFERENCE) & (COORDS$qry_SeqName %in% QUERY) ,]
@@ -160,6 +170,11 @@ GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL,
 #    BREAKS_QRY[DF.COORDS_SUBSET$qry_SeqName,]$Position + 
     DF.COORDS_SUBSET$qry_StartPos
   
+  # Add pctID column if doesn't exist (default 100)
+  if( ! "pctID" %in% colnames(DF.COORDS_SUBSET) ){
+    DF.COORDS_SUBSET$pctID = 100
+  }
+  
   return(DF.COORDS_SUBSET)
   
 }
@@ -167,9 +182,13 @@ GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL,
 
 PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F,  # reorder query names by ref position
                          MIN_REF_LENGTH = 0, MIN_QRY_LENGTH = 0, MIN_MATCH_LENGTH = 0, 
+                         MAX_REF_LENGTH = F, MAX_QRY_LENGTH = F,
+                         REF_LIM = NULL, QRY_LIM = NULL, # akin to xlim, ylim - takes c(START, STOP) coordinates
                          TIC_LABELS = FALSE, TIC_COUNT = 40, 
-                         DROP_EMPTY_SCAFFOLDS = T, FLIP_AXES = F,
-                         ALPHA = 0.25, POINTSIZE = 0.8, COORD_OFFSET = 0.02,
+                         DROP_EMPTY_SCAFFOLDS = T, FLIP_AXES = F, COORD_OFFSET = 0.02,
+                         LINEWIDTH = 1, ALPHA = 0.25, POINTSIZE = 0.8,
+                         SEQLABANGLE = 45,
+                         MAR_T = 25, MAR_R = 5, MAR_B = 5, MAR_L = 10,
                          LAB_REF = "", LAB_QRY = ""){
   
   COORDS <- L.COORDS$coords
@@ -188,6 +207,13 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH]
   QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH]
   COORDS <- COORDS[((COORDS$ref_SeqName %in% REFERENCE) & (COORDS$qry_SeqName %in% QUERY)),]
+  # if filtering for MAX length (by default skip)
+  if( is.numeric(MAX_REF_LENGTH) ){
+    REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength < MAX_REF_LENGTH]
+  }
+  if( is.numeric(MAX_QRY_LENGTH) ){
+    QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength < MAX_QRY_LENGTH]
+  }
   
   # reorder the query sequences to best show contiguity across contigs
   if( REORDER_QRY ){
@@ -201,6 +227,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   DF_COORDS <- GetScaffoldCoordsDF(L.COORDS = L.COORDS, REFERENCE = REFERENCE, QUERY = QUERY, 
                                    DROP_EMPTY_SCAFFOLDS = DROP_EMPTY_SCAFFOLDS,
                                    MIN_REF_LENGTH = MIN_REF_LENGTH, MIN_QRY_LENGTH = MIN_QRY_LENGTH,
+                                   MAX_REF_LENGTH = MAX_REF_LENGTH, MAX_QRY_LENGTH = MAX_QRY_LENGTH,
                                    MIN_MATCH_LENGTH = MIN_MATCH_LENGTH)
   
   # By default only plot scaffolds with matches
@@ -222,15 +249,36 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     REF_SEQNAMES <- REFERENCE
     QRY_STARTPOS <- c(1, 1+cumsum(DF_BREAKSQRY$SeqLength)[-length(QUERY)])
     QRY_SEQNAMES <- QUERY
-    REF_MAX <- DF_BREAKSREF$Position[nrow(DF_BREAKSREF)] + DF_BREAKSREF$SeqLength[nrow(DF_BREAKSREF)]
-    QRY_MAX <- DF_BREAKSQRY$Position[nrow(DF_BREAKSQRY)] + DF_BREAKSQRY$SeqLength[nrow(DF_BREAKSQRY)]
-    
+    REF_MAX <- REF_STARTPOS[length(REF_STARTPOS)] + DF_BREAKSREF$SeqLength[nrow(DF_BREAKSREF)]
+    QRY_MAX <- QRY_STARTPOS[length(QRY_STARTPOS)] + DF_BREAKSQRY$SeqLength[nrow(DF_BREAKSQRY)]
   }
   
-  # find subset of scaffold positions for axis marking, if requested
-  if( TIC_COUNT > 0 ){
-    REF_TIC_SPACING = as.integer( REF_MAX / TIC_COUNT )
-    QRY_TIC_SPACING = as.integer( QRY_MAX / TIC_COUNT )
+  # adjust boundaries for REF_LIM and QRY_LIM
+  if( !is.null(REF_LIM) ){
+    REF_SEQNAMES = REF_SEQNAMES[intersect(which(c(REF_STARTPOS,REF_MAX) > REF_LIM[1]) - 1, 
+                                          which(REF_STARTPOS < REF_LIM[2]))]
+    REF_STARTPOS = c(REF_LIM[1], 
+                     REF_STARTPOS[(REF_STARTPOS > REF_LIM[1]) & (REF_STARTPOS < REF_LIM[2])])
+    REF_MIN = REF_LIM[1]
+    REF_MAX = REF_LIM[2]
+  } else {
+    REF_MIN = 0
+  }
+  if( !is.null(QRY_LIM) ){
+    QRY_SEQNAMES = QRY_SEQNAMES[intersect(which(c(QRY_STARTPOS,QRY_MAX) > QRY_LIM[1]) - 1, 
+                                          which(QRY_STARTPOS < QRY_LIM[2]))]
+    QRY_STARTPOS = c(QRY_LIM[1], 
+                     QRY_STARTPOS[(QRY_STARTPOS > QRY_LIM[1]) & (QRY_STARTPOS < QRY_LIM[2])])
+    QRY_MIN = QRY_LIM[1]
+    QRY_MAX = QRY_LIM[2]
+  } else {
+    QRY_MIN = 0
+  }
+  
+  # find subset of scaffold positions for axis marking, if requested (doing this with empty scaffolds caused problems, wouldn't need tics for empties anyway)
+  if( TIC_COUNT > 0 & DROP_EMPTY_SCAFFOLDS ){
+    REF_TIC_SPACING = as.integer( (REF_MAX-REF_MIN) / TIC_COUNT )
+    QRY_TIC_SPACING = as.integer( (QRY_MAX-QRY_MIN) / TIC_COUNT )
     
     GetAxisTics <- function(POSITIONS, SPACING) {
       TICGUIDE <- c( seq( min(POSITIONS), max(POSITIONS), by = SPACING ), max(POSITIONS) )
@@ -259,8 +307,8 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     names(l.QRY_TIC_LABELS) <- QRY_SEQNAMES
     df.QRY_TICS <- data.frame(position = unlist(l.QRY_TIC_POSITIONS), label = as.character(unlist(l.QRY_TIC_LABELS)))
   } else {
-    df.REF_TICS <- data.frame(position = c(REF_MAX))
-    df.QRY_TICS <- data.frame(position = c(QRY_MAX))
+    df.REF_TICS <- data.frame(position = c(REF_MAX), label = c(""))
+    df.QRY_TICS <- data.frame(position = c(QRY_MAX), label = c(""))
   }
   
   if( FLIP_AXES ){
@@ -271,55 +319,90 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     YPOS = "right"
   }
   
-  p <- ggplot(DF_COORDS, aes(x=R1, y=Q1))
+  # only want match % to map to linewidth if pctID is variable (taken from newer .coords input path)
+  if(min(DF_COORDS$pctID) < 100){
+    p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+      geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
+      scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
+      labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
+  } else {
+    p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+      geom_segment(aes(xend=R2, yend=Q2, color = orientation), linewidth = LINEWIDTH) +
+      labs(x=LAB_REF, y=LAB_QRY)
+  }
+   
   p2 <- p + 
-    geom_segment(aes(xend=R2, yend=Q2, color=orientation)) + 
     geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
     geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
-    geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=0, yend=QRY_MAX), 
+    geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=QRY_MIN, yend=QRY_MAX), 
                  aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) + 
-    geom_segment(data = data.frame(x=0, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
+    geom_segment(data = data.frame(x=REF_MIN, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
                  aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) +
-    labs(x=LAB_REF, y=LAB_QRY) +
     scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position), 
                        labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))), position = XPOS,
-                       minor_breaks = NULL) + #, expand = c(0.05,0), limits = c(-REF_MAX*0.1,REF_MAX*1.1)) +
+                       minor_breaks = NULL) +
     scale_y_continuous(breaks = c(QRY_STARTPOS, df.QRY_TICS$position),
                        labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = YPOS,
-                       minor_breaks = NULL ) + #, expand = c(0.05,0), limits = c(-QRY_MAX*1.1, QRY_MAX)) +
+                       minor_breaks = NULL ) + 
+    guides(color = guide_legend(override.aes = list(linewidth = LINEWIDTH))) +
     # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
     # so set manually to keep consistent, but still use the nice palette
     scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
                                   "reverse" = brewer.pal(3,"Dark2")[2])) + 
-    theme_minimal() +
-    theme(plot.margin = margin(10,0,5,10), axis.title.y.right = element_text(angle = 90),
-          axis.text.x = element_text(angle = -45, hjust = 0, vjust = 0, color = "slateblue", face = "bold"), 
-          axis.text.y = element_text(angle = 45, hjust = 0, vjust = 0, color = "slateblue", face = "bold") )
+    theme_minimal() 
   
   if( TIC_LABELS ){
     if( FLIP_AXES ){
       p2 <- p2 +
-        geom_text(data = df.REF_TICS, aes(x = position, y = QRY_MAX + 1, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
-        geom_text(data = df.QRY_TICS, aes(x = -1, y = position, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
-        coord_flip(xlim = c(-COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
+        geom_text(data = df.REF_TICS %>% filter(position > REF_MIN, position < REF_MAX), 
+                  aes(x = position, y = QRY_MAX + 1, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+        geom_text(data = df.QRY_TICS %>% filter(position > QRY_MIN, position < QRY_MAX), 
+                  aes(x = REF_MIN-1, y = position, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+        coord_flip(xlim = c( (REF_MIN - COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                             (REF_MAX + COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                   ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                             (QRY_MAX + COORD_OFFSET*(QRY_MAX-QRY_MIN)) ))
     } else {
       p2 <- p2 +
-        geom_text(data = df.REF_TICS, aes(x = position, y = -1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
-        geom_text(data = df.QRY_TICS, aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
-        coord_cartesian(xlim = c(COORD_OFFSET*REF_MAX, (1+COORD_OFFSET)*REF_MAX), ylim = c(-COORD_OFFSET*QRY_MAX, (1+COORD_OFFSET)*QRY_MAX)) 
+        geom_text(data = df.REF_TICS %>% filter(position > REF_MIN, position < REF_MAX), 
+                  aes(x = position, y = QRY_MIN-1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+        geom_text(data = df.QRY_TICS %>% filter(position > QRY_MIN, position < QRY_MAX), 
+                  aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+        coord_cartesian(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                                  (REF_MAX + COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                        ylim = c( (QRY_MIN - COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                                  (QRY_MAX + COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
     }  
   } else {
     if( FLIP_AXES ){
       p2 <- p2 +
-        coord_flip(xlim = c(COORD_OFFSET*REF_MAX, REF_MAX*(1-COORD_OFFSET)), ylim = c(COORD_OFFSET*QRY_MAX, (1-COORD_OFFSET)*QRY_MAX)) 
+        coord_flip(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                             (REF_MAX - COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                   ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                             (QRY_MAX - COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
     } else {
       p2 <- p2 +
-        coord_cartesian(xlim = c(COORD_OFFSET*REF_MAX, REF_MAX*(1-COORD_OFFSET)), ylim = c(COORD_OFFSET*QRY_MAX, (1-COORD_OFFSET)*QRY_MAX)) 
+        coord_cartesian(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                                  (REF_MAX - COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                        ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                                  (QRY_MAX - COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
       
     }
   }
   
-  return(p2)
+  return(p2 +
+           theme(plot.margin = margin(MAR_T, MAR_R, MAR_B, MAR_L), 
+                 axis.title.y.right = element_text(angle = 90),
+                 axis.text.x = element_text(angle = -SEQLABANGLE, 
+                                            hjust = 0, vjust = 0, 
+                                            color = "slateblue", 
+                                            face = "bold"), 
+                 axis.text.y = element_text(angle = 90-SEQLABANGLE, 
+                                            hjust = 0, vjust = 0, 
+                                            color = "slateblue", 
+                                            face = "bold") )
+         
+  )
 }
 
 
@@ -396,7 +479,11 @@ GetHomologs <- function(L.COORDS){
   
   # sum of match lengths for each pair
   df.MATCHES <- L.COORDS$coords %>% group_by(ref_SeqName, qry_SeqName) %>% 
-    summarize(matchsum=sum(ref_length)) %>% arrange(desc(matchsum)) %>% ungroup
+    summarize(matchsum=sum(ref_length)) %>% arrange(desc(matchsum)) %>% ungroup %>%
+    mutate(ref_SeqLength = L.COORDS$breaksRef[ref_SeqName,]$SeqLength, 
+           qry_SeqLength = L.COORDS$breaksQry[qry_SeqName,]$SeqLength, 
+           ref_Prop = matchsum/ref_SeqLength, 
+           qry_Prop = matchsum/qry_SeqLength)
   
   # top partner for each scaffold in both assemblies
   df.HOMOLOGS <- rbind(df.MATCHES[!duplicated(df.MATCHES$ref_SeqName),], 
@@ -427,5 +514,292 @@ GetHomologs <- function(L.COORDS){
   return(list(homologs = df.HOMOLOGS,
               matches = df.MATCHES,
               clusters = l.CLUSTERS))
+}
+
+
+# function to run make_l.coords() and GetHomologs() on all files in IN_FILE list:
+# IN_FILE = list(aln1 = c("alignment1_data.coords", "reference1.fa.fai", "query1.fa.fai"),
+#                aln2 = c("alignment2_data.coords", "reference2.fa.fai", "query2.fa.fai"))
+# returns list (per alignment) of list(l.coord, l.homolog): 
+make_l.l_coords.l_homologs = function(L.FILES){
+  l.LCoords.LHomologs <- lapply(L.FILES, function(ALN){
+    l.coords = make_l.coords(ALN[1], ALN[2], ALN[3])
+    l.homologs = GetHomologs(l.coords)
+    RETURN = list(l.coords = l.coords,
+                  l.homologs = l.homologs)
+    return(RETURN)
+  })
+  return(l.LCoords.LHomologs)
+}
+
+# function to take list structure from male_l.l_coords.l_homologs 
+# and produce list (per alignment) of standard plots:
+#   Chromosomes All vs All
+#   Unplaced Scaffolds All vs All
+#   Single Chromosome Pairs (as list per Chr)
+#   Homolog clusters (as list per cluster)
+#   Unplaced scaffolds against matched Chromosome, as list per target Chr:
+#     v.IntoRef: names of unplaced query scaffolds to place into target Chr
+#     p.IntoRef: plot with alignment matches for placing query scaffolds
+#     v.IntoQry: names of unplaced reference scaffolds to place into targte Chr
+#     p.IntoQry: plot with alignment matches for placing reference scaffolds
+# Also takes dataframe with plot axis labels:
+#   rows named for alignment names
+#   RefLab and QryLab columns
+# Min Length cutoff parameters for Chromosome scaffolds and unplaced scaffolds to consider
+plot_l.l_coords.l_homologs = function(L.L.COORD.HOM, df.Labels, 
+                                      MIN_CHR = 10000000, 
+                                      MIN_MATCH_CHR = 10000,
+                                      MIN_UNPLACED = 100000,
+                                      MIN_MATCH_UNPLACED = 10000,
+                                      MIN_MATCH_PCT_UNPLACED = 0.8){
+  
+  l.plots <- lapply(L.L.COORD.HOM %>% names, function(ALN.name){ 
+    ALN = L.L.COORD.HOM[[ALN.name]]
+    # All Chromosomes
+    p.Chr = PlotDFCoords(ALN$l.coords,
+                         LAB_REF = paste(df.Labels[ALN.name,]$RefLab,
+                                         "chromosomes"),
+                         LAB_QRY = paste(df.Labels[ALN.name,]$QryLab,
+                                         "chromosomes"),
+                         MIN_REF_LENGTH = MIN_CHR,
+                         MIN_QRY_LENGTH = MIN_CHR,
+                         MIN_MATCH_LENGTH = MIN_MATCH_CHR)
+    # Unplaced scaffolds (or microchromosomes)
+    p.nonChr = PlotDFCoords(ALN$l.coords,
+                            LAB_REF = paste(df.Labels[ALN.name,]$RefLab,
+                                            "unplaced scaffolds"),
+                            LAB_QRY = paste(df.Labels[ALN.name,]$QryLab,
+                                            "unplaced scaffolds"),
+                            MIN_MATCH_LENGTH = MIN_MATCH_UNPLACED,
+                            MAX_REF_LENGTH = MIN_CHR,
+                            MAX_QRY_LENGTH = MIN_CHR,
+                            MIN_REF_LENGTH = MIN_UNPLACED,
+                            MIN_QRY_LENGTH = MIN_UNPLACED)
+    # List of each chromosome individually
+    l.p.Chr = lapply(ALN$l.coords$breaksRef %>%
+                       filter(SeqLength > MIN_CHR) %>%
+                       rownames,
+                     function(scaffold){
+                       PlotDFCoords(ALN$l.coords,
+                                    REFERENCE = scaffold,
+                                    QUERY = scaffold,
+                                    LAB_REF = df.Labels[ALN.name,]$RefLab,
+                                    LAB_QRY = df.Labels[ALN.name,]$QryLab,
+                                    TIC_LABELS = T)
+                     })
+    names(l.p.Chr) = ALN$l.coords$breaksRef %>%
+      filter(SeqLength > MIN_CHR) %>% rownames
+    # each homology cluster
+    l.p.clusters = lapply(ALN$l.homologs$clusters %>% names, function(n){
+      PlotDFCoords(ALN$l.coords,
+                   REFERENCE = ALN$l.homologs$clusters[[n]]$RefScafs,
+                   QUERY = ALN$l.homologs$clusters[[n]]$QryScafs,
+                   LAB_REF = paste(df.Labels[ALN.name,]$RefLab, n),
+                   LAB_QRY = paste(df.Labels[ALN.name,]$QryLab, n) )
+    })
+    names(l.p.clusters) = ALN$l.homologs$clusters %>% names
+    # unplaced scaffolds with good match to other assembly, for chromosome placement
+    l.p.ChrPlacement = lapply(
+      ALN$l.coords$breaksRef %>%
+        filter(SeqLength > MIN_CHR) %>% rownames,
+      function(scaffold){
+        v.IntoQry = ALN$l.homologs$matches %>%
+          filter(ref_SeqName == scaffold,
+                 # restrict to appropriate homolog cluster, ensures no duplicates
+                 qry_SeqName %in% ALN$l.homologs$clusters[[
+                   which(sapply(ALN$l.homologs$clusters, 
+                                function(homolog) scaffold %in% homolog$QryScaf
+                                ))]]$QryScaf,
+                 qry_SeqLength > MIN_UNPLACED,
+                 qry_SeqLength < MIN_CHR,
+                 qry_Prop > MIN_MATCH_PCT_UNPLACED) %>%
+          select(qry_SeqName) %>% unlist %>% as.character()
+        if( length(v.IntoQry) > 0 ){
+          p.IntoQry = PlotDFCoords(ALN$l.coords,
+                                   REFERENCE = scaffold,
+                                   QUERY = v.IntoQry,
+                                   LAB_REF = df.Labels[ALN.name,]$RefLab,
+                                   LAB_QRY = df.Labels[ALN.name,]$QryLab,
+                                   TIC_LABELS = T, TIC_COUNT = 100)
+        } else { p.IntoQry = NULL }
+        v.IntoRef = ALN$l.homologs$matches %>%
+          filter(qry_SeqName == scaffold,
+                 # restrict to appropriate homolog cluster, ensures no duplicates
+                 ref_SeqName %in% ALN$l.homologs$clusters[[
+                   which(sapply(ALN$l.homologs$clusters, 
+                                function(homolog) scaffold %in% homolog$RefScaf
+                   ))]]$RefScaf,
+                 ref_SeqLength > MIN_UNPLACED,
+                 ref_SeqLength < MIN_CHR,
+                 ref_Prop > MIN_MATCH_PCT_UNPLACED) %>%
+          select(ref_SeqName) %>% unlist %>% as.character()
+        if( length(v.IntoRef) > 0 ){
+          p.IntoRef = PlotDFCoords(ALN$l.coords,
+                                   QUERY = scaffold,
+                                   REFERENCE = v.IntoRef,
+                                   LAB_REF = df.Labels[ALN.name,]$RefLab,
+                                   LAB_QRY = df.Labels[ALN.name,]$QryLab,
+                                   TIC_LABELS = T, TIC_COUNT = 100)
+        } else { p.IntoRef = NULL }
+        RETURN = list(v.IntoQry = v.IntoQry,
+                      p.IntoQry = p.IntoQry,
+                      v.IntoRef = v.IntoRef,
+                      p.IntoRef = p.IntoRef)
+        return(RETURN)
+      })
+    names(l.p.ChrPlacement) = ALN$l.coords$breaksRef %>%
+      filter(SeqLength > MIN_CHR) %>% rownames
+    
+    RETURN = list(p.Chr = p.Chr,
+                  p.nonChr = p.nonChr,
+                  l.p.Chr = l.p.Chr,
+                  l.p.clusters = l.p.clusters,
+                  l.p.ChrPlacement = l.p.ChrPlacement)
+    return(RETURN)
+  })
+  names(l.plots) = names(L.L.COORD.HOM)
+  
+  return(l.plots)
+}
+
+# function to compile all unplaced scaffold for each chromosome in all assemblies
+# takes list of plots from plot_l.l_coords.l_homologs 
+#   (reads l.p.ChrPlacement $v.IntoRef and $v.IntoQry)
+# takes lists of positions in L.PLOTS alignments where  
+# returns list (RefPri, QryPri) of lists (per Chr) of scaffolds to place
+# lists for primaries are combined between all alignments
+# lists for haps are taken from L.PLOTS l.p.ChrPlacement
+make_l.unplaced = function(L.PLOTS,
+                                        MPri_AS_REF = c(1,4,5),
+                                        MPri_AS_QRY = NULL,
+                                        FPri_AS_REF = c(2,3),
+                                        FPri_AS_QRY = c(1)){
+  CHRS = L.PLOTS$pctgs$l.p.Chr %>% names
+  # for each scaffold combine unplaced with chr match in all alignemnts
+  l.MpriAsRef.unplaced = sapply(CHRS, function(CHR){
+                            sapply(MPri_AS_REF, 
+                                   function(ALNi){
+                                     ALN = L.PLOTS[[ALNi]]
+                                     unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoRef)
+                                   } %>% unlist %>% as.character)
+                          } %>% unlist %>% unique )
+  l.MpriAsQry.unplaced = sapply(CHRS, function(CHR){
+                                 sapply(MPri_AS_QRY, 
+                                        function(ALNi){
+                                          ALN = L.PLOTS[[ALNi]]
+                                          unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoQry)
+                                        } %>% unlist %>% as.character)
+                               } %>% unlist %>% unique )
+  
+  l.FpriAsRef.unplaced = sapply(CHRS, function(CHR){
+                                 sapply(FPri_AS_REF, 
+                                        function(ALNi){
+                                          ALN = L.PLOTS[[ALNi]]
+                                          unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoRef)
+                                        } %>% unlist %>% as.character)
+                               } %>% unlist %>% unique )
+  l.FpriAsQry.unplaced = sapply(CHRS, function(CHR){
+                                 sapply(FPri_AS_QRY, 
+                                        function(ALNi){
+                                          ALN = L.PLOTS[[ALNi]]
+                                          unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoQry)
+                                        } %>% unlist %>% as.character)
+                               } %>% unlist %>% unique )
+  # remove duplicates, order by scaffold name
+  l.Mpri.unplaced = sapply(CHRS, function(CHR){
+    CHR.unplaced = c(l.MpriAsRef.unplaced[[CHR]], l.MpriAsQry.unplaced[[CHR]])
+    CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
+    return(CHR.unplaced)
+  })
+  l.Fpri.unplaced = sapply(CHRS, function(CHR){
+    CHR.unplaced = c(l.FpriAsRef.unplaced[[CHR]], l.FpriAsQry.unplaced[[CHR]])
+    CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
+    return(CHR.unplaced)
+  })
+  
+  # names of haps from L.PLOT, only primary vs primary represented twice in ALNi sets
+  PRIi = c(MPri_AS_QRY, MPri_AS_REF, FPri_AS_QRY, FPri_AS_REF)[
+    duplicated(c(MPri_AS_QRY, MPri_AS_REF, FPri_AS_QRY, FPri_AS_REF))
+  ]
+  # list for each hap alignment, always Qry against relevant primary
+  l.haps.unplaced = lapply(names(L.PLOTS)[-PRIi],
+                           function(ALNi){
+                             ALN = L.PLOTS[[ALNi]]
+                             sapply(CHRS, function(CHR){
+                               hap.unplaced = ALN$l.p.ChrPlacement[[CHR]]$v.IntoQry
+                               hap.unplaced = hap.unplaced[order(nchar(hap.unplaced),
+                                                                 hap.unplaced)]
+                             })
+                           })
+  names(l.haps.unplaced) = names(L.PLOTS)[-PRIi]
+  l.unplaced = c(list(Mpri = l.Mpri.unplaced,
+                      Fpri = l.Fpri.unplaced),
+                 l.haps.unplaced)
+  return(l.unplaced)
+}
+
+
+# plot_l.unplaced_self() takes l.unplaced (from make_l.unplaced_in_primaries) 
+# and l.self_align (from make_l.l_coords.l_homologs on self alignments)
+#   names for l.self_align primaries need to be "Fpri" and "Mpri" to match l.unplaced
+# produces list (per primary Fpri/Mpri) of plot lists (per scaffold)
+# of unplaced scaffolds against chromosomes from self alignment
+plot_l.unplaced_self = function(L.UNPLACED, L.SELF, DUP_THRESHOLD = 0.5){
+  l.unplaced.self.plots = lapply(
+    L.UNPLACED %>% names, 
+    function(ASM){
+      p.asm = lapply(L.UNPLACED[[ASM]] %>% names,
+                     function(SCAF){
+                       if( length(L.UNPLACED[[ASM]][[SCAF]]) == 0 ){
+                         return(NULL)
+                       } else {
+                       p = PlotDFCoords(L.SELF[[ASM]]$l.coords,
+                                    REFERENCE = SCAF,
+                                    QUERY = L.UNPLACED[[ASM]][[SCAF]],
+                                    TIC_LABELS = T, TIC_COUNT = 100,
+                                    LAB_REF = ASM, LAB_QRY = ASM)
+                       d = L.SELF[[ASM]]$l.homologs$matches %>%
+                         filter(qry_SeqName %in% L.UNPLACED[[ASM]][[SCAF]],
+                                qry_Prop > DUP_THRESHOLD) %>%
+                         select(qry_SeqName) %>% unlist
+                       return(list(plot = p, dups = d))
+                       }   
+                     })
+      names(p.asm) = L.UNPLACED[[ASM]] %>% names
+      return(p.asm)
+    })
+  names(l.unplaced.self.plots) = L.UNPLACED %>% names
+  return(l.unplaced.self.plots)
+}
+
+
+# function to convert lists into dataframe with unplaced and duplicate scaffolds 
+#  one row for each assembly/chromosome
+#  $unplaced and $dups columns: single comma sep character string of non-Chr scaffolds
+# takes l.unplaced and l.unplaced.self.plots
+make_df.unplaced_dups = function(L.UNPLACED, L.SELF.PLOTS){
+  data.frame(
+    asm = rep(names(L.UNPLACED), each = length(L.UNPLACED[[1]])),
+    seq = rep(names(L.UNPLACED[[1]]), length(L.UNPLACED)),
+    unplaced = lapply(L.UNPLACED, function(ASM){
+      sapply(ASM, paste, collapse = ",") %>% unlist %>% as.character()
+    }) %>% unlist,
+    dups = lapply(L.SELF.PLOTS, function(ASM){
+      lapply(ASM, function(SCAF){
+        paste(SCAF$dups, collapse = ",") %>% unlist %>% as.character()
+      })
+    }) %>% unlist,
+    row.names = NULL
+    # remove duplicated scaffolds from unplaced list
+  ) %>% mutate(unplaced = str_remove(unplaced, 
+  # throws warnings if search string empty so adding "filler" to avoid warning
+                                     str_replace_all(paste("filler", 
+                                                           dups, sep = ","), 
+                                                     ",", "|")), 
+  # clean up leftover commas
+               unplaced = str_replace_all(unplaced, ",,", ","), 
+               unplaced = str_remove(unplaced, "^,|,$"))
+  
 }
 
