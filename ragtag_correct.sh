@@ -15,4 +15,6 @@ READS=$3
 ragtag.py splitasm $QRY > ${QRY%.*}.split.fa
 
 # run correct to break contigs if alignment and reads support
-ragtag.py correct -R $READS -T corr -t 32 $REF ${QRY%.*}.split.fa
+# -u to tag unmodified sequences (better for AGP)
+# -T corr for high quality long reads
+ragtag.py correct -u -R $READS -T corr -t 32 $REF ${QRY%.*}.split.fa

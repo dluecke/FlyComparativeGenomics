@@ -13,5 +13,5 @@ QRY=$2
 ragtag.py splitasm $QRY > ${QRY%.*}.split.fa
 
 # run correct to break contigs if alignment and reads support
-# -r to estimate gap size
+# -r to estimate gap size, -u to tag unmodified sequences (better for AGP)
 ragtag.py scaffold -r -t 32 $REF ${QRY%.*}.split.fa
