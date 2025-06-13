@@ -16,18 +16,19 @@
 #     Fasm,FChrs-vs-FUnplaced.coords,FChrs.fa.fai,FUnplaced.fa.fai
 #     hapF1,Fh1Chrs-vs-Fh1Unplaced.coords,Fh1Chrs.fa.fai,Fh1Unplaced.fa.fai
 
+# get command line input
+args = commandArgs(trailingOnly = TRUE)
+# check if arg count correct (before loading packages)
+if (length(args) != 3) {
+  stop("USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv OUTFILENAME")
+}
+
 
 # path to VPGRU packages
 .libPaths(new="/project/vpgru/software/R_packages")
 
 # load custom functions
 source("~/FlyComparativeGenomics/alignment_region_dotplot-FUNCTIONS.R")
-
-# get command line input
-args = commandArgs(trailingOnly = TRUE)
-if (length(args) != 3) {
-  stop("USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv OUTFILENAME")
-}
 
 # output filenames
 OUT_TSV = paste0(args[3], ".tsv")
