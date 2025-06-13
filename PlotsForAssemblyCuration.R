@@ -3,7 +3,7 @@
 
 # Intended to run via command line submission on Ceres
 
-# USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv 
+# USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv OUTFILENAME
 
 # INFILES_ALN.csv has alignment id, COORDS, FAI, and ref and qry axis labels, no header:
 #     pctgs,asmM-vs-asmF.coords,asmM.fa.fai,asmF.fa.fai,male primary,female primary
@@ -25,9 +25,13 @@ source("~/FlyComparativeGenomics/alignment_region_dotplot-FUNCTIONS.R")
 
 # get command line input
 args = commandArgs(trailingOnly = TRUE)
-if (length(args) != 2) {
-  stop("USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv")
+if (length(args) != 3) {
+  stop("USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv OUTFILENAME")
 }
+
+# output filenames
+OUT_TSV = paste0(args[3], ".tsv")
+OUT_PDF = paste0(arge[3], ".pdf")
 
 # read main alignments files
 INFILES_ALN = read.csv(args[1], row.names = 1, header = FALSE, stringsAsFactors = FALSE)
@@ -49,7 +53,30 @@ l.INFILES_SELF = setNames(split(as.matrix(INFILES_SELF),
                                 seq(nrow(INFILES_SELF))), 
                           rownames(INFILES_SELF))
 
+# Process Data
+# l.coords and l.homologs
+l.ALN = make_l.l_coords.l_homologs(l.INFILES_ALN)
+l.SELF = make_l.l_coords.l_homologs(l.INFILES_SELF)
 
-write.table(data.frame(l.INFILES_ALN), file = "test-ALN.tsv", sep = '\t', row.names = F)
-write.table(df.AxisLabels, file = "test-labels.tsv", sep = '\t', row.names = F)
-write.table(data.frame(l.INFILES_SELF), file = "test-SELF.tsv", sep = '\t', row.names = F)
+# plots
+l.PLOTS = plot_l.l_coords.l_homologs(l.ALN, df.AxisLabels)
+
+# collect unplaced scaffolds by assembly
+l.UNPLACED = make_l.unplaced(l.PLOTS)
+
+# plot self align and call duplicates
+l.SELF.PLOTS = plot_l.unplaced_self(l.UNPLACED, l.SELF)
+
+# dataframe with unplaced and duplicate by assembly/scaffold
+df.UNPLACED_DUPS = make_df.unplaced_dups(l.UNPLACED, l.SELF.PLOTS)
+
+# output unplaced/duplicate df to table
+write.table(df.UNPLACED_DUPS, file = OUT_TSV, sep = '\t',
+            row.names = F, quote = F)
+
+# plots to PDF
+pdf(file = OUT_PDF)
+l.Plots
+l.SELF.PLOTS
+dev.off()
+
