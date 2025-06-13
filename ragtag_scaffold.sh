@@ -14,4 +14,4 @@ ragtag.py splitasm $QRY > ${QRY%.*}.split.fa
 
 # run correct to break contigs if alignment and reads support
 # -r to estimate gap size
-ragtag.py -r scaffold $REF ${QRY%.*}.split.fa
+ragtag.py -r -t 32 scaffold $REF ${QRY%.*}.split.fa
