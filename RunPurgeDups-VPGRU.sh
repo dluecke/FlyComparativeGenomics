@@ -10,7 +10,7 @@ usage() {
     echo "  -o STRING prefix for purged output, default CTG_ASM-DeDup[_cutoffMVAL]"
     echo "  -m INT depth for manual cutoff, default NULL and auto-cutoff"
     echo "  -t INT threads, default 32"
-    echo "  -p STRING slurm partition, default medium"
+    echo "  -p STRING slurm partition, default ceres"
     echo "  -h FLAG print usage statement"
     exit 0
 }

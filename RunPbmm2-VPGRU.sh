@@ -10,7 +10,7 @@ usage() {
     echo "  -p FLAG output PAF file (implies -s)"
     echo "  -d FLAG output depth table via samtools depth"
     echo "  -v FLAG output variant count table via bcftools"
-    echo "  -q STRING SLURM submission queue, default mem but check mem768"
+    echo "  -q STRING SLURM submission queue, default ceres"
     echo "  -t INT threads, default 32"
     echo "  -h FLAG print usage statement"
     exit 0
