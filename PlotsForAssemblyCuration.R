@@ -32,7 +32,7 @@ source("~/FlyComparativeGenomics/alignment_region_dotplot-FUNCTIONS.R")
 
 # output filenames
 OUT_TSV = paste0(args[3], ".tsv")
-OUT_PDF = paste0(arge[3], ".pdf")
+OUT_PDF = paste0(args[3], ".pdf")
 
 # read main alignments files
 INFILES_ALN = read.csv(args[1], row.names = 1, header = FALSE, stringsAsFactors = FALSE)
