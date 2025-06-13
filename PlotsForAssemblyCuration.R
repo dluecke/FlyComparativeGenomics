@@ -77,7 +77,7 @@ write.table(df.UNPLACED_DUPS, file = OUT_TSV, sep = '\t',
 
 # plots to PDF
 pdf(file = OUT_PDF)
-l.Plots
+l.PLOTS
 l.SELF.PLOTS
 dev.off()
 
