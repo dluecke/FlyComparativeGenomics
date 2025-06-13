@@ -5,13 +5,13 @@
 
 # USAGE: Rscript PlotsForAssemblyCuration.R INFILES_ALN.csv INFILES_SELFALN.csv OUTFILENAME
 
-# INFILES_ALN.csv has alignment id, COORDS, FAI, and ref and qry axis labels, no header:
-#     pctgs,asmM-vs-asmF.coords,asmM.fa.fai,asmF.fa.fai,male primary,female primary
-#     hapF1,asmF-vs-Fh1.coords,asmF.fa.fai,Fh1.fa.fai,female primary,female hap1
+# INFILES_ALN.csv has alignment id, refASM, qryASM, COORDS, FAI, ref,qry axis labels, no header:
+#     pctgs,asmM,asmF,asmM-vs-asmF.coords,asmM.fa.fai,asmF.fa.fai,male primary,female primary
+#     hapF1,asmF,hapF1,asmF-vs-Fh1.coords,asmF.fa.fai,Fh1.fa.fai,female primary,female hap1
 
 # INFILES_SELFALN.csv is for self alignments (unplaced scaffolds onto chrs) 
 #  can run from single assembly via self_align-ChrsVsUnplaced.sh
-# alignment id (haps must match ids in INFILES_ALN.csv), 
+# alignment id (all must match refASM/qryASM and haps must match alignment ids in INFILES_ALN.csv), 
 #  COORDS, and FAI for self alignments, no headers:
 #     Fasm,FChrs-vs-FUnplaced.coords,FChrs.fa.fai,FUnplaced.fa.fai
 #     hapF1,Fh1Chrs-vs-Fh1Unplaced.coords,Fh1Chrs.fa.fai,Fh1Unplaced.fa.fai
@@ -37,12 +37,16 @@ OUT_PDF = paste0(args[3], ".pdf")
 # read main alignments files
 INFILES_ALN = read.csv(args[1], row.names = 1, header = FALSE, stringsAsFactors = FALSE)
 
+# alignment to assembly map
+df.ALNtoASM = INFILES_ALN[,c(1,2)]
+colnames(df.ALNtoASM) = c("RefAsm", "QryAsm")
+
 # split out labels dataframe
-df.AxisLabels = INFILES_ALN[,c(4,5)]
+df.AxisLabels = INFILES_ALN[,c(6,7)]
 colnames(df.AxisLabels) = c("RefLab", "QryLab")
 
 # convert rest to list structure used by custom functions
-l.INFILES_ALN = setNames(split(as.matrix(INFILES_ALN[,c(1:3)]), 
+l.INFILES_ALN = setNames(split(as.matrix(INFILES_ALN[,c(3:5)]), 
                                seq(nrow(INFILES_ALN))), 
                          rownames(INFILES_ALN))
 
@@ -77,7 +81,69 @@ write.table(df.UNPLACED_DUPS, file = OUT_TSV, sep = '\t',
 
 # plots to PDF
 pdf(file = OUT_PDF)
-l.PLOTS
+
+# all chromosomes plot for each alignment
+lapply(l.PLOTS, function(ALN) ALN$p.Chr)
+
+# by-assembly by-chromosome alignments, unplaced scaffolds, self align (duplicates)
+lapply(names(l.UNPLACED), 
+       # per assembly
+       function(ASMi){
+         # for haps ASM and ALN have same name, can access l.PLOT elements directly
+         if(ASMi %in% names(l.PLOTS)){
+           lapply(names(l.UNPLACED[[ASMi]]),
+                  # per chromosome
+                  function(CHR){
+                    # chromosome hap onto primary
+                    l.PLOTS[[ASMi]]$l.p.Chr[[CHR]]
+                    # hap unplaced scaffolds onto primary
+                    l.PLOTS[[ASMi]]$l.p.ChrPlacement[[CHR]]$p.IntoQry
+                    # hap self align scaffolds onto chromosome, shows duplicates
+                    l.SELF.PLOTS[[ASMi]][[CHR]]
+                  })
+         # primary ASM and ALN names different, need to map to alignments
+         } else {
+           # alignments where ASM is reference
+           v.ALN_AsRef = row.names(df.ALNtoASM)[df.ALNtoASM$RefAsm == ASMi]
+           # alignments where ASM is query
+           v.ALN_AsQry = row.names(df.ALNtoASM)[df.ALNtoASM$QryAsm == ASMi]
+           # non-hap (primaries) alignment (name not in asm list), 
+           #  should only be 1 but take [1] to make sure
+           PRI_ALN = c(v.ALN_AsRef, v.ALN_AsQry)[
+             !c(v.ALN_AsRef, v.ALN_AsQry) %in% names(l.FcanV2.unplaced)
+             ][1]
+           lapply(names(l.UNPLACED[[ASMi]]),
+                  function(CHR){
+                    # chromosome primary onto primary
+                    l.PLOTS[[PRI_ALN]]$l.p.Chr[[CHR]]
+                    # do AsQry first, either empty or has primaries aln
+                    if(length(v.ALN_AsQry) > 0){
+                      lapply(v.ALN_AsQry, function(ALN_Q){
+                        # unplaced primary scaffolds onto other primary 
+                        l.PLOTS[[ALN_Q]]$l.p.ChrPlacement[[CHR]]$p.IntoQry
+                      })
+                    }
+                    if(length(v.ALN_AsRef) > 0){
+                      lapply(v.ALN_AsRef, function(ALN_R){
+                        # unplaced primary scaffolds onto hap
+                        l.PLOTS[[ALN_R]]$l.p.ChrPlacement[[CHR]]$p.IntoRef
+                      })
+                    }
+                    # pri self align scaffolds onto chromosome, shows duplicates
+                    l.SELF.PLOTS[[ASMi]][[CHR]]
+                  })
+         }
+         
+       }
+)
+
+# unplaced scaffolds
+
+# names unique to l.PLOTS are aligments between primaries
+lapply(names(l.PLOTS)[!names(l.PLOTS) %in% names(l.SELF.PLOTS)],
+       function(ALNi){
+         
+       })
 l.SELF.PLOTS
 dev.off()
 
