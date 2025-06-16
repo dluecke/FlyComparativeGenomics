@@ -91,15 +91,17 @@ lapply(names(l.UNPLACED),
        function(ASMi){
          # for haps ASM and ALN have same name, can access l.PLOT elements directly
          if(ASMi %in% names(l.PLOTS)){
-           lapply(names(l.UNPLACED[[ASMi]]),
+           l.l.p = lapply(names(l.UNPLACED[[ASMi]]),
                   # per chromosome
                   function(CHR){
                     # chromosome hap onto primary
-                    l.PLOTS[[ASMi]]$l.p.Chr[[CHR]]
+                    l.p.C = l.PLOTS[[ASMi]]$l.p.Chr[[CHR]]
                     # hap unplaced scaffolds onto primary
-                    l.PLOTS[[ASMi]]$l.p.ChrPlacement[[CHR]]$p.IntoQry
+                    l.p.CP = l.PLOTS[[ASMi]]$l.p.ChrPlacement[[CHR]]$p.IntoQry
                     # hap self align scaffolds onto chromosome, shows duplicates
-                    l.SELF.PLOTS[[ASMi]][[CHR]]
+                    l.s.p = l.SELF.PLOTS[[ASMi]][[CHR]]$plot
+                    R = list(l.p.C, l.p.CP, l.s.p)
+                    return(R)
                   })
          # primary ASM and ALN names different, need to map to alignments
          } else {
@@ -112,38 +114,35 @@ lapply(names(l.UNPLACED),
            PRI_ALN = c(v.ALN_AsRef, v.ALN_AsQry)[
              !c(v.ALN_AsRef, v.ALN_AsQry) %in% names(l.FcanV2.unplaced)
              ][1]
-           lapply(names(l.UNPLACED[[ASMi]]),
+           l.l.p = lapply(names(l.UNPLACED[[ASMi]]),
                   function(CHR){
                     # chromosome primary onto primary
-                    l.PLOTS[[PRI_ALN]]$l.p.Chr[[CHR]]
+                    l.p.C = l.PLOTS[[PRI_ALN]]$l.p.Chr[[CHR]]
                     # do AsQry first, either empty or has primaries aln
+                    l.p.AQ = list()
                     if(length(v.ALN_AsQry) > 0){
-                      lapply(v.ALN_AsQry, function(ALN_Q){
+                      l.p.AQ = lapply(v.ALN_AsQry, function(ALN_Q){
                         # unplaced primary scaffolds onto other primary 
-                        l.PLOTS[[ALN_Q]]$l.p.ChrPlacement[[CHR]]$p.IntoQry
+                        return(l.PLOTS[[ALN_Q]]$l.p.ChrPlacement[[CHR]]$p.IntoQry)
                       })
                     }
+                    l.p.AR = list()
                     if(length(v.ALN_AsRef) > 0){
-                      lapply(v.ALN_AsRef, function(ALN_R){
+                      l.p.AR = lapply(v.ALN_AsRef, function(ALN_R){
                         # unplaced primary scaffolds onto hap
-                        l.PLOTS[[ALN_R]]$l.p.ChrPlacement[[CHR]]$p.IntoRef
+                        return(l.PLOTS[[ALN_R]]$l.p.ChrPlacement[[CHR]]$p.IntoRef)
                       })
                     }
                     # pri self align scaffolds onto chromosome, shows duplicates
-                    l.SELF.PLOTS[[ASMi]][[CHR]]
+                    l.s.p = l.SELF.PLOTS[[ASMi]][[CHR]]$plot
+                    R = list(l.p.C, l.p.AQ, l.p.AR, l.s.p)
+                    return(R)
                   })
          }
-         
+         return(l.l.p)
        }
 )
 
-# unplaced scaffolds
 
-# names unique to l.PLOTS are aligments between primaries
-lapply(names(l.PLOTS)[!names(l.PLOTS) %in% names(l.SELF.PLOTS)],
-       function(ALNi){
-         
-       })
-l.SELF.PLOTS
 dev.off()
 
