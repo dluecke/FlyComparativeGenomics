@@ -93,7 +93,7 @@ if [[ -n $TRIO ]]; then
     echo -e "\nThen will run hapmers.sh to generate trio binned merqury plots"
 fi
 
-echo -e "\nSubmitting to the short partition with $N_THREAD tasks"
+echo -e "\nSubmitting to the ceres partition with $N_THREAD tasks"
 echo "with job name Meryl-${OUT_PREFIX}"
 
 # launch slurm template with proper variables
