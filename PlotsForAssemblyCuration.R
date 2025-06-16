@@ -112,7 +112,7 @@ lapply(names(l.UNPLACED),
            # non-hap (primaries) alignment (name not in asm list), 
            #  should only be 1 but take [1] to make sure
            PRI_ALN = c(v.ALN_AsRef, v.ALN_AsQry)[
-             !c(v.ALN_AsRef, v.ALN_AsQry) %in% names(l.FcanV2.unplaced)
+             !c(v.ALN_AsRef, v.ALN_AsQry) %in% names(l.UNPLACED)
              ][1]
            l.l.p = lapply(names(l.UNPLACED[[ASMi]]),
                   function(CHR){
