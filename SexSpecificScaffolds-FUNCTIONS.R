@@ -1,19 +1,23 @@
 # SexSpecificScaffolds-FUNCTIONS.R
 # functions for testing scaffold depth and variant data for sex chromosome signals
 
+library(tidyverse)
+
 # INPUT FILE FORMATS
 ###
-# n_masked files - 1 of each CSV per (hardmasked) assembly
+# n_masked files - 1 of each CSV per assembly
 #
-# HMASM.nmasked.csv: 
+# ASM.nmasked.csv: 
 #   scaffold,length,masked
-# row per scaffold with scaf name, total length, and n masked bases
+# row per scaffold with scaf name, total length, and n hardmasked bases (Ns)
+# also need for unmasked assemblies to get count of Ns from scaffold gaps etc
 # written by hardmask.slurm (same time as converting softmask to hardmask)
+# if run on unmasked will just do the N counts
 #
-# HMASM.windowsNkb_nmasked.csv:
+# ASM.windowsNkb_nmasked.csv:
 #   window,length,masked
 # same format as above but row per window
-# written by get_nmasked_by_window.sh
+# written by get_nmasked_by_window.sh on hardmasked or unmasked assembly
 #
 ###
 # depth files - 1 of each TSV per seq library per assembly mapping replicate
@@ -22,15 +26,203 @@
 #   scaffold  n_sites avg_depth
 # row per scaffold with scaf name, # sites with depth reported, and average depth
 # written by get_depth_by_scaffold.sh
-#
 # 
+# ASM-SAMPLE.depth_by_windowsXkb.tsv:
+#   scaffold  window_number window_ID n_sites avg_depth
+# written from depth.tsv file by get_depth_by_window.sh, called by window-depth.slurm
+#
+###
+# variant files - 1 of each per seq library per assembly
+#
+# ASM-SAMPLE.bam.nseg_by_scaffold.csv:
+#   scaffold,n_seg_sites
+# generated from VCF file of BAM read alignments during
+# bcfcall.slurm job generating VCF
+# number of segregating sites per scaffold (dumb count, no fr(var) considered)
+#
+# ASM-SAMPLE.bam.vcf.nvar_by_windowsXkb.tsv:
+#   scaffold  window_number window_ID n_seg_sites
+    
 
-# make_df.sexbias() a function to build the df.sexbias dataframe
+# normalize_depth() function to add columns for by-unmasked-bp and by-library 
+#  normalized depths per region (scaffold or window)
+# Accounting for Masked/Unmasked BP:
+#  depending on samtools view options (-a, -aa) the depth.tsv file may include:
+#   - no 0s regardless of site masking
+#   - 0s if site is unmasked but without mapped reads (true 0)
+#   - 0s if site is masked (artifact 0)
+#  the raw average doesn't account for this difference, but the 
+#  unmasked depth average should include "true" but not "artifact" 0s
+#    (here "masked" applies to all N bases, including eg scaffold gaps in unmasked assembly)
+#  Can convert the raw_avg from any of these scenarios into true unmasked average depth
+#  with number of sites used in the average and number of unmasked bases in sequence:
+#    true_unmask_avg = raw_avg * (n_sites_used / n_unmasked_sites)
+# By-Library normalizing is needed to compare/combine values across libraries with 
+#  different overall depths. Performed on unmasked depth average from above.
+#  For each sequence:
+#    avg_norm_SEQ_depth = avg_raw_SEQ_depth / avg_raw_LIBRARY_depth
+#  since the "raw" depths are themselves averages across all unmasked sites on sequence 
+#  the library average needs to be weighted by unmasked sequence length:
+#     LIBRARY_depth = sum( SCAFi_depth * SCAFi_unmasked ) / sum( SCAFi_unmasked )
+# Takes: 
+#  df.depth dataframe with seqID row names, $n_sites (number sites in average), and $avg_raw_depth
+#  df.nmasked dataframe with seqID row names, $length (total bp), and $unmasked (non-N bp)
+# Returns:
+#  df.depth dataframe with seqID row names, $avg_raw_depth $unmasked $avg_unmask_depth $avg_norm_depth
+# RETURN DF ROW NAMES TAKEN FROM DF_NMASK WITH MISSING VALUES SET TO 0 so make sure they match
+normalize_depth <- function(DF_RAW_DEPTH, DF_NMASK){
+  DF_NORM_DEPTH <- data.frame(
+    unmasked = DF_NMASK$unmasked,
+    n_sites = DF_RAW_DEPTH[rownames(DF_NMASK),]$n_sites,
+    avg_raw_depth = DF_RAW_DEPTH[rownames(DF_NMASK),]$avg_raw_depth,
+    row.names = row.names(DF_NMASK)
+  )
+  # missing scaffolds are treated as "no reads mapped"
+  # unmasked, n_sites, and depth all set to 0
+  DF_NORM_DEPTH[is.na(DF_NORM_DEPTH)] = 0
+  # adjust for 0 artifacts
+  DF_NORM_DEPTH$avg_unmask_depth = 
+    DF_NORM_DEPTH$avg_raw_depth * (DF_NORM_DEPTH$n_sites / DF_NORM_DEPTH$unmasked)
+  AVG_DEPTH = weighted.mean(DF_NORM_DEPTH$avg_unmask_depth, DF_NORM_DEPTH$unmasked)
+    #sum( DF_NORM_DEPTH$avg_unmask_depth * DF_NORM_DEPTH$unmasked , na.rm = T) /
+     #           sum( DF_NORM_DEPTH$unmasked , na.rm = T)
+  DF_NORM_DEPTH$avg_norm_depth = 
+    DF_NORM_DEPTH$avg_unmask_depth / AVG_DEPTH
+  return(DF_NORM_DEPTH)
+}
+
+# make_df.sexbias() function to build the PER SCAFFOLD df.sexbias dataframe 
+#   from multiple reps per sex (adapted from make_df.sexbias_NoReps(), below)
+# Takes depth and variant calls per scaffold (see above for formatting)
+#   read mapping against unmasked or hardmasked assembly,
+#   need "nmasked.csv" either way, see above
+# Does by-library normalizations, averages across libraries,
+#  and calculates per scaffold statistics
+# 2 arguments:
+#  Filename of ASM.NMASK.CSV 
+#  List (of lists of lists) with library depth and variant data
+#    Format: LISTNAME$STAT$SEX$SAMPLE
+make_df.sexbias <- function(FILE_SCAF_NMASKED, L_INFILES){
+  
+  # df for scaffold length, masked/unmasked bp per scaffold
+  DF_SCAFFOLDS <- read.csv(FILE_SCAF_NMASKED, header = F,
+                      col.names = c('scaffold', 'length', 'masked'))
+  row.names(DF_SCAFFOLDS) = DF_SCAFFOLDS$scaffold  # useful to be able to access by either name or column value
+  DF_SCAFFOLDS$unmasked <- DF_SCAFFOLDS$length - DF_SCAFFOLDS$masked
+  # proportion of total assembly
+  DF_SCAFFOLDS$pr_length <- DF_SCAFFOLDS$length / sum(DF_SCAFFOLDS$length)
+  DF_SCAFFOLDS$pr_unmasked <- DF_SCAFFOLDS$unmasked / sum(DF_SCAFFOLDS$unmasked)
+  # order by scaffold length
+  DF_SCAFFOLDS <- DF_SCAFFOLDS[order(-DF_SCAFFOLDS$length),]
+  
+  # long df with sex, sample, scaffold id and lengths, raw and normalized depth
+  DF_DEPTH <- lapply(L_INFILES$depth, function(sex){
+    lapply(sex, function(FILE){
+      # call normalize_depth() function from above while reading file
+      sample_depth <- normalize_depth(
+        read.table(FILE, header = F, row.names = 1, 
+                   col.names = c('scaffold', 'n_sites', 'avg_raw_depth')), 
+        DF_SCAFFOLDS) %>% arrange(desc(n_sites))
+      sample_depth$scaffold <- row.names(sample_depth)
+      rownames(sample_depth) = NULL
+      return(sample_depth)
+    }) %>% bind_rows(.id ="sample")
+  }) %>% bind_rows(.id="sex") %>% 
+    select(sex, sample, scaffold, n_sites, unmasked,
+           avg_raw_depth, avg_unmask_depth, avg_norm_depth)
+  
+  # variant count long df with sex, sample, scaffold id and lengths
+  # just a count so not as complicated as depth (no unmasked average and normalizing needed)
+  DF_NVARI <- lapply(L_INFILES$nvari, function(sex){
+    lapply(sex, function(FILE){
+      # call normalize_depth() function from above while reading file
+      df.vari <- read.csv(FILE, header = F, row.names = 1, 
+                          col.names = c('scaffold','n_variants'))
+      sample_nvari <- data.frame(
+        unmasked = DF_SCAFFOLDS$unmasked,
+        n_variants = df.vari[rownames(DF_SCAFFOLDS),],
+        row.names = row.names(DF_SCAFFOLDS)
+      ) %>% arrange(desc(unmasked))
+      # still set unobserved scaffolds to "no variants"
+      sample_nvari[is.na(sample_nvari)] = 0
+      sample_nvari$scaffold <- row.names(sample_nvari)
+      rownames(sample_nvari) = NULL
+      return(sample_nvari)
+    }) %>% bind_rows(.id ="sample")
+  }) %>% bind_rows(.id="sex") %>% 
+    select(sex, sample, scaffold, unmasked, n_variants)
+  # per kb variant frequence
+  DF_NVARI$fr_var = 1000 * DF_NVARI$n_variants / DF_NVARI$unmasked
+  
+  # wide DF to collect all values by scaffold
+  # sample depth data
+  DF_DEPTH_WIDE <- DF_DEPTH %>% select(-sex, -unmasked, -n_sites) %>% 
+    pivot_wider(names_from = sample, 
+                values_from = c(avg_raw_depth, avg_unmask_depth, avg_norm_depth)) %>% 
+    as.data.frame()
+  # sample variant data
+  DF_NVARI_WIDE <- DF_NVARI %>% select(-sex, -unmasked) %>%
+    pivot_wider(names_from = sample,
+                values_from = c(n_variants, fr_var)) %>%
+    as.data.frame()
+  # list of depth statistics by sex
+  L_DEPTH_STATS <- lapply(names(L_INFILES$depth), function(SEX){ 
+    depth_stats <- DF_DEPTH %>% filter(sex == SEX) %>% 
+      group_by(scaffold) %>% 
+      summarise(mean_depth = mean(avg_norm_depth), 
+                sd_depth = sd(avg_norm_depth) ) %>% as.data.frame()
+  names(depth_stats) = c(names(depth_stats)[1], paste(names(depth_stats), SEX, sep='.')[2:3])
+    rownames(depth_stats) = depth_stats$scaffold
+    return(depth_stats)
+  })
+  # list of variant stats by sex
+  L_NVARI_STATS <- lapply(names(L_INFILES$nvari), function(SEX){
+    nvari_stats <- DF_NVARI %>% filter(sex == SEX) %>% 
+      group_by(scaffold) %>% 
+      summarise(mean_frVar = mean(fr_var), 
+                sd_frVar = sd(fr_var),
+                mean_nVar = mean(n_variants),
+                sd_nVar = sd(n_variants)) %>% as.data.frame()
+    names(nvari_stats) = c(names(nvari_stats)[1], paste(names(nvari_stats), SEX, sep='.')[2:5] )
+    rownames(nvari_stats) = nvari_stats$scaffold
+    return(nvari_stats)
+  })
+  
+  # combine by columns, use merge to drop redundant columns
+  DF_WIDE <- merge(
+    DF_SCAFFOLDS,
+    merge(
+      merge(DF_DEPTH_WIDE, DF_NVARI_WIDE),
+      merge(
+        merge(L_DEPTH_STATS[[1]], L_DEPTH_STATS[[2]]),
+        merge(L_NVARI_STATS[[1]], L_NVARI_STATS[[2]])
+      )
+    )
+  ) %>% arrange(desc(length)) %>% as.data.frame()
+  
+  # top level bias stats, using list positions to avoid hard coding sex ids 
+  DF_WIDE$Depth_bias <- L_DEPTH_STATS[[1]][DF_WIDE$scaffold, 2] / L_DEPTH_STATS[[2]][DF_WIDE$scaffold, 2]
+  DF_WIDE$FrVar_bias <- L_NVARI_STATS[[1]][DF_WIDE$scaffold, 2] / L_NVARI_STATS[[2]][DF_WIDE$scaffold, 2]
+  
+  rownames(DF_WIDE) = DF_WIDE$scaffold
+  
+  L_SEXBIAS <- list(
+    SexBias = DF_WIDE,
+    DataDepth = DF_DEPTH,
+    DataVariants = DF_NVARI
+  )
+  
+  return(L_SEXBIAS)
+  
+}
+
+# make_df.sexbias-NoReps() a function to build the df.sexbias dataframe
 # depth and variant calls from read mapping against hardmasked assembly
+# Initial version of function written for single HiFi read set per sex (NoReps)
 # takes a list of 5 filenames, all generated by Ceres scripts: 
 #   nmasked: nmasked.csv file with per-scaffold lengths and masked bp counts
-#   depthF: depth_per_scaffold.tsv from female reads against hardmasked assembly
-#   depthM: depth_per_scaffold.tsv from male reads against hardmasked assembly
+#   mean_depth.female: depth_per_scaffold.tsv from female reads against hardmasked assembly
+#   mean_depth.male: depth_per_scaffold.tsv from male reads against hardmasked assembly
 #     depth_per_scaffold.tsv w/ 3 columns: scaffold n_sites depth -- via get_depth_scaffold.sh
 #     (needed to account for ambiguity reporting in masked or depth=0 sites)
 #   nvariF: nseg_per_scaffold.csv from female reads, count of variant sites of hardmasked scaffolds
@@ -43,16 +235,16 @@
 #   - female and male frequency of variant sites
 #   - F/M ratio of normalized depth
 #   - F/M ratio of variant frequency 
-make_df.sexbias <- function(l.IN_FILES){
+make_df.sexbias_NoReps <- function(l.IN_FILES){
   # get scaffolds and lengths from asm fasta index
   NMASKED <- read.csv(l.IN_FILES$nmasked, header = F,
                       col.names = c('scaffold', 'length', 'masked'))
   NMASKED$unmasked <- NMASKED$length - NMASKED$masked
   NMASKED <- NMASKED[order(-NMASKED$unmasked),]
   # input dataframes
-  IN_DEPTHF <- read.table(l.IN_FILES$depthF, header = F, row.names = 1, 
+  IN_DEPTHF <- read.table(l.IN_FILES$mean_depth.female, header = F, row.names = 1, 
                           col.names = c('scaffold', 'n_sites', 'depth'))
-  IN_DEPTHM <- read.table(l.IN_FILES$depthM, header = F, row.names = 1, 
+  IN_DEPTHM <- read.table(l.IN_FILES$mean_depth.male, header = F, row.names = 1, 
                           col.names = c('scaffold', 'n_sites', 'depth'))
   IN_NVARIF <- read.csv(l.IN_FILES$nvariF, header = F, row.names = 1, 
                         col.names = c('scaffold','n_variants'))
@@ -65,11 +257,11 @@ make_df.sexbias <- function(l.IN_FILES){
                         masked = NMASKED$masked,
                         unmasked = NMASKED$unmasked,
                         nsitesF = IN_DEPTHF[SCAFFOLDS,]$n_sites,
-                        depthF = IN_DEPTHF[SCAFFOLDS,]$depth,
+                        mean_depth.female = IN_DEPTHF[SCAFFOLDS,]$depth,
                         nsitesM = IN_DEPTHM[SCAFFOLDS,]$n_sites,
-                        depthM = IN_DEPTHM[SCAFFOLDS,]$depth,
-                        n_varF = IN_NVARIF[SCAFFOLDS,],
-                        n_varM = IN_NVARIM[SCAFFOLDS,],
+                        mean_depth.male = IN_DEPTHM[SCAFFOLDS,]$depth,
+                        mean_nVar.female = IN_NVARIF[SCAFFOLDS,],
+                        mean_nVar.male = IN_NVARIM[SCAFFOLDS,],
                         row.names = SCAFFOLDS)
   # treat missing values as 0
   SEXBIAS[is.na(SEXBIAS)] = 0
@@ -78,17 +270,17 @@ make_df.sexbias <- function(l.IN_FILES){
   # proportion of unmasked length per scaffold
   SEXBIAS$pr_unmasked <- SEXBIAS$unmasked / sum(SEXBIAS$unmasked)
   # unmasked length-weighted normalized depths
-  SEXBIAS$depthF_n <- SEXBIAS$depthF / sum(SEXBIAS$depthF * SEXBIAS$pr_unmasked)
-  SEXBIAS$depthM_n <- SEXBIAS$depthM / sum(SEXBIAS$depthM * SEXBIAS$pr_unmasked)
+  SEXBIAS$depthF_n <- SEXBIAS$mean_depth.female / sum(SEXBIAS$mean_depth.female * SEXBIAS$pr_unmasked)
+  SEXBIAS$depthM_n <- SEXBIAS$mean_depth.male / sum(SEXBIAS$mean_depth.male * SEXBIAS$pr_unmasked)
   # frequency of variant sites per kb
-  SEXBIAS$fr_varF <- 1000 * SEXBIAS$n_varF / SEXBIAS$unmasked
-  SEXBIAS$fr_varM <- 1000 * SEXBIAS$n_varM / SEXBIAS$unmasked
+  SEXBIAS$fr_varF <- 1000 * SEXBIAS$mean_nVar.female / SEXBIAS$unmasked
+  SEXBIAS$fr_varM <- 1000 * SEXBIAS$mean_nVar.male / SEXBIAS$unmasked
   # frequency of variants per kb, normalized to library average
-  SEXBIAS$fr_varF_n <- SEXBIAS$fr_varF / (1000 * sum(SEXBIAS$n_varF)/sum(SEXBIAS$unmasked))
-  SEXBIAS$fr_varM_n <- SEXBIAS$fr_varM / (1000 * sum(SEXBIAS$n_varM)/sum(SEXBIAS$unmasked))
+  #SEXBIAS$fr_varF_n <- SEXBIAS$fr_varF / (1000 * sum(SEXBIAS$mean_nVar.female)/sum(SEXBIAS$unmasked))
+  #SEXBIAS$fr_varM_n <- SEXBIAS$fr_varM / (1000 * sum(SEXBIAS$mean_nVar.male)/sum(SEXBIAS$unmasked))
   # sex bias (female / male)
   SEXBIAS$Depth_bias <- SEXBIAS$depthF_n / SEXBIAS$depthM_n
-  SEXBIAS$FrVar_bias <- SEXBIAS$fr_varF_n / SEXBIAS$fr_varM_n
+  SEXBIAS$FrVar_bias <- SEXBIAS$fr_varF / SEXBIAS$fr_varM
   
   return(SEXBIAS)
   
@@ -105,16 +297,18 @@ ClusterStats <- function(SCAF_LIST, DF.SEXBIAS){
                      unmasked.bp = sum(unmasked),
                      pr_length = sum(pr_length),
                      pr_unmasked = sum(pr_unmasked),
-                     depth_raw.F = sum(unmasked*depthF/sum(unmasked)),
-                     depth_raw.M = sum(unmasked*depthM/sum(unmasked)),
-                     var_count.F = sum(n_varF), 
-                     var_count.M = sum(n_varM),
-                     var_fr.F = sum(n_varF)/sum(unmasked),
-                     var_fr.M = sum(n_varM)/sum(unmasked),
-                     depth_n.F = sum(unmasked*depthF_n/sum(unmasked), na.rm = T), 
-                     depth_n.M = sum(unmasked*depthM_n/sum(unmasked), na.rm = T), 
-                     var_n.F = sum(unmasked*fr_varF_n/sum(unmasked), na.rm = T), 
-                     var_n.M = sum(unmasked*fr_varM_n/sum(unmasked), na.rm = T)
+                     # length-weighted average across scaffolds
+                     depth.F = weighted.mean(mean_depth.female, unmasked),
+                     depth.M = weighted.mean(mean_depth.male, unmasked),
+                     # frequency across scaffolds
+                     var_count.F = sum(mean_nVar.female), 
+                     var_count.M = sum(mean_nVar.male),
+                     var_fr.F = sum(mean_nVar.female)/sum(unmasked),
+                     var_fr.M = sum(mean_nVar.male)/sum(unmasked)
+                     #depth_n.F = sum(unmasked*depthF_n/sum(unmasked), na.rm = T), 
+                     #depth_n.M = sum(unmasked*depthM_n/sum(unmasked), na.rm = T), 
+                     #var_n.F = sum(unmasked*fr_varF_n/sum(unmasked), na.rm = T), 
+                     #var_n.M = sum(unmasked*fr_varM_n/sum(unmasked), na.rm = T)
   ) )
 }
 
@@ -146,36 +340,36 @@ make_df.HomologSexBias <- function(CLUSTERS, DF.SEXBIAS.F, DF.SEXBIAS.M){
     M_pr.length = unlist(DF.HOMOLOGS.M$pr_length),
     M_pr.unmasked = unlist(DF.HOMOLOGS.M$pr_unmasked),
 
-    F_depth.raw.F = unlist(DF.HOMOLOGS.F$depth_raw.F),
-    F_depth.raw.M = unlist(DF.HOMOLOGS.F$depth_raw.M),
-    Fasm_depth.F = unlist(DF.HOMOLOGS.F$depth_n.F),
-    Fasm_depth.M = unlist(DF.HOMOLOGS.F$depth_n.M),
-    M_depth.raw.F = unlist(DF.HOMOLOGS.M$depth_raw.F),
-    M_depth.raw.M = unlist(DF.HOMOLOGS.M$depth_raw.M),
-    Masm_depth.F = unlist(DF.HOMOLOGS.M$depth_n.F),
-    Masm_depth.M = unlist(DF.HOMOLOGS.M$depth_n.M),
+    #F_depth.raw.F = unlist(DF.HOMOLOGS.F$depth_raw.F),
+    #F_depth.raw.M = unlist(DF.HOMOLOGS.F$depth_raw.M),
+    Fasm_depth.F = unlist(DF.HOMOLOGS.F$depth.F),
+    Fasm_depth.M = unlist(DF.HOMOLOGS.F$depth.M),
+    #M_depth.raw.F = unlist(DF.HOMOLOGS.M$depth_raw.F),
+    #M_depth.raw.M = unlist(DF.HOMOLOGS.M$depth_raw.M),
+    Masm_depth.F = unlist(DF.HOMOLOGS.M$depth.F),
+    Masm_depth.M = unlist(DF.HOMOLOGS.M$depth.M),
     
     F_var.count.F = unlist(DF.HOMOLOGS.F$var_count.F),
     F_var.count.M = unlist(DF.HOMOLOGS.F$var_count.M),
     F_var.fr.F = unlist(DF.HOMOLOGS.F$var_fr.F),
     F_var.fr.M = unlist(DF.HOMOLOGS.F$var_fr.M),
-    Fasm_var.F = unlist(DF.HOMOLOGS.F$var_n.F),
-    Fasm_var.M = unlist(DF.HOMOLOGS.F$var_n.M),
+    #Fasm_var.F = unlist(DF.HOMOLOGS.F$var_n.F),
+    #Fasm_var.M = unlist(DF.HOMOLOGS.F$var_n.M),
     M_var.count.F = unlist(DF.HOMOLOGS.M$var_count.F),
     M_var.count.M = unlist(DF.HOMOLOGS.M$var_count.M),
     M_var.fr.F = unlist(DF.HOMOLOGS.M$var_fr.F),
     M_var.fr.M = unlist(DF.HOMOLOGS.M$var_fr.M),
-    Masm_var.F = unlist(DF.HOMOLOGS.M$var_n.F),
-    Masm_var.M = unlist(DF.HOMOLOGS.M$var_n.M),
+    #Masm_var.F = unlist(DF.HOMOLOGS.M$var_n.F),
+    #Masm_var.M = unlist(DF.HOMOLOGS.M$var_n.M),
     
-    DepthBias_Fasm = (unlist(DF.HOMOLOGS.F$depth_n.F) + 0.001) /
-                      (unlist(DF.HOMOLOGS.F$depth_n.M) + 0.001),
-    DepthBias_Masm = (unlist(DF.HOMOLOGS.M$depth_n.F) + 0.001) / 
-                      (unlist(DF.HOMOLOGS.M$depth_n.M) + 0.001),
-    VarBias_Fasm = (unlist(DF.HOMOLOGS.F$var_n.F) + 0.001) / 
-                    (unlist(DF.HOMOLOGS.F$var_n.M) + 0.001),
-    VarBias_Masm = (unlist(DF.HOMOLOGS.M$var_n.F) + 0.001) / 
-                    (unlist(DF.HOMOLOGS.M$var_n.M) + 0.001)
+    DepthBias_Fasm = (unlist(DF.HOMOLOGS.F$depth.F) + 0.001) /
+                      (unlist(DF.HOMOLOGS.F$depth.M) + 0.001),
+    DepthBias_Masm = (unlist(DF.HOMOLOGS.M$depth.F) + 0.001) / 
+                      (unlist(DF.HOMOLOGS.M$depth.M) + 0.001),
+    VarBias_Fasm = (unlist(DF.HOMOLOGS.F$var_fr.F) + 0.001) / 
+                    (unlist(DF.HOMOLOGS.F$var_fr.M) + 0.001),
+    VarBias_Masm = (unlist(DF.HOMOLOGS.M$var_fr.F) + 0.001) / 
+                    (unlist(DF.HOMOLOGS.M$var_fr.M) + 0.001)
   )
   
   DF.HOMOLOGS$AvgTotalLength <- apply(
@@ -195,27 +389,41 @@ make_df.HomologSexBias <- function(CLUSTERS, DF.SEXBIAS.F, DF.SEXBIAS.M){
 
 # function to link depth windows to unmasked lengths and 
 #  normalize depths by unmasked-weighted average
-make_df.DepthWindows <- function(INFILE_DEPTH, INFILE_NMASKED){
+make_df.DepthWindows <- function(INFILE_DEPTH, INFILE_NMASKED,
+                                 AVG_CLIP_PCTILE = 0){
   # read in csv with total and masked bases per window, calculate unmasked per window
   DF.NMASKED <- read.csv(INFILE_NMASKED, header = F, row.names = 1, 
                           col.names = c('window', 'total', 'masked'))
   DF.NMASKED$unmasked <- DF.NMASKED$total - DF.NMASKED$masked
   
   # read in tsv with average depths per window and number sites used
-  DF.DEPTH <- read.csv(INFILE_DEPTH, sep = '\t',
+  DF.DEPTH_IN <- read.csv(INFILE_DEPTH, sep = '\t', header = F,
                        col.names = c('scaffold', 'position',
                                      'window', 'nsites', 'depth'))
-  # add unmasked and total lengths for each window from NMASKED df
-  DF.DEPTH$unmasked <- DF.NMASKED[DF.DEPTH$window,]$unmasked
-  DF.DEPTH$total <- DF.NMASKED[DF.DEPTH$window,]$total
-  # account for missing 0s in depth average
+  row.names(DF.DEPTH_IN) = DF.DEPTH_IN$window
+  # build depth df, treating unobserved windows (present in DF.NMASK) as depth 0
+  DF.DEPTH <- data.frame(
+    scaffold = rownames(DF.NMASKED) %>% str_split_i(pattern = "-", 1),
+    position = rownames(DF.NMASKED) %>% str_split_i(pattern = "-", 2),
+    window = row.names(DF.NMASKED),
+    nsites = DF.DEPTH_IN[row.names(DF.NMASKED),]$nsites,
+    depth = DF.DEPTH_IN[row.names(DF.NMASKED),]$depth,
+    unmasked = DF.NMASKED$unmasked,
+    row.names = row.names(DF.NMASKED)
+  )
+  # missing values to 0
+  DF.DEPTH[is.na(DF.DEPTH)] = 0
+  # account for false or missing 0s in depth average
   DF.DEPTH <- DF.DEPTH %>% filter(unmasked > 0) %>% 
-    mutate(depth_w0s = if_else(abs(nsites - total) > 1, depth * nsites/unmasked, depth))
+    mutate(depth_w0s = depth * nsites/unmasked, depth)
   # length-weighted average depth
-  DF.DEPTH.NoHighLow <- DF.DEPTH %>% filter(depth_w0s > quantile(.$depth_w0s, 0.05),
-                                            depth_w0s < quantile(.$depth_w0s, 0.95))
+  # subset of windows for average, can clip outliers by setting AVG_CLIP_PCTILE > 0
+  DF.DEPTH.NoHighLow <- DF.DEPTH %>% filter(depth_w0s > quantile(.$depth_w0s, AVG_CLIP_PCTILE),
+                                            depth_w0s < quantile(.$depth_w0s, (1-AVG_CLIP_PCTILE)))
   DEPTH_AVG = sum(DF.DEPTH.NoHighLow$depth_w0s 
                   * DF.DEPTH.NoHighLow$unmasked/sum(DF.DEPTH.NoHighLow$unmasked))
+  #DEPTH_AVG = sum(DF.DEPTH$depth_w0s 
+  #                * DF.DEPTH$unmasked/sum(DF.DEPTH$unmasked))
   # normalize by length-weighed average
   DF.DEPTH <- DF.DEPTH %>% mutate(depth_norm = depth_w0s / DEPTH_AVG)
   
@@ -251,7 +459,7 @@ make_df.WindowPlots <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED){
   PLOTDF <- DF_WINDOWS %>% filter(scaffold %in% SEQ_LIST, unmasked >= MIN_UNMASKED)
   OFFSETS <- PLOTDF %>% group_by(scaffold) %>% 
     # highest value per scaffold, add 1 for plot spacing
-    summarise(lastpos=max(position)+1) %>% arrange(match(scaffold, SEQ_LIST)) #%>% arrange(desc(lastpos)) # arrange by size order not stated order 
+    summarise(lastpos = max(as.numeric(position)) + 1) %>% arrange(match(scaffold, SEQ_LIST)) #%>% arrange(desc(lastpos)) # arrange by size order not stated order 
   OFFSETS$offset <- (c(0,OFFSETS$lastpos[1:nrow(OFFSETS)-1]) %>% cumsum())
   PLOTDF$offset <- apply(PLOTDF, 1, function(x){
     OFFSETS$offset[OFFSETS$scaffold == x[1]]
@@ -259,12 +467,29 @@ make_df.WindowPlots <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED){
   return(PLOTDF)
 }
 
-PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, 
+PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS = T,
+                             POOL_N = 1, # can pool windows to speed up plotting
                              ASSEMBLY_NAME, WINDOW_LABEL,
                              SPAN=0.4, ALPHA=0.05, 
                              Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
   # get dataframe for plotting
   PLOTDF <- make_df.WindowPlots(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED)
+  
+  if( DROP_OUTLIERS ){
+    PLOTDF <- PLOTDF  %>% group_by(scaffold, rep) %>% 
+      filter(!(abs(depth_norm - median(depth_norm)) > 2*sd(depth_norm)) 
+             | n() == 1) # keep single observations (were getting dropped since sd NA)
+  }
+  
+  if( POOL_N > 1 ){
+    PLOTDF <- PLOTDF %>% 
+      mutate(pool = as.integer(as.numeric(position) / POOL_N)) %>% 
+      group_by(scaffold, pool, sex, rep) %>% 
+      summarise(depth_norm = weighted.mean(depth_norm, unmasked), 
+                position = median(as.numeric(position)), 
+                offset = max(offset) )
+    WINDOW_LABEL = paste0(POOL_N, " pooled ", WINDOW_LABEL)
+  }
   
   # set color scale for sex based on how many sexes represented
   N_SEX = PLOTDF$sex %>% factor() %>% levels() %>% length()
@@ -297,7 +522,7 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED,
   # get names and x-positions for scaffold annotation
   OFFSETS <- PLOTDF %>% group_by(scaffold) %>% summarise(offset=max(offset))
   
-  PLOT <- ggplot(PLOTDF, aes(x = position+offset, 
+  PLOT <- ggplot(PLOTDF, aes(x = as.numeric(position) + offset + 0.5, 
                              y = depth_norm, 
                              color = sex, 
                              shape = rep, linetype = rep, 
@@ -329,12 +554,23 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED,
 
 PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, 
                              ASSEMBLY_NAME, WINDOW_LABEL,
+                             POOL_N = 1,
                              SPAN=0.4, ALPHA=0.05, 
                              Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
   # get dataframe for plotting
   PLOTDF <- make_df.WindowPlots(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED)
   
-  # set color scale for sex based on how many sexes represented
+  if( POOL_N > 1 ){
+    PLOTDF <- PLOTDF %>% 
+      mutate(pool = as.integer(as.numeric(position) / POOL_N)) %>% 
+      group_by(scaffold, pool, sex, rep) %>% 
+      summarise(fr_var = weighted.mean(fr_var, unmasked), 
+                position = median(as.numeric(position)), 
+                offset = max(offset) )
+    WINDOW_LABEL = paste0(POOL_N, " pooled ", WINDOW_LABEL)
+  }
+
+    # set color scale for sex based on how many sexes represented
   N_SEX = PLOTDF$sex %>% factor() %>% levels() %>% length()
   if( N_SEX == 2 ){
     SCALE_VALUES = c('red', 'blue')
@@ -365,7 +601,7 @@ PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED,
   # get names and x-positions for scaffold annotation
   OFFSETS <- PLOTDF %>% group_by(scaffold) %>% summarise(offset=max(offset))
   
-  PLOT <- ggplot(PLOTDF, aes(x = position+offset, 
+  PLOT <- ggplot(PLOTDF, aes(x = position+offset + 0.5, 
                              y = fr_var, 
                              color = sex, 
                              shape = rep, linetype = rep, 
