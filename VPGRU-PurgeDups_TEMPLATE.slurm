@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name="purge_dups"   #name of this job
 #SBATCH -p ceres              #name of the partition (queue) you are submitting to
-#SBATCH -t 24:00:00
+#SBATCH -t 6:00:00
 #SBATCH -N 1                  #number of nodes in this job
 #SBATCH -n 32                #number of cores/tasks in this job, you get all 20 physical cores with 2 threads per core with hyper-threading
 #SBATCH --mail-user=David.Luecke@usda.gov  #enter your email address to receive emails
