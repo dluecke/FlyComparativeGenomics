@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name="FCS-VPGRU"   #name of this job
 #SBATCH -p ceres              #name of the partition (queue) you are submitting to
-#SBATCH -t 36:00:00
+#SBATCH -t 24:00:00
 #SBATCH --mem-per-cpu=16G   # replacing mem queue
 #SBATCH -N 1                  #number of nodes in this job
 #SBATCH -n 16                #number of cores/tasks in this job
