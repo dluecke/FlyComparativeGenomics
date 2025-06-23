@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH --job-name="gfastats"
 #SBATCH -N 1
 #SBATCH -n 2

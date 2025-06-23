@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH --job-name="merqury"   #name of this job
 #SBATCH -p ceres              #name of the partition (queue) you are submitting to
 #SBATCH -t 1-00:00:00

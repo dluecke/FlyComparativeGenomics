@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH -J windows_nmasked
 #SBATCH -o "win_nmask-%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "win_nmask-%j.%N.stderr"

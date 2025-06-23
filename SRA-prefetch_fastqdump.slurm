@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 
 #SBATCH -J SRAfetch
 #SBATCH -o "sra.%j.%N"

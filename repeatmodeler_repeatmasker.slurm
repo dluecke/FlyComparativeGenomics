@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH -J repeatModMask
 #SBATCH -o "rm-stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "rm-stderr.%j.%N"

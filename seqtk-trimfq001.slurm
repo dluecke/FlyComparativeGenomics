@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH -J trimfq
 #SBATCH -o "trimfq.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "trimfq.%j.%N.stderr"

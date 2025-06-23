@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH -J KmerAnalysis
 #SBATCH -N 1
 #SBATCH -c 32

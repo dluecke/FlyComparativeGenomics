@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --ntasks-per-node=64   # 20 processor core(s) per node X 2 threads per core

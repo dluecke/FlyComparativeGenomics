@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH --job-name="purge_dups"   #name of this job
 #SBATCH -p ceres              #name of the partition (queue) you are submitting to
 #SBATCH -t 6:00:00

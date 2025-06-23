@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH --job-name="split_fa"
 #SBATCH -N 1
 #SBATCH -n 2

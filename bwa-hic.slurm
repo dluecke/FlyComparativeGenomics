@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH -J bwa_hic
 #SBATCH -o "bwahic.%j.%N.stdout"  # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "bwahic.%j.%N.stderr"

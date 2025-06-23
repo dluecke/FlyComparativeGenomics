@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH --job-name="breakpoint_fastas"
 #SBATCH -N 1
 #SBATCH -n 4

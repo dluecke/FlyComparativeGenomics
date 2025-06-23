@@ -1,4 +1,5 @@
 #!/bin/bash
+#SBATCH -A vpgru
 #SBATCH -J redo_hic
 #SBATCH -o "hic.%j.%N.stdout"  # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "hic.%j.%N.stderr"
