@@ -5,7 +5,8 @@
 #SBATCH -o "sra.%j.%N"
 #SBATCH -e "sra.%j.%N"
 #SBATCH -c 8
-#SBATCH -p medium
+#SBATCH -p ceres
+#SBATCH -t 2-00:00:00
 #SBATCH -N 1
 
 SRR_LIST=$1
