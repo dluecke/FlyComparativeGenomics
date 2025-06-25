@@ -16,10 +16,11 @@ READS=$3
 # run correct to break contigs if alignment and reads support
 # --intra only breaks when query maps to single ref sequence, 
 #    prevents splitting out unplaced reference scaffolds
+# -f minimum alignment length to consider
 # -u to tag unmodified sequences (better for AGP)
 # -T corr for high quality long reads
 # output file (default): ragtag_output/ragtag.correct.fasta
-ragtag.py correct --intra -u -R $READS -T corr -t 32 $REF $QRY
+ragtag.py correct --intra -f 5000 -u -R $READS -T corr -t 32 $REF $QRY
 
 # run scaffold to reorder corrected QRY scaffolds
 # -r to estimate gap size, -u to tag unmodified sequences (better for AGP)
