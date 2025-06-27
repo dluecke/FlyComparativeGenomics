@@ -202,7 +202,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   if( is.null(QUERY) ){
     QUERY <- BREAKS_QRY$SeqName
   }
-
+  
   # filter qry and ref by length
   REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH]
   QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH]
@@ -230,179 +230,184 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
                                    MAX_REF_LENGTH = MAX_REF_LENGTH, MAX_QRY_LENGTH = MAX_QRY_LENGTH,
                                    MIN_MATCH_LENGTH = MIN_MATCH_LENGTH)
   
-  # By default only plot scaffolds with matches
-  if( DROP_EMPTY_SCAFFOLDS ){  
+  if( nrow(DF_COORDS) > 0 ){  
     
-    REF_STARTPOS <- unique(DF_COORDS$ref_StartPos)
-    REF_SEQNAMES <- unique(DF_COORDS$ref_SeqName)
-    QRY_STARTPOS <- unique(DF_COORDS$qry_StartPos)
-    QRY_SEQNAMES <- unique(DF_COORDS$qry_SeqName)
-    REF_MAX = max(DF_COORDS$ref_StartPos + DF_COORDS$ref_SeqLength)
-    QRY_MAX = max(DF_COORDS$qry_StartPos + DF_COORDS$qry_SeqLength)
-    
-  } else {
-    # otherwise need to replicate some of GetScaffoldCoordsDF() but without filtering for matches
-    DF_BREAKSREF <- L.COORDS$breaksRef[REFERENCE,]
-    DF_BREAKSQRY <- L.COORDS$breaksQry[QUERY,]
-    
-    REF_STARTPOS <- c(1, 1+cumsum(DF_BREAKSREF$SeqLength)[-length(REFERENCE)])
-    REF_SEQNAMES <- REFERENCE
-    QRY_STARTPOS <- c(1, 1+cumsum(DF_BREAKSQRY$SeqLength)[-length(QUERY)])
-    QRY_SEQNAMES <- QUERY
-    REF_MAX <- REF_STARTPOS[length(REF_STARTPOS)] + DF_BREAKSREF$SeqLength[nrow(DF_BREAKSREF)]
-    QRY_MAX <- QRY_STARTPOS[length(QRY_STARTPOS)] + DF_BREAKSQRY$SeqLength[nrow(DF_BREAKSQRY)]
-  }
-  
-  # adjust boundaries for REF_LIM and QRY_LIM
-  if( !is.null(REF_LIM) ){
-    REF_SEQNAMES = REF_SEQNAMES[intersect(which(c(REF_STARTPOS,REF_MAX) > REF_LIM[1]) - 1, 
-                                          which(REF_STARTPOS < REF_LIM[2]))]
-    REF_STARTPOS = c(REF_LIM[1], 
-                     REF_STARTPOS[(REF_STARTPOS > REF_LIM[1]) & (REF_STARTPOS < REF_LIM[2])])
-    REF_MIN = REF_LIM[1]
-    REF_MAX = REF_LIM[2]
-  } else {
-    REF_MIN = 0
-  }
-  if( !is.null(QRY_LIM) ){
-    QRY_SEQNAMES = QRY_SEQNAMES[intersect(which(c(QRY_STARTPOS,QRY_MAX) > QRY_LIM[1]) - 1, 
-                                          which(QRY_STARTPOS < QRY_LIM[2]))]
-    QRY_STARTPOS = c(QRY_LIM[1], 
-                     QRY_STARTPOS[(QRY_STARTPOS > QRY_LIM[1]) & (QRY_STARTPOS < QRY_LIM[2])])
-    QRY_MIN = QRY_LIM[1]
-    QRY_MAX = QRY_LIM[2]
-  } else {
-    QRY_MIN = 0
-  }
-  
-  # find subset of scaffold positions for axis marking, if requested (doing this with empty scaffolds caused problems, wouldn't need tics for empties anyway)
-  if( TIC_COUNT > 0 & DROP_EMPTY_SCAFFOLDS ){
-    REF_TIC_SPACING = as.integer( (REF_MAX-REF_MIN) / TIC_COUNT )
-    QRY_TIC_SPACING = as.integer( (QRY_MAX-QRY_MIN) / TIC_COUNT )
-    
-    GetAxisTics <- function(POSITIONS, SPACING) {
-      TICGUIDE <- c( seq( min(POSITIONS), max(POSITIONS), by = SPACING ), max(POSITIONS) )
-      TICINDEX <- sapply(TICGUIDE, function(guidepoint) which.min( abs(POSITIONS - guidepoint) ) ) %>% unique()
-      TICPOSITIONS <- POSITIONS[TICINDEX][unique( c(1, which( diff(POSITIONS[TICINDEX[-length(TICINDEX)]]) > SPACING ), length(TICINDEX)) )] 
-      return(TICPOSITIONS[ diff(TICPOSITIONS) > SPACING ])
-    }
-    
-    l.REF_TIC_POSITIONS <- lapply(REF_SEQNAMES, function(seq){ 
-      GetAxisTics( sort(c( DF_COORDS[DF_COORDS$ref_SeqName==seq,]$R1, DF_COORDS[DF_COORDS$ref_SeqName==seq,]$R2 )) , REF_TIC_SPACING)
-    })
-    names(l.REF_TIC_POSITIONS) <- REF_SEQNAMES
-    l.REF_TIC_LABELS <- lapply(REF_SEQNAMES, function(seq){ 
-      l.REF_TIC_POSITIONS[[seq]] - DF_COORDS[DF_COORDS$ref_SeqName==seq,]$ref_StartPos[1] + 1
-    })
-    names(l.REF_TIC_LABELS) <- REF_SEQNAMES
-    df.REF_TICS <- data.frame(position = unlist(l.REF_TIC_POSITIONS), label = as.character(unlist(l.REF_TIC_LABELS)))
-    
-    l.QRY_TIC_POSITIONS <- lapply(QRY_SEQNAMES, function(seq){ 
-      GetAxisTics(sort(c(DF_COORDS[DF_COORDS$qry_SeqName==seq,]$Q1, DF_COORDS[DF_COORDS$qry_SeqName==seq,]$Q2)), QRY_TIC_SPACING)
-    })
-    names(l.QRY_TIC_POSITIONS) <- QRY_SEQNAMES
-    l.QRY_TIC_LABELS <- lapply(QRY_SEQNAMES, function(seq){ 
-      l.QRY_TIC_POSITIONS[[seq]] - DF_COORDS[DF_COORDS$qry_SeqName==seq,]$qry_StartPos[1] + 1
-    })
-    names(l.QRY_TIC_LABELS) <- QRY_SEQNAMES
-    df.QRY_TICS <- data.frame(position = unlist(l.QRY_TIC_POSITIONS), label = as.character(unlist(l.QRY_TIC_LABELS)))
-  } else {
-    df.REF_TICS <- data.frame(position = c(REF_MAX), label = c(""))
-    df.QRY_TICS <- data.frame(position = c(QRY_MAX), label = c(""))
-  }
-  
-  if( FLIP_AXES ){
-    XPOS = "top"
-    YPOS = "left"
-  } else {
-    XPOS = "bottom"
-    YPOS = "right"
-  }
-  
-  # only want match % to map to linewidth if pctID is variable (taken from newer .coords input path)
-  if(min(DF_COORDS$pctID) < 100){
-    p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
-      geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
-      scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
-      labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
-  } else {
-    p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
-      geom_segment(aes(xend=R2, yend=Q2, color = orientation), linewidth = LINEWIDTH) +
-      labs(x=LAB_REF, y=LAB_QRY)
-  }
-   
-  p2 <- p + 
-    geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
-    geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
-    geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=QRY_MIN, yend=QRY_MAX), 
-                 aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) + 
-    geom_segment(data = data.frame(x=REF_MIN, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
-                 aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) +
-    scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position), 
-                       labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))), position = XPOS,
-                       minor_breaks = NULL) +
-    scale_y_continuous(breaks = c(QRY_STARTPOS, df.QRY_TICS$position),
-                       labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = YPOS,
-                       minor_breaks = NULL ) + 
-    guides(color = guide_legend(override.aes = list(linewidth = LINEWIDTH))) +
-    # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
-    # so set manually to keep consistent, but still use the nice palette
-    scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
-                                  "reverse" = brewer.pal(3,"Dark2")[2])) + 
-    theme_minimal() 
-  
-  if( TIC_LABELS ){
-    if( FLIP_AXES ){
-      p2 <- p2 +
-        geom_text(data = df.REF_TICS %>% filter(position > REF_MIN, position < REF_MAX), 
-                  aes(x = position, y = QRY_MAX + 1, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
-        geom_text(data = df.QRY_TICS %>% filter(position > QRY_MIN, position < QRY_MAX), 
-                  aes(x = REF_MIN-1, y = position, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
-        coord_flip(xlim = c( (REF_MIN - COORD_OFFSET*(REF_MAX-REF_MIN)), 
-                             (REF_MAX + COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
-                   ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
-                             (QRY_MAX + COORD_OFFSET*(QRY_MAX-QRY_MIN)) ))
-    } else {
-      p2 <- p2 +
-        geom_text(data = df.REF_TICS %>% filter(position > REF_MIN, position < REF_MAX), 
-                  aes(x = position, y = QRY_MIN-1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
-        geom_text(data = df.QRY_TICS %>% filter(position > QRY_MIN, position < QRY_MAX), 
-                  aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
-        coord_cartesian(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
-                                  (REF_MAX + COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
-                        ylim = c( (QRY_MIN - COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
-                                  (QRY_MAX + COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
-    }  
-  } else {
-    if( FLIP_AXES ){
-      p2 <- p2 +
-        coord_flip(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
-                             (REF_MAX - COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
-                   ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
-                             (QRY_MAX - COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
-    } else {
-      p2 <- p2 +
-        coord_cartesian(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
-                                  (REF_MAX - COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
-                        ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
-                                  (QRY_MAX - COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
+    # By default only plot scaffolds with matches
+    if( DROP_EMPTY_SCAFFOLDS ){  
       
+      REF_STARTPOS <- unique(DF_COORDS$ref_StartPos)
+      REF_SEQNAMES <- unique(DF_COORDS$ref_SeqName)
+      QRY_STARTPOS <- unique(DF_COORDS$qry_StartPos)
+      QRY_SEQNAMES <- unique(DF_COORDS$qry_SeqName)
+      REF_MAX = max(DF_COORDS$ref_StartPos + DF_COORDS$ref_SeqLength)
+      QRY_MAX = max(DF_COORDS$qry_StartPos + DF_COORDS$qry_SeqLength)
+      
+    } else {
+      # otherwise need to replicate some of GetScaffoldCoordsDF() but without filtering for matches
+      DF_BREAKSREF <- L.COORDS$breaksRef[REFERENCE,]
+      DF_BREAKSQRY <- L.COORDS$breaksQry[QUERY,]
+      
+      REF_STARTPOS <- c(1, 1+cumsum(DF_BREAKSREF$SeqLength)[-length(REFERENCE)])
+      REF_SEQNAMES <- REFERENCE
+      QRY_STARTPOS <- c(1, 1+cumsum(DF_BREAKSQRY$SeqLength)[-length(QUERY)])
+      QRY_SEQNAMES <- QUERY
+      REF_MAX <- REF_STARTPOS[length(REF_STARTPOS)] + DF_BREAKSREF$SeqLength[nrow(DF_BREAKSREF)]
+      QRY_MAX <- QRY_STARTPOS[length(QRY_STARTPOS)] + DF_BREAKSQRY$SeqLength[nrow(DF_BREAKSQRY)]
     }
+    
+    # adjust boundaries for REF_LIM and QRY_LIM
+    if( !is.null(REF_LIM) ){
+      REF_SEQNAMES = REF_SEQNAMES[intersect(which(c(REF_STARTPOS,REF_MAX) > REF_LIM[1]) - 1, 
+                                            which(REF_STARTPOS < REF_LIM[2]))]
+      REF_STARTPOS = c(REF_LIM[1], 
+                       REF_STARTPOS[(REF_STARTPOS > REF_LIM[1]) & (REF_STARTPOS < REF_LIM[2])])
+      REF_MIN = REF_LIM[1]
+      REF_MAX = REF_LIM[2]
+    } else {
+      REF_MIN = 0
+    }
+    if( !is.null(QRY_LIM) ){
+      QRY_SEQNAMES = QRY_SEQNAMES[intersect(which(c(QRY_STARTPOS,QRY_MAX) > QRY_LIM[1]) - 1, 
+                                            which(QRY_STARTPOS < QRY_LIM[2]))]
+      QRY_STARTPOS = c(QRY_LIM[1], 
+                       QRY_STARTPOS[(QRY_STARTPOS > QRY_LIM[1]) & (QRY_STARTPOS < QRY_LIM[2])])
+      QRY_MIN = QRY_LIM[1]
+      QRY_MAX = QRY_LIM[2]
+    } else {
+      QRY_MIN = 0
+    }
+    
+    # find subset of scaffold positions for axis marking, if requested (doing this with empty scaffolds caused problems, wouldn't need tics for empties anyway)
+    if( TIC_COUNT > 0 & DROP_EMPTY_SCAFFOLDS ){
+      REF_TIC_SPACING = as.integer( (REF_MAX-REF_MIN) / TIC_COUNT )
+      QRY_TIC_SPACING = as.integer( (QRY_MAX-QRY_MIN) / TIC_COUNT )
+      
+      GetAxisTics <- function(POSITIONS, SPACING) {
+        TICGUIDE <- c( seq( min(POSITIONS), max(POSITIONS), by = SPACING ), max(POSITIONS) )
+        TICINDEX <- sapply(TICGUIDE, function(guidepoint) which.min( abs(POSITIONS - guidepoint) ) ) %>% unique()
+        TICPOSITIONS <- POSITIONS[TICINDEX][unique( c(1, which( diff(POSITIONS[TICINDEX[-length(TICINDEX)]]) > SPACING ), length(TICINDEX)) )] 
+        return(TICPOSITIONS[ diff(TICPOSITIONS) > SPACING ])
+      }
+      
+      l.REF_TIC_POSITIONS <- lapply(REF_SEQNAMES, function(seq){ 
+        GetAxisTics( sort(c( DF_COORDS[DF_COORDS$ref_SeqName==seq,]$R1, DF_COORDS[DF_COORDS$ref_SeqName==seq,]$R2 )) , REF_TIC_SPACING)
+      })
+      names(l.REF_TIC_POSITIONS) <- REF_SEQNAMES
+      l.REF_TIC_LABELS <- lapply(REF_SEQNAMES, function(seq){ 
+        l.REF_TIC_POSITIONS[[seq]] - DF_COORDS[DF_COORDS$ref_SeqName==seq,]$ref_StartPos[1] + 1
+      })
+      names(l.REF_TIC_LABELS) <- REF_SEQNAMES
+      df.REF_TICS <- data.frame(position = unlist(l.REF_TIC_POSITIONS), label = as.character(unlist(l.REF_TIC_LABELS)))
+      
+      l.QRY_TIC_POSITIONS <- lapply(QRY_SEQNAMES, function(seq){ 
+        GetAxisTics(sort(c(DF_COORDS[DF_COORDS$qry_SeqName==seq,]$Q1, DF_COORDS[DF_COORDS$qry_SeqName==seq,]$Q2)), QRY_TIC_SPACING)
+      })
+      names(l.QRY_TIC_POSITIONS) <- QRY_SEQNAMES
+      l.QRY_TIC_LABELS <- lapply(QRY_SEQNAMES, function(seq){ 
+        l.QRY_TIC_POSITIONS[[seq]] - DF_COORDS[DF_COORDS$qry_SeqName==seq,]$qry_StartPos[1] + 1
+      })
+      names(l.QRY_TIC_LABELS) <- QRY_SEQNAMES
+      df.QRY_TICS <- data.frame(position = unlist(l.QRY_TIC_POSITIONS), label = as.character(unlist(l.QRY_TIC_LABELS)))
+    } else {
+      df.REF_TICS <- data.frame(position = c(REF_MAX), label = c(""))
+      df.QRY_TICS <- data.frame(position = c(QRY_MAX), label = c(""))
+    }
+    
+    if( FLIP_AXES ){
+      XPOS = "top"
+      YPOS = "left"
+    } else {
+      XPOS = "bottom"
+      YPOS = "right"
+    }
+    
+    # only want match % to map to linewidth if pctID is variable (taken from newer .coords input path)
+    if(min(DF_COORDS$pctID) < 100){
+      p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+        geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
+        scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
+        labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
+    } else {
+      p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+        geom_segment(aes(xend=R2, yend=Q2, color = orientation), linewidth = LINEWIDTH) +
+        labs(x=LAB_REF, y=LAB_QRY)
+    }
+    
+    p2 <- p + 
+      geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
+      geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
+      geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=QRY_MIN, yend=QRY_MAX), 
+                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) + 
+      geom_segment(data = data.frame(x=REF_MIN, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
+                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) +
+      scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position), 
+                         labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))), position = XPOS,
+                         minor_breaks = NULL) +
+      scale_y_continuous(breaks = c(QRY_STARTPOS, df.QRY_TICS$position),
+                         labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = YPOS,
+                         minor_breaks = NULL ) + 
+      guides(color = guide_legend(override.aes = list(linewidth = LINEWIDTH))) +
+      # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
+      # so set manually to keep consistent, but still use the nice palette
+      scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
+                                    "reverse" = brewer.pal(3,"Dark2")[2])) + 
+      theme_minimal() 
+    
+    if( TIC_LABELS ){
+      if( FLIP_AXES ){
+        p2 <- p2 +
+          geom_text(data = df.REF_TICS %>% filter(position > REF_MIN, position < REF_MAX), 
+                    aes(x = position, y = QRY_MAX + 1, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+          geom_text(data = df.QRY_TICS %>% filter(position > QRY_MIN, position < QRY_MAX), 
+                    aes(x = REF_MIN-1, y = position, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+          coord_flip(xlim = c( (REF_MIN - COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                               (REF_MAX + COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                     ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                               (QRY_MAX + COORD_OFFSET*(QRY_MAX-QRY_MIN)) ))
+      } else {
+        p2 <- p2 +
+          geom_text(data = df.REF_TICS %>% filter(position > REF_MIN, position < REF_MAX), 
+                    aes(x = position, y = QRY_MIN-1, label = label), angle = -45, hjust = 0, vjust = 1, size = 2) +
+          geom_text(data = df.QRY_TICS %>% filter(position > QRY_MIN, position < QRY_MAX), 
+                    aes(x = REF_MAX + 1, y = position, label = label), angle = 45, hjust = 0, vjust = 1, size = 2) +
+          coord_cartesian(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                                    (REF_MAX + COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                          ylim = c( (QRY_MIN - COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                                    (QRY_MAX + COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
+      }  
+    } else {
+      if( FLIP_AXES ){
+        p2 <- p2 +
+          coord_flip(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                               (REF_MAX - COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                     ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                               (QRY_MAX - COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
+      } else {
+        p2 <- p2 +
+          coord_cartesian(xlim = c( (REF_MIN + COORD_OFFSET*(REF_MAX-REF_MIN)), 
+                                    (REF_MAX - COORD_OFFSET*(REF_MAX-REF_MIN)) ), 
+                          ylim = c( (QRY_MIN + COORD_OFFSET*(QRY_MAX-QRY_MIN)), 
+                                    (QRY_MAX - COORD_OFFSET*(QRY_MAX-QRY_MIN)) )) 
+        
+      }
+    }
+    
+    return(p2 +
+             theme(plot.margin = margin(MAR_T, MAR_R, MAR_B, MAR_L), 
+                   axis.title.y.right = element_text(angle = 90),
+                   axis.text.x = element_text(angle = -SEQLABANGLE, 
+                                              hjust = 0, vjust = 0, 
+                                              color = "slateblue", 
+                                              face = "bold"), 
+                   axis.text.y = element_text(angle = 90-SEQLABANGLE, 
+                                              hjust = 0, vjust = 0, 
+                                              color = "slateblue", 
+                                              face = "bold") )
+           
+    )
+  } else {
+    return(NULL)
   }
-  
-  return(p2 +
-           theme(plot.margin = margin(MAR_T, MAR_R, MAR_B, MAR_L), 
-                 axis.title.y.right = element_text(angle = 90),
-                 axis.text.x = element_text(angle = -SEQLABANGLE, 
-                                            hjust = 0, vjust = 0, 
-                                            color = "slateblue", 
-                                            face = "bold"), 
-                 axis.text.y = element_text(angle = 90-SEQLABANGLE, 
-                                            hjust = 0, vjust = 0, 
-                                            color = "slateblue", 
-                                            face = "bold") )
-         
-  )
 }
 
 
@@ -581,12 +586,16 @@ plot_l.l_coords.l_homologs = function(L.L.COORD.HOM, df.Labels,
                        filter(SeqLength > MIN_CHR) %>%
                        rownames,
                      function(scaffold){
-                       PlotDFCoords(ALN$l.coords,
+                       qry_scaffold = ALN$l.homologs$homologs %>%
+                         filter(ref_SeqName == scaffold) %>%
+                         select(qry_SeqName) %>% unlist %>% as.character()
+                       p.Chr = PlotDFCoords(ALN$l.coords,
                                     REFERENCE = scaffold,
-                                    QUERY = scaffold,
+                                    QUERY = qry_scaffold,
                                     LAB_REF = df.Labels[ALN.name,]$RefLab,
                                     LAB_QRY = df.Labels[ALN.name,]$QryLab,
                                     TIC_LABELS = T)
+                       return(p.Chr)
                      })
     names(l.p.Chr) = ALN$l.coords$breaksRef %>%
       filter(SeqLength > MIN_CHR) %>% rownames
@@ -609,7 +618,7 @@ plot_l.l_coords.l_homologs = function(L.L.COORD.HOM, df.Labels,
                  # restrict to appropriate homolog cluster, ensures no duplicates
                  qry_SeqName %in% ALN$l.homologs$clusters[[
                    which(sapply(ALN$l.homologs$clusters, 
-                                function(homolog) scaffold %in% homolog$QryScaf
+                                function(homolog) scaffold %in% homolog$RefScaf
                                 ))]]$QryScaf,
                  qry_SeqLength > MIN_UNPLACED,
                  qry_SeqLength < MIN_CHR,
