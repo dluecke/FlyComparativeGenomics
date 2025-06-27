@@ -26,7 +26,7 @@ seqtk subseq $IN_ASM scaffolds-autosomes.list > ${IN_ASM%.*}.autosomes.fa
 
 sort $IN_ASM.fai -nr -k2,2 | \
     cut -f1 | \
-    tail -n $((N_AUTOSOME+1)) \
+    tail -n +$((N_AUTOSOME+1)) \
     > scaffolds-rest.list
 
 seqtk subseq $IN_ASM scaffolds-rest.list > ${IN_ASM%.*}.rest.fa
