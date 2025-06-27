@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# splitasm_non_autosomes.sh takes scaffolded assembly fasta, splits non-autosome scaffolds to contigs
+#   then can redo HiC scaffolding to improve sex chromosomes/microchromosomes/unplaced scaffold regions
+# requires: samtools, seqtk, ragtag
+
+# preserves scaffolding for N_CHR largest scaffolds
+N_AUTOSOME=5
+
+# input assembly fasta and output assembly name
+IN_ASM=$1
+OUT_ASM=$2
+
+# output fasta 
+
+# output named 
+
+samtools faidx $IN_ASM
+
+sort $IN_ASM.fai -nr -k2,2 | \
+    cut -f1 | \
+    head -n $N_CHR \
+    > scaffolds-autosomes.list
+
+seqtk subseq $IN_ASM scaffolds-autosomes.list > ${IN_ASM%.*}.autosomes.fa
+
+sort $IN_ASM.fai -nr -k2,2 | \
+    cut -f1 | \
+    tail -n $((N_CHR+1)) \
+    > scaffolds-rest.list
+
+seqtk subseq $IN_ASM scaffolds-rest.list > ${IN_ASM%.*}.rest.fa
+
+ragtag.py splitasm ${IN_ASM%.*}.rest.fa > ${IN_ASM%.*}.rest.split.fa
+
+cp ${IN_ASM%.*}.autosomes.fa $OUT_ASM
+cat ${IN_ASM%.*}.rest.split.fa >> $OUT_ASM
+
