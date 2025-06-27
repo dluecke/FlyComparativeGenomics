@@ -1,5 +1,5 @@
 # PlotsForAssemblyCuration.R takes Mummer output and makes standard set of plots
-# to visulize assembly agreement, ID unplaced scaffolds, and check for duplication
+# to visualize assembly agreement, ID unplaced scaffolds, and check for duplication
 
 # Intended to run via command line submission on Ceres
 
