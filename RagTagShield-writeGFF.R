@@ -28,7 +28,9 @@ if (length(args) != 1) {
 library(tidyverse)
 library(slider)
 
-OUT_GFF = paste0(args[1], "-BetterInQry.gff", sep = "")
+OUT_GFF.QRY = paste0(args[1], "-BetterInQry.gff", sep = "")
+OUT_GFF.REF = paste0(args[1], "-BetterInRef.gff", sep = "")
+
 
 # function to read coords file and produce df.jumps
 # includes scaled difference between alignment gap sizes in two assemblies
@@ -123,5 +125,25 @@ df.GFF_QryBetter = data.frame(
   FRAME = ".")
 
 # write output GFF file
-write.table(df.GFF_QryBetter, file = OUT_GFF, sep = '\t',
+write.table(df.GFF_QryBetter, file = OUT_GFF.QRY, sep = '\t',
+            col.names = F, row.names = F, quote = F)
+
+# same for better in ref, allows single pre-RagTag alignment to inform both directions
+df.JUMPS_RefBetter = df.JUMPS %>%
+  filter(d_jump > median(d_jump, na.rm = T) + 2*sd(d_jump, na.rm = T))
+
+# gff formatted table for "QryBetter" regions to be shielded
+df.GFF_RefBetter = data.frame(
+  SEQ = df.JUMPS_RefBetter$ref_SeqName,
+  SOURCE = "RagTagShield",
+  FEATURE = "BetterInRef",
+  # coordinates, buffer by 100bp in case of alignment ambiguity
+  START = df.JUMPS_RefBetter$R2 - 100,
+  END = df.JUMPS_RefBetter$Rnext + 100,
+  SCORE = ".",
+  STRAND = ".",
+  FRAME = ".")
+
+# write output GFF file
+write.table(df.GFF_RefBetter, file = OUT_GFF.REF, sep = '\t',
             col.names = F, row.names = F, quote = F)
