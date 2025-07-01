@@ -31,6 +31,8 @@ library(slider)
 OUT_GFF.QRY = paste0(args[1], "-BetterInQry.gff", sep = "")
 OUT_GFF.REF = paste0(args[1], "-BetterInRef.gff", sep = "")
 
+OUT_JUMPS_TSV = paste0(args[1], "-dfJumps.tsv", sep = "")
+
 
 # function to read coords file and produce df.jumps
 # includes scaled difference between alignment gap sizes in two assemblies
@@ -147,3 +149,8 @@ df.GFF_RefBetter = data.frame(
 # write output GFF file
 write.table(df.GFF_RefBetter, file = OUT_GFF.REF, sep = '\t',
             col.names = F, row.names = F, quote = F)
+
+
+# write full df.JUMPS to file for reference
+write.table(df.JUMPS, file = OUT_JUMPS_TSV, sep = '\t',
+            row.names = F, quote = F)
