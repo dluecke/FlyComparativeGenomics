@@ -107,7 +107,7 @@ show-coords ${ALIGNMENT2_NAME}.delta > ${ALIGNMENT2_NAME}.coords
 
 Rscript $GIT_REPOS/FlyComparativeGenomics/RagTagShield-writeGFF.R ${ALIGNMENT2_NAME}.coords
 
-# RagTag round 2 - QRY_ASM is not reference for ragtag_round1
+# RagTag round 2 - QRY_ASM is now reference for ragtag_round1
 ragtag.py correct --debug --intra -f 5000 -t 32 \
   --gff ${ALIGNMENT2_NAME}.coords-BetterInQry.gff  \
   -R $QRY_READS -T corr \
