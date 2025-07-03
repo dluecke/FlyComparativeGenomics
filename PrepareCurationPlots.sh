@@ -18,7 +18,7 @@
 
 IN_CSV=$1
 N_CHR=$2
-[[ -f $IN_CSV && $N_CHR -gt 0 ]] || (echo "Usage: PrepareCurationPlots.sh asmIdsPathsLabels.csv N_CHR"; exit;)
+[[ -f $IN_CSV && $N_CHR -gt 0 ]] || {echo "Usage: PrepareCurationPlots.sh asmIdsPathsLabels.csv N_CHR"; exit;}
 
 # options for nucmer
 C_VAL=5000
