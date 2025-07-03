@@ -684,7 +684,7 @@ make_l.unplaced = function(L.PLOTS,
                                         MPri_AS_QRY = NULL,
                                         FPri_AS_REF = c(2,3),
                                         FPri_AS_QRY = c(1)){
-  CHRS = L.PLOTS$pctgs$l.p.Chr %>% names
+  CHRS = L.PLOTS[[1]]$l.p.Chr %>% names
   # for each scaffold combine unplaced with chr match in all alignemnts
   l.MpriAsRef.unplaced = sapply(CHRS, function(CHR){
                             sapply(MPri_AS_REF, 
