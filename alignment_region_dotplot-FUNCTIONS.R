@@ -727,12 +727,16 @@ make_l.unplaced = function(L.PLOTS, DF_ALN2ASM){
   # remove duplicates, order by scaffold name
   l.PRI1.unplaced = sapply(CHRS, function(CHR){
     CHR.unplaced = c(l.PRI1AsRef.unplaced[[CHR]], l.PRI1AsQry.unplaced[[CHR]])
-    CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
+    if( length(CHR.unplaced) > 1 ){
+      CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
+    }
     return(CHR.unplaced)
   })
   l.PRI2.unplaced = sapply(CHRS, function(CHR){
     CHR.unplaced = c(l.PRI2AsRef.unplaced[[CHR]], l.PRI2AsQry.unplaced[[CHR]])
-    CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
+    if( length(CHR.unplaced) > 1 ){
+      CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
+    }
     return(CHR.unplaced)
   })
   
