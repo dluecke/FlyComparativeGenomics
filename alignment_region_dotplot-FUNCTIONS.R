@@ -523,7 +523,9 @@ GetHomologs <- function(L.COORDS){
 
 
 # function to run make_l.coords() and GetHomologs() on all files in IN_FILE list:
-# IN_FILE = list(aln1 = c("alignment1_data.coords", "reference1.fa.fai", "query1.fa.fai"),
+# * need to have primary vs primary first *
+# IN_FILE = list(pri_aln = c("pri1vspri2.coords, "pri1.fa.fai", "pri2.fa.fai") 
+#                aln1 = c("alignment1_data.coords", "reference1.fa.fai", "query1.fa.fai"),
 #                aln2 = c("alignment2_data.coords", "reference2.fa.fai", "query2.fa.fai"))
 # returns list (per alignment) of list(l.coord, l.homolog): 
 make_l.l_coords.l_homologs = function(L.FILES){
@@ -537,7 +539,7 @@ make_l.l_coords.l_homologs = function(L.FILES){
   return(l.LCoords.LHomologs)
 }
 
-# function to take list structure from male_l.l_coords.l_homologs 
+# function to take list structure from make_l.l_coords.l_homologs 
 # and produce list (per alignment) of standard plots:
 #   Chromosomes All vs All
 #   Unplaced Scaffolds All vs All
@@ -675,62 +677,76 @@ plot_l.l_coords.l_homologs = function(L.L.COORD.HOM, df.Labels,
 # function to compile all unplaced scaffold for each chromosome in all assemblies
 # takes list of plots from plot_l.l_coords.l_homologs 
 #   (reads l.p.ChrPlacement $v.IntoRef and $v.IntoQry)
-# takes lists of positions in L.PLOTS alignments where  
+# takes df with assembly to alignment relationships, 
+#   row per alignment with PriVsPri first, same order as in L.PLOTS
+#   columns: $RefAsm $QryAsm
+# takes ID tag for primary alignments in df.ALNtoASM
 # returns list (RefPri, QryPri) of lists (per Chr) of scaffolds to place
-# lists for primaries are combined between all alignments
-# lists for haps are taken from L.PLOTS l.p.ChrPlacement
-make_l.unplaced = function(L.PLOTS,
-                                        MPri_AS_REF = c(1,4,5),
-                                        MPri_AS_QRY = NULL,
-                                        FPri_AS_REF = c(2,3),
-                                        FPri_AS_QRY = c(1)){
+# lists for primaries are combined between all alignments (vs other primary and haps)
+# lists for haps are taken from L.PLOTS l.p.ChrPlacement (one alignment, to primary)
+make_l.unplaced = function(L.PLOTS, DF_ALN2ASM){
+  # track where primaries are in each alignment, relies on primary vs primary being first
+  TAG_PRI1 = DF_ALN2ASM$RefAsm[1]
+  TAG_PRI2 = DF_ALN2ASM$QryAsm[1]
+  PRI1_AS_REF = which(DF_ALN2ASM$RefAsm == TAG_PRI1)
+  PRI1_AS_QRY = which(DF_ALN2ASM$QryAsm == TAG_PRI1)
+  PRI2_AS_REF = which(DF_ALN2ASM$RefAsm == TAG_PRI2)
+  PRI2_AS_QRY = which(DF_ALN2ASM$QryASM == TAG_PRI2)
+  # names for chromosomes, based on parsing in L.PLOTS
   CHRS = L.PLOTS[[1]]$l.p.Chr %>% names
   # for each scaffold combine unplaced with chr match in all alignemnts
-  l.MpriAsRef.unplaced = sapply(CHRS, function(CHR){
-                            sapply(MPri_AS_REF, 
+  l.PRI1AsRef.unplaced = sapply(CHRS, function(CHR){
+                            sapply(PRI1_AS_REF, 
                                    function(ALNi){
                                      ALN = L.PLOTS[[ALNi]]
                                      unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoRef)
                                    } %>% unlist %>% as.character)
                           } %>% unlist %>% unique )
-  l.MpriAsQry.unplaced = sapply(CHRS, function(CHR){
-                                 sapply(MPri_AS_QRY, 
+  l.PRI1AsQry.unplaced = sapply(CHRS, function(CHR){
+                                 sapply(PRI1_AS_QRY, 
                                         function(ALNi){
                                           ALN = L.PLOTS[[ALNi]]
                                           unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoQry)
                                         } %>% unlist %>% as.character)
                                } %>% unlist %>% unique )
   
-  l.FpriAsRef.unplaced = sapply(CHRS, function(CHR){
-                                 sapply(FPri_AS_REF, 
+  l.PRI2AsRef.unplaced = sapply(CHRS, function(CHR){
+                                 sapply(PRI2_AS_REF, 
                                         function(ALNi){
                                           ALN = L.PLOTS[[ALNi]]
                                           unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoRef)
                                         } %>% unlist %>% as.character)
                                } %>% unlist %>% unique )
-  l.FpriAsQry.unplaced = sapply(CHRS, function(CHR){
-                                 sapply(FPri_AS_QRY, 
+  l.PRI2AsQry.unplaced = sapply(CHRS, function(CHR){
+                                 sapply(PRI2_AS_QRY, 
                                         function(ALNi){
                                           ALN = L.PLOTS[[ALNi]]
                                           unlist(ALN$l.p.ChrPlacement[[CHR]]$v.IntoQry)
                                         } %>% unlist %>% as.character)
                                } %>% unlist %>% unique )
   # remove duplicates, order by scaffold name
-  l.Mpri.unplaced = sapply(CHRS, function(CHR){
-    CHR.unplaced = c(l.MpriAsRef.unplaced[[CHR]], l.MpriAsQry.unplaced[[CHR]])
+  l.PRI1.unplaced = sapply(CHRS, function(CHR){
+    CHR.unplaced = c(l.PRI1AsRef.unplaced[[CHR]], l.PRI1AsQry.unplaced[[CHR]])
     CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
     return(CHR.unplaced)
   })
-  l.Fpri.unplaced = sapply(CHRS, function(CHR){
-    CHR.unplaced = c(l.FpriAsRef.unplaced[[CHR]], l.FpriAsQry.unplaced[[CHR]])
+  l.PRI2.unplaced = sapply(CHRS, function(CHR){
+    CHR.unplaced = c(l.PRI2AsRef.unplaced[[CHR]], l.PRI2AsQry.unplaced[[CHR]])
     CHR.unplaced = CHR.unplaced[order(nchar(CHR.unplaced), CHR.unplaced)] %>% unique
     return(CHR.unplaced)
   })
   
+  l.pri.unplaced = list(l.PRI1.unplaced, l.PRI2.unplaced)
+  names(l.pri.unplaced) = c(TAG_PRI1, TAG_PRI2)
+  
+  # Assembly to skip for haps. First row required to be Pri1 vs Pri2
+  PRIi = 1
+  # Other option was to require specific IDs for primaries, decided "PvP is first" easier
   # names of haps from L.PLOT, only primary vs primary represented twice in ALNi sets
-  PRIi = c(MPri_AS_QRY, MPri_AS_REF, FPri_AS_QRY, FPri_AS_REF)[
-    duplicated(c(MPri_AS_QRY, MPri_AS_REF, FPri_AS_QRY, FPri_AS_REF))
-  ]
+  # PRIi = c(MPri_AS_QRY, MPri_AS_REF, FPri_AS_QRY, FPri_AS_REF)[
+  #   duplicated(c(MPri_AS_QRY, MPri_AS_REF, FPri_AS_QRY, FPri_AS_REF))
+  # ]
+
   # list for each hap alignment, always Qry against relevant primary
   l.haps.unplaced = lapply(names(L.PLOTS)[-PRIi],
                            function(ALNi){
@@ -742,8 +758,7 @@ make_l.unplaced = function(L.PLOTS,
                              })
                            })
   names(l.haps.unplaced) = names(L.PLOTS)[-PRIi]
-  l.unplaced = c(list(Mpri = l.Mpri.unplaced,
-                      Fpri = l.Fpri.unplaced),
+  l.unplaced = c(l.pri.unplaced,
                  l.haps.unplaced)
   return(l.unplaced)
 }
@@ -751,7 +766,7 @@ make_l.unplaced = function(L.PLOTS,
 
 # plot_l.unplaced_self() takes l.unplaced (from make_l.unplaced_in_primaries) 
 # and l.self_align (from make_l.l_coords.l_homologs on self alignments)
-#   names for l.self_align primaries need to be "Fpri" and "Mpri" to match l.unplaced
+#   names for l.self_align primaries need to match l.unplaced
 # produces list (per primary Fpri/Mpri) of plot lists (per scaffold)
 # of unplaced scaffolds against chromosomes from self alignment
 plot_l.unplaced_self = function(L.UNPLACED, L.SELF, DUP_THRESHOLD = 0.5){

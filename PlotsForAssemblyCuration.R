@@ -8,6 +8,7 @@
 # INFILES_ALN.csv has alignment id, refASM, qryASM, COORDS, FAI, ref,qry axis labels, no header:
 #     pctgs,asmM,asmF,asmM-vs-asmF.coords,asmM.fa.fai,asmF.fa.fai,male primary,female primary
 #     hapF1,asmF,hapF1,asmF-vs-Fh1.coords,asmF.fa.fai,Fh1.fa.fai,female primary,female hap1
+# Primary vs Primary needs to be first in this list
 
 # INFILES_SELFALN.csv is for self alignments (unplaced scaffolds onto chrs) 
 #  can run from single assembly via self_align-ChrsVsUnplaced.sh
@@ -63,11 +64,11 @@ l.INFILES_SELF = setNames(split(as.matrix(INFILES_SELF),
 l.ALN = make_l.l_coords.l_homologs(l.INFILES_ALN)
 l.SELF = make_l.l_coords.l_homologs(l.INFILES_SELF)
 
-# plots
+# plots, includes lists of unplaced scaffolds by chromosome
 l.PLOTS = plot_l.l_coords.l_homologs(l.ALN, df.AxisLabels)
 
 # collect unplaced scaffolds by assembly
-l.UNPLACED = make_l.unplaced(l.PLOTS)
+l.UNPLACED = make_l.unplaced(l.PLOTS, df.ALNtoASM)
 
 # plot self align and call duplicates
 l.SELF.PLOTS = plot_l.unplaced_self(l.UNPLACED, l.SELF)
