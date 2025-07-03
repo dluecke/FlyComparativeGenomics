@@ -757,8 +757,11 @@ make_l.unplaced = function(L.PLOTS, DF_ALN2ASM){
                              ALN = L.PLOTS[[ALNi]]
                              sapply(CHRS, function(CHR){
                                hap.unplaced = ALN$l.p.ChrPlacement[[CHR]]$v.IntoQry
-                               hap.unplaced = hap.unplaced[order(nchar(hap.unplaced),
-                                                                 hap.unplaced)]
+                               if( length(hap.unplaced) > 1 ){
+                                 hap.unplaced = hap.unplaced[order(nchar(hap.unplaced),
+                                                                   hap.unplaced)]
+                               }
+                               return(hap.unplaced)
                              })
                            })
   names(l.haps.unplaced) = names(L.PLOTS)[-PRIi]
