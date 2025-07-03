@@ -15,6 +15,8 @@
 
 # Containing directory for FlyComparativeGenomics/ repo
 GIT_REPOS=~
+# alignment seed for nucmer
+C_VAL=5000
 
 module load samtools/1.17
 module load seqtk/1.3
@@ -35,5 +37,6 @@ seqtk subseq $ASM <(sort -nr -k2,2 $ASM.fai | tail -n+$((N_CHR+1)) | awk {'print
 # submit alignment job to SLURM
 $GIT_REPOS/FlyComparativeGenomics/RunMummerAlignment-VPGRU.sh \
     -o ${ASM%.*}-Chrs-vs-unplaced \
+    -c $C_VAL \
     ${ASM%.*}-Chrs.fa \
     ${ASM%.*}-unplaced.fa

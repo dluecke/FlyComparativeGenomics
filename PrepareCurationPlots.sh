@@ -21,7 +21,7 @@ N_CHR=$2
 [[ -f $IN_CSV && $N_CHR -gt 0 ]] || \
  { echo "Usage: PrepareCurationPlots.sh asmIdsPathsLabels.csv N_CHR"; exit; }
 
-# options for nucmer
+# options for nucmer, -c 5000 also hard coded in self_align-ChrsVsUnplaced.sh
 C_VAL=5000
 # location of git repo
 FCG=~/FlyComparativeGenomics
