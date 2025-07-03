@@ -54,12 +54,14 @@ ALIGNMENT1_NAME=${REFASM_FILENAME%.*}-vs-${QRYASM_FILENAME%.*}-c5000
 echo -e "\nRunning genome alignment to identify regions to preserve in $QRY_ASM"
 echo -e "Commands:\n nucmer -p ${ALIGNMENT1_NAME} --threads=32 -c 5000 ${REF_ASM} ${QRY_ASM}"
 echo -e " show-coords ${ALIGNMENT1_NAME}.delta > ${ALIGNMENT1_NAME}.coords\n"
+
 nucmer -p ${ALIGNMENT1_NAME} --threads=32 -c 5000 ${REF_ASM} ${QRY_ASM}
 show-coords ${ALIGNMENT1_NAME}.delta > ${ALIGNMENT1_NAME}.coords
 
 # RagTagShield for first round of ragtag
 echo -e "\nWriting GFF for regions to preserve in $QRY_ASM"
 echo -e "Command:\n Rscript $GIT_REPOS/FlyComparativeGenomics/RagTagShield-writeGFF.R ${ALIGNMENT1_NAME}.coords"
+
 Rscript $GIT_REPOS/FlyComparativeGenomics/RagTagShield-writeGFF.R ${ALIGNMENT1_NAME}.coords
 
 # RagTag round 1
@@ -86,7 +88,16 @@ ragtag.py correct --debug --intra -f 5000 -t 32 \
 # -r to estimate gap size
 ragtag.py scaffold -r -t 32 -o ./ragtag_output-round1 $REF_ASM ragtag_output-round1/ragtag.correct.fasta
 
+# A known issue in RagTag can introduce duplicate sequence header names: https://github.com/malonge/RagTag/issues/94#issuecomment-1006880604
+# This case is slightly different.  Not using -u, but the "_RagTag" label on modified scaffolds can still cause duplicates in round 2.
+# Easiest fix is editing this tag in the round1 output. Also has the benefit of tracking which round introduced changes
+echo -e "\nEditing sequence headers in round 1 output to avoid duplicates in round 2"
+echo -e "Command:\n sed -i 's/RagTag/RT1/' ragtag_output-round1/ragtag.scaffold.fasta"
+
+sed -i 's/RagTag/RT1/' ragtag_output-round1/ragtag.scaffold.fasta
+
 # stats for new assembly
+echo -e "\Running gfastats and get_pct_chrs.sh on ragtag_output-round1/ragtag.scaffold.fasta"
 sbatch $GIT_REPOS/FlyComparativeGenomics/gfastats.slurm ragtag_output-round1/ragtag.scaffold.fasta
 samtools faidx ragtag_output-round1/ragtag.scaffold.fasta
 $GIT_REPOS/FlyComparativeGenomics/get_pct_chrs.sh ragtag_output-round1/ragtag.scaffold.fasta.fai \
@@ -99,22 +110,34 @@ $GIT_REPOS/FlyComparativeGenomics/get_pct_chrs.sh ragtag_output-round1/ragtag.sc
 # Alignment between ragtag scaffolds and initial assembly for RagTagShield
 ALIGNMENT2_NAME=${QRYASM_FILENAME%.*}-vs-ragtag_round1-c5000
 
-nucmer -p ${ALIGNMENT2_NAME} --threads=32 -c 5000 ${REF_ASM} ${QRY_ASM}
+echo -e "\nRunning genome alignment to find improved regions to preserve in ragtag_output-round1/ragtag.scaffold.fasta"
+echo -e "Commands:\n nucmer -p ${ALIGNMENT2_NAME} --threads=32 -c 5000 ${QRY_ASM} ragtag_output-round1/ragtag.scaffold.fasta"
+echo -e " show-coords ${ALIGNMENT2_NAME}.delta > ${ALIGNMENT2_NAME}.coords\n"
 
+nucmer -p ${ALIGNMENT2_NAME} --threads=32 -c 5000 ${QRY_ASM} ragtag_output-round1/ragtag.scaffold.fasta
 show-coords ${ALIGNMENT2_NAME}.delta > ${ALIGNMENT2_NAME}.coords
 
 # RagTagShield for 2nd round
-
+echo -e "\nWriting GFF for regions to preserve in ragtag_output-round1/ragtag.scaffold.fasta"
+echo -e "Command:\n Rscript $GIT_REPOS/FlyComparativeGenomics/RagTagShield-writeGFF.R ${ALIGNMENT2_NAME}.coords"
 Rscript $GIT_REPOS/FlyComparativeGenomics/RagTagShield-writeGFF.R ${ALIGNMENT2_NAME}.coords
 
 # RagTag round 2 - QRY_ASM is now reference for ragtag_round1
+echo -e "\nStarting RagTag Round 2"
+echo -e "Commands:\n ragtag.py correct --debug --intra -f 5000 -t 32 --gff ${ALIGNMENT2_NAME}.coords-BetterInQry.gff -R $QRY_READS -T corr -o ./ragtag_output-round2 $QRY_ASM ragtag_output-round1/ragtag.scaffold.fasta"
+echo -e " ragtag.py scaffold -r -t 32 -o ./ragtag_output-round2 $QRY_ASM ragtag_output-round2/ragtag.correct.fasta\n"
+
 ragtag.py correct --debug --intra -f 5000 -t 32 \
-  --gff ${ALIGNMENT2_NAME}.coords-BetterInQry.gff  \
+  --gff ${ALIGNMENT2_NAME}.coords-BetterInQry.gff \
   -R $QRY_READS -T corr \
   -o ./ragtag_output-round2 \
   $QRY_ASM ragtag_output-round1/ragtag.scaffold.fasta
 
 ragtag.py scaffold -r -t 32 -o ./ragtag_output-round2 $QRY_ASM ragtag_output-round2/ragtag.correct.fasta
+
+echo -e "\nEditing sequence headers in round 2 output to same syntax used for round 1"
+echo -e "Command:\n sed -i 's/RagTag/RT2/' ragtag_output-round2/ragtag.scaffold.fasta"
+sed -i 's/RagTag/RT2/' ragtag_output-round1/ragtag.scaffold.fasta
 
 # stats for new assembly
 sbatch $GIT_REPOS/FlyComparativeGenomics/gfastats.slurm ragtag_output-round2/ragtag.scaffold.fasta
