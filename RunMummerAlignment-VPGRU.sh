@@ -12,7 +12,7 @@ usage() {
     echo "  -m FLAG run nucmer with --maxmatch, also sets -p mem"
     echo "  -o STRING alignment name, default REFERENCE-vs-QUERY (c value appended automatically)"
     echo "  -p STRING slurm partition, default ceres"
-    echo "  -t INT threads, default 8"
+    echo "  -t INT threads, default 16"
     echo "  -h FLAG print usage statement"
     exit 0
 }
@@ -27,7 +27,7 @@ QRY_FASTA="${@: -1}"
 # default run parameters
 C_VAL=2000
 MAXMATCH=""
-N_CORES=8
+N_CORES=16
 PARTITION="ceres"
 # trim filenames for default run name
 REFFILE=$(basename $REF_FASTA)
