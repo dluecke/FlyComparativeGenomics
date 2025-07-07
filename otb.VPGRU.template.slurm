@@ -2,7 +2,8 @@
 #SBATCH -A vpgru
 #SBATCH -N 1
 #SBATCH -n 2
-#SBATCH -p medium
+#SBATCH -p ceres
+#SBATCH -t 7-00:00:00
 #SBATCH -o "otb.stdout.%j.%N" 		# standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "otb.stderr.%j.%N" 		#optional but it prints our standard error
 #SBATCH --mail-user=David.Luecke@usda.gov
