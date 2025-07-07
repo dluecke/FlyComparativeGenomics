@@ -17,7 +17,8 @@ module load minimap2/2.24
 
 BAM=$1
 OUT_PREFIX=${BAM%.*}
-[[ -f ${OUT_PREFIX}.bam ]] || (echo "no BAM file"; exit;)
+[[ -f ${OUT_PREFIX}.bam ]] || \
+  { echo "no BAM file"; exit; }
 
 
 samtools --version

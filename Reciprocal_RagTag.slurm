@@ -28,7 +28,8 @@ QRY_ASM=$2
 QRY_READS=$3
 
 # check reads file (3rd argument) exists 
-[[ -f $QRY_READS ]] || (echo "USAGE: sbatch Reciprocal_RagTag.slurm REF.fa QRY.fa QRY_READS.fq"; exit;)
+[[ -f $QRY_READS ]] || \
+  { echo "USAGE: sbatch Reciprocal_RagTag.slurm REF.fa QRY.fa QRY_READS.fq"; exit; }
 
 date
 echo "Starting Reciprocal_RagTag"
