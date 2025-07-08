@@ -3,7 +3,7 @@
 #SBATCH -J paftools_bam2paf
 #SBATCH -o "b2p.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "b2p.%j.%N.stderr"
-#SBATCH -c 2
+#SBATCH -c 4
 #SBATCH -p ceres
 #SBATCH -t 4:00:00
 #SBATCH -N 1
