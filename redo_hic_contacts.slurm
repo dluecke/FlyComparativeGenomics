@@ -3,7 +3,7 @@
 #SBATCH -J redo_hic
 #SBATCH -o "hic.%j.%N.stdout"  # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "hic.%j.%N.stderr"
-#SBATCH -c 32
+#SBATCH -c 48
 #SBATCH -p ceres
 #SBATCH -t 36:00:00
 #SBATCH -N 1
@@ -41,6 +41,8 @@ SCAF_ASM=$1
 HIC_R1=$2
 HIC_R2=$3
 
+NCORE=48
+
 CTG_ASM=${SCAF_ASM%.*}.split.fa
 HIC_BAM=${CTG_ASM%.*}.HiC.bam
 
@@ -65,15 +67,15 @@ which samtools
 $SOFTWARE_DIR/samblaster/samblaster --version
 echo -e "\nOutput file: $HIC_BAM"
 echo -e "\ncommands:\n bwa-mem2 index -p ${CTG_ASM%.*} $CTG_ASM"
-echo -e " bwa-mem2 mem -5SP -t 32 ${CTG_ASM%.*} $HIC_R1 $HIC_R2 |\
+echo -e " bwa-mem2 mem -5SP -t $NCORE ${CTG_ASM%.*} $HIC_R1 $HIC_R2 |\
  samtools view -h -F 2316 |\
  $SOFTWARE_DIR/samblaster/samblaster |\
- samtools sort -n -@ 32 -o $HIC_BAM"
+ samtools sort -n -@ $NCORE -o $HIC_BAM"
 bwa-mem2 index -p ${CTG_ASM%.*} $CTG_ASM
-bwa-mem2 mem -5SP -t 32 ${CTG_ASM%.*} $HIC_R1 $HIC_R2 |\
+bwa-mem2 mem -5SP -t $NCORE ${CTG_ASM%.*} $HIC_R1 $HIC_R2 |\
  samtools view -h -F 2316 |\
  $SOFTWARE_DIR/samblaster/samblaster |\
- samtools sort -n -@ 32 -o $HIC_BAM
+ samtools sort -n -@ $NCORE -o $HIC_BAM
 
 echo -e "Generating BAM stats file. Command:\n samtools stats $HIC_BAM > $HIC_BAM.stats"
 samtools stats $HIC_BAM > $HIC_BAM.stats
