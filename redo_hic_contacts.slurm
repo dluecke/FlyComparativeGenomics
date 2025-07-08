@@ -3,7 +3,8 @@
 #SBATCH -J redo_hic
 #SBATCH -o "hic.%j.%N.stdout"  # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "hic.%j.%N.stderr"
-#SBATCH -c 48
+#SBATCH -c 16
+#SBATCH --mem-per-cpu=16G   # replacing mem queue
 #SBATCH -p ceres
 #SBATCH -t 36:00:00
 #SBATCH -N 1
@@ -41,7 +42,7 @@ SCAF_ASM=$1
 HIC_R1=$2
 HIC_R2=$3
 
-NCORE=48
+NCORE=16
 
 CTG_ASM=${SCAF_ASM%.*}.split.fa
 HIC_BAM=${CTG_ASM%.*}.HiC.bam
