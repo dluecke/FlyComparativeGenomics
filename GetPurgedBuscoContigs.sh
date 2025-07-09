@@ -30,10 +30,11 @@ DIR_PURGED=$2
 
 # make arrays files with missing buscos for all lineages in original/purged subdirectories
 # NOTE: find output to array only works if no directories have space or special characters
-MISSING_ORIGINAL=($(find $DIR_ORIGINAL -type f -name "missing_busco_list.tsv" -print | sort))
-MISSING_PURGED=($(find $DIR_PURGED -type f -name "missing_busco_list.tsv" -print | sort))
+#  -L option to also search through linked directory paths
+MISSING_ORIGINAL=($(find -L $DIR_ORIGINAL -type f -name "missing_busco_list.tsv" -print | sort))
+MISSING_PURGED=($(find -L $DIR_PURGED -type f -name "missing_busco_list.tsv" -print | sort))
 # get files for Buscos/contig relationship
-FULL_TABLE=($(find $DIR_ORIGINAL -type f -name "full_table.tsv" -print | sort))
+FULL_TABLE=($(find -L $DIR_ORIGINAL -type f -name "full_table.tsv" -print | sort))
 
 # get lineage array from each file path, will use to check are making correct comps
 LINEAGES=()
