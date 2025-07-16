@@ -41,9 +41,13 @@ while read line; do
     ID=$(echo $line | cut -d',' -f1)
     arr_ID+=("$ID")
 
+    # use ID as link name, allows duplicate file name inputs eg ragtag.scaffold.fasta
+    # also simplifies alignment names
+    LINK=${ID}.fa
+
     PTH=$(echo $line | cut -d',' -f2)
-    ln -s $PTH
-    LINK=$(basename $PTH)
+    ln -s $PTH $LINK
+    #LINK=$(basename $PTH) using assembly ID instead
     arr_LINK+=("$LINK")
 
     LAB=$(echo $line | cut -d',' -f3)
