@@ -106,7 +106,7 @@ $SOFTWARE_DIR/yahs-juicer/juicer pre \
  ${CTG_ASM}.fai 2> ${CTG_ASM%.*}.JBAT/tmp_juicer_pre_JBAT.log
 
 echo -e "\nMaking contacts file ${CTG_ASM%.*}.JBAT.hic using juicer_tools singularity image"
-echo "command:\n singularity exec $SOFTWARE_DIR/NextflowSingularityLibrary/dmolik-juicer-tools.img\
+echo -e "command:\n singularity exec $SOFTWARE_DIR/NextflowSingularityLibrary/dmolik-juicer-tools.img\
  java -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar\
  pre ${CTG_ASM%.*}.JBAT.txt ${CTG_ASM%.*}.JBAT.hic.part\
  <(cat ${CTG_ASM%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print $2" "$3}') &&\
