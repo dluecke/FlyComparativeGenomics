@@ -138,7 +138,7 @@ ragtag.py scaffold -r -t 32 -o ./ragtag_output-round2 $QRY_ASM ragtag_output-rou
 
 echo -e "\nEditing sequence headers in round 2 output to same syntax used for round 1"
 echo -e "Command:\n sed -i 's/RagTag/RT2/' ragtag_output-round2/ragtag.scaffold.fasta"
-sed -i 's/RagTag/RT2/' ragtag_output-round1/ragtag.scaffold.fasta
+sed -i 's/RagTag/RT2/' ragtag_output-round2/ragtag.scaffold.fasta
 
 # stats for new assembly
 sbatch $GIT_REPOS/FlyComparativeGenomics/gfastats.slurm ragtag_output-round2/ragtag.scaffold.fasta
