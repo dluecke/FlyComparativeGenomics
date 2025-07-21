@@ -98,7 +98,7 @@ echo -e "Command:\n sed -i 's/RagTag/RT1/' ragtag_output-round1/ragtag.scaffold.
 sed -i 's/RagTag/RT1/' ragtag_output-round1/ragtag.scaffold.fasta
 
 # stats for new assembly
-echo -e "\Running gfastats and get_pct_chrs.sh on ragtag_output-round1/ragtag.scaffold.fasta"
+echo -e "\nRunning gfastats and get_pct_chrs.sh on ragtag_output-round1/ragtag.scaffold.fasta"
 sbatch $GIT_REPOS/FlyComparativeGenomics/gfastats.slurm ragtag_output-round1/ragtag.scaffold.fasta
 samtools faidx ragtag_output-round1/ragtag.scaffold.fasta
 $GIT_REPOS/FlyComparativeGenomics/get_pct_chrs.sh ragtag_output-round1/ragtag.scaffold.fasta.fai \
