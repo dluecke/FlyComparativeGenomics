@@ -25,8 +25,8 @@
 REF_ASM=$1
 QRY_ASM=$2
 
-# check reads file (3rd argument) exists 
-[[ -f $QRY_READS ]] || \
+# check target assembly (2nd argument) exists 
+[[ -f $QRY_ASM ]] || \
   { echo "USAGE: sbatch Reciprocal_RagTag.slurm REF.fa QRY.fa"; exit; }
 
 date
