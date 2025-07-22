@@ -31,8 +31,14 @@ echo "Region: $REGION"
 echo "Output SAM: $OUT_SAM"
 date
 
+# need to index alignment file, use -c to avoid max seq length issue
+echo "Indexing $IN_ALN"
+echo -e "\nCMD: samtools index -c $IN_ALN\n"
+samtools index -c $IN_ALN
+
 # samtools view options:
 # -@ threads used in compression
+echo "Extracting SAM region"
 echo -e "\nCMD: samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION\n"
 samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION
 
