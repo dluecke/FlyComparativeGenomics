@@ -33,8 +33,8 @@ date
 
 # samtools view options:
 # -@ threads used in compression
-echo -e "\nCMD: samtools view -@ 7 -o $OUT_SAM $BAM $REGION\n"
-samtools view -@ 7 -o $OUT_SAM $BAM $REGION
+echo -e "\nCMD: samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION\n"
+samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION
 
 samtools --version
 date
