@@ -23,7 +23,11 @@ REGION=$2
 [[ -n $REGION ]] || \
   { echo "USAGE: sbatch samtools_view-region.slurm IN.SAM|IN.BAM seq:c1-c2"; exit; }
 
-OUT_SAM=${IN_ALN%.*}-${REGION}.sam
+# convert region syntax seq:0-100 to filename syntax seq_0to100
+REG_TAG=$(echo $REGION | tr ':' '_' | sed 's/-/to/')
+
+# output SAM filename
+OUT_SAM=${IN_ALN%.*}-${REG_TAG}.sam
 
 echo "Extracting reads mapped to region"
 echo "Input alignment: $IN_ALN"
@@ -49,10 +53,7 @@ samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION
 IN_FA_arr=($(echo $IN_ALN | cut -d'.' -f1)*a)
 # if single candidate is found extract region
 if [[ ${#IN_FA_arr[@]} == 1 && -f ${IN_FA_arr[0]} ]]; then
-
     IN_FA=${IN_FA_arr[0]} 
-    # convert region syntax seq:0-100 to filename syntax seq_0to100
-    REG_TAG=$(echo $REGION | tr ':' '_' | sed 's/-/to/')
     REG_FA=${IN_FA%.*}-${REG_TAG}.fa
 
     echo "extracting region $REGION from $IN_FA into $REG_FA"
