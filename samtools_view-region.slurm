@@ -44,6 +44,22 @@ echo "Extracting SAM region"
 echo -e "\nCMD: samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION\n"
 samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION
 
+# extract region sequence if unambiguous input fasta can be found
+# array with all possible fastas (any file ending in 'a' best captures .fa and .fasta)
+IN_FA_arr=($(echo $IN_ALN | cut -d'.' -f1)*a)
+# if single candidate is found extract region
+if [[ ${#IN_FA_arr[@]} == 1 && -f ${IN_FA_arr[0]} ]]; then
+
+    IN_FA=${IN_FA_arr[0]} 
+    # convert region syntax seq:0-100 to filename syntax seq_0to100
+    REG_TAG=$(echo $REGION | tr ':' '_' | sed 's/-/to/')
+    REG_FA=${IN_FA%.*}-${REG_TAG}.fa
+
+    echo "extracting region $REGION from $IN_FA into $REG_FA"
+    echo -e "\nCMD: samtools faidx -o $REG_FA $IN_FA $REGION\n"
+    samtools faidx -o $REG_FA $IN_FA $REGION
+fi
+
 samtools --version
 date
 
