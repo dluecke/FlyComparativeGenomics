@@ -2,7 +2,7 @@
 #SBATCH -A vpgru
 #SBATCH --job-name="st_view-reg"   #name of this job
 #SBATCH -p ceres              #name of the partition (queue) you are submitting to
-#SBATCH -t 4:00:00
+#SBATCH -t 1:00:00
 #SBATCH --mem-per-cpu=16G   # replacing mem queue
 #SBATCH -N 1                  #number of nodes in this job
 #SBATCH -n 8                #number of cores/tasks in this job, you get all 20 physical cores with 2 threads per core with hyper-threading
