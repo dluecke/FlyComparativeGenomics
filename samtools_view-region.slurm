@@ -32,9 +32,11 @@ echo "Output SAM: $OUT_SAM"
 date
 
 # need to index alignment file, use -c to avoid max seq length issue
-echo "Indexing $IN_ALN"
-echo -e "\nCMD: samtools index -c $IN_ALN\n"
-samtools index -c $IN_ALN
+if [ ! -f ${IN_ALN}.csi ]; then
+    echo "Indexing $IN_ALN"
+    echo -e "\nCMD: samtools index -c $IN_ALN\n"
+    samtools index -c $IN_ALN
+fi
 
 # samtools view options:
 # -@ threads used in compression
