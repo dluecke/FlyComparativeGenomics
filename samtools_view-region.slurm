@@ -48,17 +48,23 @@ echo "Extracting SAM region"
 echo -e "\nCMD: samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION\n"
 samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION
 
-# extract region sequence if unambiguous input fasta can be found
+# extract region sequence (full length, since coordinates aren't modified in SAM) 
+# if unambiguous input fasta can be found, sequence file not already present
 # array with all possible fastas (any file ending in 'a' best captures .fa and .fasta)
 IN_FA_arr=($(echo $IN_ALN | cut -d'.' -f1)*a)
-# if single candidate is found extract region
+# if single candidate ref fasta is found check for extracted sequence fasta
 if [[ ${#IN_FA_arr[@]} == 1 && -f ${IN_FA_arr[0]} ]]; then
-    IN_FA=${IN_FA_arr[0]} 
-    REG_FA=${IN_FA%.*}-${REG_TAG}.fa
+    IN_FA=${IN_FA_arr[0]}
 
-    echo "extracting region $REGION from $IN_FA into $REG_FA"
-    echo -e "\nCMD: samtools faidx -o $REG_FA $IN_FA $REGION\n"
-    samtools faidx -o $REG_FA $IN_FA $REGION
+    # sequence name without coordinate breaks
+    REG_SEQ=$(echo $REGION | cut -d':' -f1)
+    REG_FA=${IN_FA%.*}-${REG_SEQ}.fa
+
+    if [ ! -f $REG_FA ]; then
+        echo "extracting sequence $REG_SEQ from $IN_FA into $REG_FA"
+        echo -e "\nCMD: samtools faidx -o $REG_FA $IN_FA $REGION\n"
+        samtools faidx -o $REG_FA $IN_FA $REGION
+    fi
 fi
 
 samtools --version
