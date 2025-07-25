@@ -37,5 +37,4 @@ OUTNAME="Alignments-"$(echo $IN_ALN | cut -d'_' -f1)
 # repo location
 FCG=~/FlyComparativeGenomics
 
-which Rscript
-ls $FCG/PlotsForAssemblyCuration.R $IN_ALN $IN_SELF $OUTNAME
+Rscript $FCG/PlotsForAssemblyCuration.R $IN_ALN $IN_SELF $OUTNAME
