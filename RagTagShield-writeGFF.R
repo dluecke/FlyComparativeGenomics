@@ -66,7 +66,14 @@ make_df.jumps_fromCoords = function(IN_COORDS_FILE){
     filter(qry_SeqName == df.seq_pairs[ref_SeqName,]$qry_SeqName,
            orientation == "forward",
            ref_length > median(ref_length)) %>% 
-    group_by(ref_SeqName) %>% filter(n() > 100) %>% 
+    group_by(ref_SeqName) %>% mutate(n_ref = n())
+  
+  # n_ref cutoff based on largest difference in ordered list
+  n_ord = df.jumps$n_ref[order(df.jumps$n_ref)] %>% unique
+  n_reldiff = diff(n_ord)/n_ord[2:length(n_ord)]
+  n_thresh = n_ord[which(n_reldiff == max(n_reldiff)) + 1]
+  
+  df.jumps = df.jumps %>% filter(n_ref >= n_thresh) %>% 
     mutate(coord_diff = R1-Q1) %>%
     # filter points more than 1 sd off the diagonal (for whole sequence)
     filter( abs(coord_diff) < median(abs(coord_diff)) + 1*sd(abs(coord_diff)) ) %>%
