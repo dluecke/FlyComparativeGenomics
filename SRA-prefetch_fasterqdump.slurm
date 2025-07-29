@@ -17,7 +17,7 @@ module load sratoolkit
 
 while read SRR; do
 	echo $SRR
-	prefetch $SRR
+	prefetch $SRR --max-size 80G
 	# fasterq-dump options from NCBI EGAPx (but modified for fastq): 
     #       https://github.com/ncbi/egapx/tree/main?tab=readme-ov-file#offline-mode
 	fasterq-dump --outdir $SRR --skip-technical --threads 8 --split-files \
