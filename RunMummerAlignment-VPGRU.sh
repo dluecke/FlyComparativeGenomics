@@ -9,7 +9,7 @@
 usage() { 
     echo "USAGE: $0 [-c|-o|-p|-t|-h] REFERENCE.fa QUERY.fa"
     echo "  -c INT minimum match length, default=2000"
-    echo "  -m FLAG run nucmer with --maxmatch, also sets -p mem"
+    echo "  -m FLAG run nucmer with --maxmatch, also sets --mem-per-cpu=16G (vs default 2G)"
     echo "  -o STRING alignment name, default REFERENCE-vs-QUERY (c value appended automatically)"
     echo "  -p STRING slurm partition, default ceres"
     echo "  -t INT threads, default 16"
@@ -28,6 +28,7 @@ QRY_FASTA="${@: -1}"
 C_VAL=2000
 MAXMATCH=""
 N_CORES=16
+MEM_PER_CORE="2G"
 PARTITION="ceres"
 # trim filenames for default run name
 REFFILE=$(basename $REF_FASTA)
@@ -47,12 +48,12 @@ while getopts ":hmc:o:p:t:" arg; do
             ;;
         m) # command passed to nucmer
             MAXMATCH="--maxmatch"
-            PARTITION="mem"
+            MEM_PER_CORE="16G"
             ;;
         o) # name for RunID and output directory, default filename
             RUN_ID="${OPTARG}"
             ;;
-        p) # partition, default short
+        p) # partition, default ceres
             PARTITION="${OPTARG}"
             ;;
         t) # number of threads for SLURM submission
@@ -95,6 +96,7 @@ sbatch --job-name="${RUN_ID}-mummer" \
     --mail-user="${USER}@usda.gov" \
     -p ${PARTITION} \
     -c ${N_CORES} \
+    --mem-per-cpu=$MEM_PER_CORE \
     -o "Mummer-${RUN_ID}.stdout.%j.%N" \
     -e "Mummer-${RUN_ID}.stderr.%j.%N" \
     --export=ALL,REFERENCE=${REF_FASTA},QUERY=${QRY_FASTA},\
