@@ -3,7 +3,8 @@
 #SBATCH --job-name="blastn"
 #SBATCH -N 1
 #SBATCH -n 32
-#SBATCH -p short
+#SBATCH -p ceres
+#SBATCH -t 2:00:00
 #SBATCH -o "bn.stdout.%j.%N"           # standard out %j adds job number to outputfile name and %N adds the node
 #SBATCH -e "bn.stderr.%j.%N"           #optional but it prints our standard error
 #SBATCH --mail-user=david.luecke@usda.gov
