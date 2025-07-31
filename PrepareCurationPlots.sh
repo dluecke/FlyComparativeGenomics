@@ -5,6 +5,9 @@
 # Preps and starts all necessary alignments, including self-align of small scaffolds onto chr-scale
 # Writes the CSV submission files used by PlotsForAssemblyCuration.R
 
+# Runs self_align-ChrsVsUnplaced.sh,
+# REQUIRES: samtools, seqtk
+
 # Input is CSV with columns assembly ID, absolute paths, and labels (no commas)
 # NO HEADER, ROWS NEED TO BE IN THIS ORDER (or flip male/female):
 # Fpri,/path/to/Fpri.fa,Spp female primary scaffolds
