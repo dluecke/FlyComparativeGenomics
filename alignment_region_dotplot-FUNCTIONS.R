@@ -555,7 +555,7 @@ make_l.l_coords.l_homologs = function(L.FILES){
 #   RefLab and QryLab columns
 # Min Length cutoff parameters for Chromosome scaffolds and unplaced scaffolds to consider
 plot_l.l_coords.l_homologs = function(L.L.COORD.HOM, df.Labels, 
-                                      MIN_CHR = 10000000, 
+                                      MIN_CHR = 4000000, 
                                       MIN_MATCH_CHR = 10000,
                                       MIN_UNPLACED = 100000,
                                       MIN_MATCH_UNPLACED = 10000,
