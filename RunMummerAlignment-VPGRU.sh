@@ -10,7 +10,7 @@ usage() {
     echo "USAGE: $0 [-c|-o|-p|-t|-h] REFERENCE.fa QUERY.fa"
     echo "  -c INT minimum match length, default=2000"
     echo "  -m FLAG run nucmer with --maxmatch, also sets --mem-per-cpu=16G (vs default 2G)"
-    echo "  -o STRING alignment name, default REFERENCE-vs-QUERY (c value appended automatically)"
+    echo "  -o STRING alignment name, default REFERENCE-vs-QUERY (c value and maxmatch appended automatically)"
     echo "  -p STRING slurm partition, default ceres"
     echo "  -t INT threads, default 16"
     echo "  -h FLAG print usage statement"
@@ -27,6 +27,7 @@ QRY_FASTA="${@: -1}"
 # default run parameters
 C_VAL=2000
 MAXMATCH=""
+MAXMATCH_TAG=""
 N_CORES=16
 MEM_PER_CORE="2G"
 PARTITION="ceres"
@@ -46,9 +47,10 @@ while getopts ":hmc:o:p:t:" arg; do
         c) # min match length, default 1000
             C_VAL=${OPTARG}
             ;;
-        m) # command passed to nucmer
+        m) # maxmatch command passed to nucmer
             MAXMATCH="--maxmatch"
             MEM_PER_CORE="16G"
+            MAXMATCH_TAG="_maxmatch"
             ;;
         o) # name for RunID and output directory, default filename
             RUN_ID="${OPTARG}"
@@ -76,8 +78,8 @@ done
 
 # STARTING SCRIPT ACTIONS
 
-# alignment name is Run_ID and C value
-ALIGNMENT_NAME="${RUN_ID}-c${C_VAL}"
+# alignment name is Run_ID and C value, with maxmatch tag if used
+ALIGNMENT_NAME="${RUN_ID}-c${C_VAL}${MAXMATCH_TAG}"
 
 # screen output before SLURM submission
 echo "Performing nucmer alignment ${ALIGNMENT_NAME}:"
