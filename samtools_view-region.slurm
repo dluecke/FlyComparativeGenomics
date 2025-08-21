@@ -23,8 +23,8 @@ REGION=$2
 [[ -n $REGION ]] || \
   { echo "USAGE: sbatch samtools_view-region.slurm IN.SAM|IN.BAM seq:c1-c2"; exit; }
 
-# convert region syntax seq:0-100 to filename syntax seq_0to100
-REG_TAG=$(echo $REGION | tr ':' '_' | sed 's/-/to/')
+# convert region syntax seq_N:0-100 to filename syntax seqN_0to100
+REG_TAG=$(echo $REGION | tr -d '_' | tr ':' '_' | sed 's/-/to/')
 
 # output SAM filename
 OUT_SAM=${IN_ALN%.*}-${REG_TAG}.sam
@@ -49,7 +49,7 @@ echo -e "\nCMD: samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION\n"
 samtools view -@ 7 -o $OUT_SAM $IN_ALN $REGION
 
 # extract region sequence (full length, since coordinates aren't modified in SAM) 
-# if unambiguous input fasta can be found, sequence file not already present
+# if unambiguous input fasta can be found and sequence file not already present
 # array with all possible fastas (any file ending in 'a' best captures .fa and .fasta)
 IN_FA_arr=($(echo $IN_ALN | cut -d'.' -f1)*a)
 # if single candidate ref fasta is found check for extracted sequence fasta
