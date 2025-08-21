@@ -22,6 +22,7 @@ while read SRR; do
     #       https://github.com/ncbi/egapx/tree/main?tab=readme-ov-file#offline-mode
 	fasterq-dump --outdir $SRR --skip-technical --threads 8 --split-files \
       --seq-defline "@\$ac.\$si.\$ri" --qual-defline "+\$ac.\$si.\$ri"  ./$SRR
+	pigz $SRR/*.fastq # multicore gzip
 done < $SRR_LIST
 
 date
