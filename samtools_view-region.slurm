@@ -62,8 +62,8 @@ if [[ ${#IN_FA_arr[@]} == 1 && -f ${IN_FA_arr[0]} ]]; then
 
     if [ ! -f $REG_FA ]; then
         echo "extracting sequence $REG_SEQ from $IN_FA into $REG_FA"
-        echo -e "\nCMD: samtools faidx -o $REG_FA $IN_FA $REGION\n"
-        samtools faidx -o $REG_FA $IN_FA $REGION
+        echo -e "\nCMD: samtools faidx -o $REG_FA $IN_FA $REG_SEQ\n"
+        samtools faidx -o $REG_FA $IN_FA $REG_SEQ
     fi
 fi
 
