@@ -2,7 +2,7 @@
 #SBATCH -A vpgru
 #SBATCH --job-name="ULI-lima_pbmarkdups"
 #SBATCH -N 1
-#SBATCH -n 16
+#SBATCH -n 33
 #SBATCH -p ceres
 #SBATCH -t 6:00:00
 #SBATCH -o "ULI.%j.%N.stdout"               # standard out %j adds job number to outputfile name and %N adds the node
@@ -27,8 +27,8 @@ OUT_BAM=$(echo $RAW_BAM | sed 's/.bam/.ULItrim_markdups.bam/')
 
 # run lima to trim adaptors
 echo "running lima to trim ULI adaptors, command:"
-echo " lima --num-threads 15 $RAW_BAM ULI_adaptor.fa $TMP_BAM"
-lima --num-threads 15 $RAW_BAM ULI_adaptor.fa $TMP_BAM
+echo " lima --num-threads 32 $RAW_BAM ULI_adaptor.fa $TMP_BAM"
+lima --num-threads 32 $RAW_BAM ULI_adaptor.fa $TMP_BAM
 
 # run pbmarkdups to remove PCR duplicates
 echo "running pbmarkdups to remove PCR duplicates, command:"
