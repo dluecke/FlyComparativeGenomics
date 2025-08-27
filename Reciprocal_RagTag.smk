@@ -19,14 +19,14 @@ rule pass1_pri_f:
     output:
         "pri/female/ragtag_output-round2/ragtag.scaffold.fasta"
     shell:
-        "
+        """
         mkdir -p pri/female
         cd pri/female
         ln -s {input.ref} Mpri.fa
         ln -s {input.qry} Fpri.fa
         sbatch {config[repo_location]}/Reciprocal_RagTag.slurm Mpri.fa Fpri.fa {input.reads}
         cd ../..
-        "
+        """
 
 rule pass1_pri_m:
     input:
@@ -36,14 +36,14 @@ rule pass1_pri_m:
     output:
         "pri/male/ragtag_output-round2/ragtag.scaffold.fasta"
     shell:
-        "
+        """
         mkdir -p pri/male
         cd pri/male
         ln -s {input.ref} Fpri.fa
         ln -s {input.qry} Mpri.fa
         sbatch {config[repo_location]}/Reciprocal_RagTag.slurm Fpri.fa Mpri.fa {input.reads}
         cd ../..
-        "
+        """
 
 rule pass1_hapsF_hap1:
     input:
@@ -53,14 +53,14 @@ rule pass1_hapsF_hap1:
     output:
         "haps_female/hap1/ragtag_output-round2/ragtag.scaffold.fasta"
     shell:
-        "
+        """
         mkdir -p haps_female/hap1
         cd haps_female/hap1
         ln -s {input.ref} Fh2.fa
         ln -s {input.qry} Fh1.fa
         sbatch {config[repo_location]}/Reciprocal_RagTag.slurm Fh1.fa Fh2.fa {input.reads}
         cd ../..
-        "
+        """
 
 rule pass1_hapsF_hap2:
     input:
@@ -70,14 +70,14 @@ rule pass1_hapsF_hap2:
     output:
         "haps_female/hap2/ragtag_output-round2/ragtag.scaffold.fasta"
     shell:
-        "
+        """
         mkdir -p haps_female/hap2
         cd haps_female/hap2
         ln -s {input.ref} Fh1.fa
         ln -s {input.qry} Fh2.fa
         sbatch {config[repo_location]}/Reciprocal_RagTag.slurm Fh2.fa Fh1.fa {input.reads}
         cd ../..
-        "
+        """
 
 rule pass1_hapsM_hap1:
     input:
@@ -87,14 +87,14 @@ rule pass1_hapsM_hap1:
     output:
         "haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta"
     shell:
-        "
+        """
         mkdir -p haps_male/hap1
         cd haps_male/hap1
         ln -s {input.ref} Fh2.fa
         ln -s {input.qry} Fh1.fa
         sbatch {config[repo_location]}/Reciprocal_RagTag.slurm Fh1.fa Fh2.fa {input.reads}
         cd ../..
-        "
+        """
 
 rule pass1_hapsM_hap2:
     input:
@@ -104,14 +104,14 @@ rule pass1_hapsM_hap2:
     output:
         "haps_male/hap2/ragtag_output-round2/ragtag.scaffold.fasta"
     shell:
-        "
+        """
         mkdir -p haps_male/hap2
         cd haps_male/hap2
         ln -s {input.ref} Fh1.fa
         ln -s {input.qry} Fh2.fa
         sbatch {config[repo_location]}/Reciprocal_RagTag.slurm Fh2.fa Fh1.fa {input.reads}
         cd ../..
-        "
+        """
 
 rule fake_end:
     input:
