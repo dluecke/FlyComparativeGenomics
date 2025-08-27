@@ -4,17 +4,17 @@ configfile: "config.yaml"
 
 rule all:
     input:
-        "RT_final/Fp_RTfinal.fa"
-        "RT_final/Fh1_RTfinal.fa"
-        "RT_final/Fh2_RTfinal.fa"
-        "RT_final/Mp_RTfinal.fa"
-        "RT_final/Mh1_RTfinal.fa"
+        "RT_final/Fp_RTfinal.fa",
+        "RT_final/Fh1_RTfinal.fa",
+        "RT_final/Fh2_RTfinal.fa",
+        "RT_final/Mp_RTfinal.fa",
+        "RT_final/Mh1_RTfinal.fa",
         "RT_final/Mh2_RTfinal.fa"
 
 rule pass1_pri_f:
     input:
-        ref=config["assemblies"]["male"]["primary"]
-        qry=config["assemblies"]["female"]["primary"]
+        ref=config["assemblies"]["male"]["primary"],
+        qry=config["assemblies"]["female"]["primary"],
         reads=config["reads"]["female"]
     output:
         "pri/female/ragtag_output-round2/ragtag.scaffold.fasta"
@@ -28,8 +28,8 @@ rule pass1_pri_f:
 
 rule pass1_pri_m:
     input:
-        ref=config["assemblies"]["female"]["primary"]
-        qry=config["assemblies"]["male"]["primary"]
+        ref=config["assemblies"]["female"]["primary"],
+        qry=config["assemblies"]["male"]["primary"],
         reads=config["reads"]["male"]
     output:
         "pri/male/ragtag_output-round2/ragtag.scaffold.fasta"
@@ -43,8 +43,8 @@ rule pass1_pri_m:
 
 rule pass1_hapsF_hap1:
     input:
-        ref=config["assemblies"]["female"]["hap2"]
-        qry=config["assemblies"]["female"]["hap1"]
+        ref=config["assemblies"]["female"]["hap2"],
+        qry=config["assemblies"]["female"]["hap1"],
         reads=config["reads"]["female"]
     output:
         "haps_female/hap1/ragtag_output-round2/ragtag.scaffold.fasta"
@@ -58,8 +58,8 @@ rule pass1_hapsF_hap1:
 
 rule pass1_hapsF_hap2:
     input:
-        ref=config["assemblies"]["female"]["hap1"]
-        qry=config["assemblies"]["female"]["hap2"]
+        ref=config["assemblies"]["female"]["hap1"],
+        qry=config["assemblies"]["female"]["hap2"],
         reads=config["reads"]["female"]
     output:
         "haps_female/hap2/ragtag_output-round2/ragtag.scaffold.fasta"
@@ -73,8 +73,8 @@ rule pass1_hapsF_hap2:
 
 rule pass1_hapsM_hap1:
     input:
-        ref=config["assemblies"]["male"]["hap2"]
-        qry=config["assemblies"]["male"]["hap1"]
+        ref=config["assemblies"]["male"]["hap2"],
+        qry=config["assemblies"]["male"]["hap1"],
         reads=config["reads"]["male"]
     output:
         "haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta"
@@ -88,8 +88,8 @@ rule pass1_hapsM_hap1:
 
 rule pass1_hapsM_hap2:
     input:
-        ref=config["assemblies"]["male"]["hap1"]
-        qry=config["assemblies"]["male"]["hap2"]
+        ref=config["assemblies"]["male"]["hap1"],
+        qry=config["assemblies"]["male"]["hap2"],
         reads=config["reads"]["male"]
     output:
         "haps_male/hap2/ragtag_output-round2/ragtag.scaffold.fasta"
@@ -103,18 +103,18 @@ rule pass1_hapsM_hap2:
 
 rule fake_end:
     input:
-        "pri/female/ragtag_output-round2/ragtag.scaffold.fasta"
-        "pri/male/ragtag_output-round2/ragtag.scaffold.fasta"
-        "haps_female/hap1/ragtag_output-round2/ragtag.scaffold.fasta"
-        "haps_female/hap2/ragtag_output-round2/ragtag.scaffold.fasta"
-        "haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta"
+        "pri/female/ragtag_output-round2/ragtag.scaffold.fasta",
+        "pri/male/ragtag_output-round2/ragtag.scaffold.fasta",
+        "haps_female/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
+        "haps_female/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
+        "haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
         "haps_male/hap2/ragtag_output-round2/ragtag.scaffold.fasta"
     output:
-        "RT_final/Fp_RTfinal.fa"
-        "RT_final/Fh1_RTfinal.fa"
-        "RT_final/Fh2_RTfinal.fa"
-        "RT_final/Mp_RTfinal.fa"
-        "RT_final/Mh1_RTfinal.fa"
+        "RT_final/Fp_RTfinal.fa",
+        "RT_final/Fh1_RTfinal.fa",
+        "RT_final/Fh2_RTfinal.fa",
+        "RT_final/Mp_RTfinal.fa",
+        "RT_final/Mh1_RTfinal.fa",
         "RT_final/Mh2_RTfinal.fa"
     shell:
         "mkdir RT_final"
