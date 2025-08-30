@@ -91,9 +91,9 @@ rule pass2_F:
         hap1="haps_female/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
         hap2="haps_female/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
         reads=config["reads"]["female"],
-        "pri/female/ragtag_round2-pct_chrs.txt",
-        "haps_female/hap1/ragtag_round2-pct_chrs.txt",
-        "haps_female/hap2/ragtag_round2-pct_chrs.txt"
+        pDone="pri/female/ragtag_round2-pct_chrs.txt",
+        h1Done="haps_female/hap1/ragtag_round2-pct_chrs.txt",
+        h2Done="haps_female/hap2/ragtag_round2-pct_chrs.txt"
     output:
         "pri_haps-female/first_hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         "pri_haps-female/first_hap1/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
@@ -130,9 +130,9 @@ rule pass2_M:
         hap1="haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
         hap2="haps_male/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
         reads=config["reads"]["male"],
-        "pri/male/ragtag_round2-pct_chrs.txt",
-        "haps_male/hap1/ragtag_round2-pct_chrs.txt",
-        "haps_male/hap2/ragtag_round2-pct_chrs.txt"
+        pDone="pri/male/ragtag_round2-pct_chrs.txt",
+        h1Done="haps_male/hap1/ragtag_round2-pct_chrs.txt",
+        h2Done="haps_male/hap2/ragtag_round2-pct_chrs.txt"
     output:
         "pri_haps-male/first_hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         "pri_haps-male/first_hap1/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
@@ -170,8 +170,8 @@ rule pass3_F_hap1:
         pri="pri_haps-female/first_hap2/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         hap="haps_female/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
         reads=config["reads"]["female"],
-        "pri_haps-female/first_hap2/pri/ragtag_round2-pct_chrs.txt",
-        "haps_female/hap1/ragtag_round2-pct_chrs.txt"
+        pDone="pri_haps-female/first_hap2/pri/ragtag_round2-pct_chrs.txt",
+        hDone="haps_female/hap1/ragtag_round2-pct_chrs.txt"
     output:
         "pri_haps-female/second-hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         "pri_haps-female/second-hap1/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
@@ -195,8 +195,8 @@ rule pass3_F_hap2:
         pri="pri_haps-female/first_hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         hap="haps_female/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
         reads=config["reads"]["female"],
-        "pri_haps-female/first_hap1/pri/ragtag_round2-pct_chrs.txt",
-        "haps_female/hap2/ragtag_round2-pct_chrs.txt"
+        pDone="pri_haps-female/first_hap1/pri/ragtag_round2-pct_chrs.txt",
+        hDone="haps_female/hap2/ragtag_round2-pct_chrs.txt"
     output:
         "pri_haps-female/second-hap2/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         "pri_haps-female/second-hap2/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
@@ -220,8 +220,8 @@ rule pass3_M_hap1:
         pri="pri_haps-male/first_hap2/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         hap="haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
         reads=config["reads"]["male"],
-        "pri_haps-male/first_hap2/pri/ragtag_round2-pct_chrs.txt",
-        "haps_male/hap1/ragtag_round2-pct_chrs.txt"
+        pDone="pri_haps-male/first_hap2/pri/ragtag_round2-pct_chrs.txt",
+        hDone="haps_male/hap1/ragtag_round2-pct_chrs.txt"
     output:
         "pri_haps-male/second-hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         "pri_haps-male/second-hap1/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
@@ -245,8 +245,8 @@ rule pass3_M_hap2:
         pri="pri_haps-male/first_hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         hap="haps_male/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
         reads=config["reads"]["male"],
-        "pri_haps-male/first_hap1/pri/ragtag_round2-pct_chrs.txt",
-        "haps_male/hap2/ragtag_round2-pct_chrs.txt"
+        pDone="pri_haps-male/first_hap1/pri/ragtag_round2-pct_chrs.txt",
+        hDone="haps_male/hap2/ragtag_round2-pct_chrs.txt"
     output:
         "pri_haps-male/second-hap2/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         "pri_haps-male/second-hap2/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
@@ -270,20 +270,20 @@ rule final:
     input:
         FpA="pri_haps-female/second-hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         Fh1="pri_haps-female/second-hap1/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
-        "pri_haps-female/second-hap1/pri/ragtag_round2-pct_chrs.txt",
-        "pri_haps-female/second-hap1/hap1/ragtag_round2-pct_chrs.txt",
+        fpaDone="pri_haps-female/second-hap1/pri/ragtag_round2-pct_chrs.txt",
+        fh1Done="pri_haps-female/second-hap1/hap1/ragtag_round2-pct_chrs.txt",
         FpB="pri_haps-female/second-hap2/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         Fh2="pri_haps-female/second-hap2/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
-        "pri_haps-female/second-hap2/pri/ragtag_round2-pct_chrs.txt",
-        "pri_haps-female/second-hap2/hap2/ragtag_round2-pct_chrs.txt",
+        fpbDone="pri_haps-female/second-hap2/pri/ragtag_round2-pct_chrs.txt",
+        fh2Done="pri_haps-female/second-hap2/hap2/ragtag_round2-pct_chrs.txt",
         MpA="pri_haps-male/second-hap1/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         Mh1="pri_haps-male/second-hap1/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
-        "pri_haps-male/second-hap1/pri/ragtag_round2-pct_chrs.txt",
-        "pri_haps-male/second-hap1/hap1/ragtag_round2-pct_chrs.txt",
+        mpaDone="pri_haps-male/second-hap1/pri/ragtag_round2-pct_chrs.txt",
+        mh1Done="pri_haps-male/second-hap1/hap1/ragtag_round2-pct_chrs.txt",
         MpB="pri_haps-male/second-hap2/pri/ragtag_output-round2/ragtag.scaffold.fasta",
         Mh2="pri_haps-male/second-hap2/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
-        "pri_haps-male/second-hap2/pri/ragtag_round2-pct_chrs.txt",
-        "pri_haps-male/second-hap2/hap2/ragtag_round2-pct_chrs.txt"       
+        mpbDone="pri_haps-male/second-hap2/pri/ragtag_round2-pct_chrs.txt",
+        mh2Done="pri_haps-male/second-hap2/hap2/ragtag_round2-pct_chrs.txt"       
     output:
         "RT_final/Fp_RTfinal.fa",
         "RT_final/Fh1_RTfinal.fa",
