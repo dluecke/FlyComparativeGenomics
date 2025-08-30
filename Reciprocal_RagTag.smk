@@ -68,8 +68,8 @@ rule pass1_hapsM:
     output:
         "haps_male/hap1/ragtag_output-round2/ragtag.scaffold.fasta",
         "haps_male/hap2/ragtag_output-round2/ragtag.scaffold.fasta",
-        "haps_male/hap1/ragtag_output-round2/ragtag_round2-pct_chrs.txt",
-        "haps_male/hap2/ragtag_output-round2/ragtag_round2-pct_chrs.txt"
+        "haps_male/hap1/ragtag_round2-pct_chrs.txt",
+        "haps_male/hap2/ragtag_round2-pct_chrs.txt"
     shell:
         r"""
         mkdir -p haps_male/hap1 haps_male/hap2
