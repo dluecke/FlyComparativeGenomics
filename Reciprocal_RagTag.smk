@@ -1,6 +1,7 @@
 # ReciprocalRagtag.smk workflow for reciprocal ragtag using FlyComparativeGenomics scripts
 
 configfile: "config.yaml"
+localrules: all, final
 
 rule all:
     input:
@@ -31,9 +32,9 @@ rule pass1_pri:
         ln -s {input.priF} Fpri.fa
         ln -s {input.priM} Mpri.fa
         cd female
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mpri.fa ../Fpri.fa {input.readsF}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mpri.fa ../Fpri.fa {input.readsF}
         cd ../male
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fpri.fa ../Mpri.fa {input.readsM}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fpri.fa ../Mpri.fa {input.readsM}
         cd ../..
         """
 
@@ -54,9 +55,9 @@ rule pass1_hapsF:
         ln -s {input.hap1} Fh1.fa
         ln -s {input.hap2} Fh2.fa
         cd hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fh2.fa ../Fh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fh2.fa ../Fh1.fa {input.reads}
         cd ../hap2
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fh1.fa ../Fh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fh1.fa ../Fh2.fa {input.reads}
         cd ../..
         """
 
@@ -77,9 +78,9 @@ rule pass1_hapsM:
         ln -s {input.hap1} Mh1.fa
         ln -s {input.hap2} Mh2.fa
         cd hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mh2.fa ../Mh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mh2.fa ../Mh1.fa {input.reads}
         cd ../hap2
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mh1.fa ../Mh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mh1.fa ../Mh2.fa {input.reads}
         cd ../..
         """
 
@@ -112,15 +113,15 @@ rule pass2_F:
         cd first_hap1
         ln -s ../../{input.hap1} Fh1_RT1Fh2.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fh1_RT1Fh2.fa ../../Fp_RT1Mp.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fh1_RT1Fh2.fa ../../Fp_RT1Mp.fa {input.reads}
         cd ../hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../../Fp_RT1Mp.fa ../Fh1_RT1Fh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../../Fp_RT1Mp.fa ../Fh1_RT1Fh2.fa {input.reads}
         cd ../../first_hap2
         ln -s ../../{input.hap2} Fh2_RT1Fh1.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fh2_RT1Fh1.fa ../../Fp_RT1Mp.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fh2_RT1Fh1.fa ../../Fp_RT1Mp.fa {input.reads}
         cd ../hap2
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../../Fp_RT1Mp.fa ../Fh2_RT1Fh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../../Fp_RT1Mp.fa ../Fh2_RT1Fh1.fa {input.reads}
         cd ../../..
         """
 
@@ -151,15 +152,15 @@ rule pass2_M:
         cd first_hap1
         ln -s ../../{input.hap1} Mh1_RT1Mh2.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mh1_RT1Mh2.fa ../../Mp_RT1Fp.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mh1_RT1Mh2.fa ../../Mp_RT1Fp.fa {input.reads}
         cd ../hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../../Mp_RT1Fp.fa ../Mh1_RT1Mh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../../Mp_RT1Fp.fa ../Mh1_RT1Mh2.fa {input.reads}
         cd ../../first_hap2
         ln -s ../../{input.hap2} Mh2_RT1Mh1.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mh2_RT1Mh1.fa ../../Mp_RT1Fp.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mh2_RT1Mh1.fa ../../Mp_RT1Fp.fa {input.reads}
         cd ../hap2
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../../Mp_RT1Fp.fa ../Mh2_RT1Mh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../../Mp_RT1Fp.fa ../Mh2_RT1Mh1.fa {input.reads}
         cd ../../..
         """
 
@@ -184,9 +185,9 @@ rule pass3_F_hap1:
         ln -s ../../{input.pri} Fp_RT2MpFh2.fa
         ln -s ../../{input.hap} Fh1_RT1Fh2.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fh1_RT1Fh2.fa ../Fp_RT2MpFh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fh1_RT1Fh2.fa ../Fp_RT2MpFh2.fa {input.reads}
         cd ../hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fp_RT2MpFh2.fa ../Fh1_RT1Fh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fp_RT2MpFh2.fa ../Fh1_RT1Fh2.fa {input.reads}
         cd ../../..
         """
 
@@ -209,9 +210,9 @@ rule pass3_F_hap2:
         ln -s ../../{input.pri} Fp_RT2MpFh1.fa
         ln -s ../../{input.hap} Fh2_RT1Fh1.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fh2_RT1Fh1.fa ../Fp_RT2MpFh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fh2_RT1Fh1.fa ../Fp_RT2MpFh1.fa {input.reads}
         cd ../hap2
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Fp_RT2MpFh1.fa ../Fh2_RT1Fh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Fp_RT2MpFh1.fa ../Fh2_RT1Fh1.fa {input.reads}
         cd ../../..
         """
 
@@ -234,9 +235,9 @@ rule pass3_M_hap1:
         ln -s ../../{input.pri} Mp_RT2FpMh2.fa
         ln -s ../../{input.hap} Mh1_RT1Mh2.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mh1_RT1Mh2.fa ../Mp_RT2FpMh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mh1_RT1Mh2.fa ../Mp_RT2FpMh2.fa {input.reads}
         cd ../hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mp_RT2FpMh2.fa ../Mh1_RT1Mh2.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mp_RT2FpMh2.fa ../Mh1_RT1Mh2.fa {input.reads}
         cd ../../..
         """
 
@@ -259,9 +260,9 @@ rule pass3_M_hap2:
         ln -s ../../{input.pri} Mp_RT2FpMh1.fa
         ln -s ../../{input.hap} Mh2_RT1Mh1.fa
         cd pri
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mh2_RT1Mh1.fa ../Mp_RT2FpMh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mh2_RT1Mh1.fa ../Mp_RT2FpMh1.fa {input.reads}
         cd ../hap1
-        sbatch {config[repo_location]}/Reciprocal_RagTag.slurm ../Mp_RT2FpMh1.fa ../Mh2_RT1Mh1.fa {input.reads}
+        {config[repo_location]}/Reciprocal_RagTag.sh ../Mp_RT2FpMh1.fa ../Mh2_RT1Mh1.fa {input.reads}
         cd ../../..
         """
 
