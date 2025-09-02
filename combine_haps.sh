@@ -4,6 +4,6 @@
 
 # USAGE: combine_haps.sh hap1.fa hap2.fa > diploid.fa
 
-[ $# -eq 2 ] || {echo "USAGE: combine_haps.sh hap1.fa hap2.fa > diploid.fa"; exit; }
+[ $# -eq 2 ] || { echo "USAGE: combine_haps.sh hap1.fa hap2.fa > diploid.fa"; exit; }
 
 echo "passed check"
