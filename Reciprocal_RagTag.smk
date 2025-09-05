@@ -1,6 +1,6 @@
 # ReciprocalRagtag.smk workflow for reciprocal ragtag using FlyComparativeGenomics scripts
 
-configfile: "config_ReciprocalRagtag.yaml"
+configfile: "config.yaml"
 localrules: all, final
 
 rule all:
