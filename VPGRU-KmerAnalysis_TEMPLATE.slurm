@@ -25,12 +25,20 @@ if [[ "$SEQFILE" == *".bam" ]]; then
     else
         echo -e "\nUsing pre-existing FASTQ file:\n ${FASTQ}\n"
     fi
-elif [[ "$SEQFILE" == *".fq" || "$SEQFILE" == *".fastq" || \
-        "$SEQFILE" == *".fq.gz" || "$SEQFILE" == *".fastq.gz" ]]; then
+elif [[ "$SEQFILE" == *".fq" || "$SEQFILE" == *".fastq" ]]; then
     FASTQ=$SEQFILE
     echo -e "\nUsing provided FASTQ file:\n ${FASTQ}\n"
+elif [[ "$SEQFILE" == *".fq.gz" || "$SEQFILE" == *".fastq.gz" ]]; then
+    FASTQ="${SEQFILE%.gz}"
+    if [ ! -f $FASTQ ]; then
+        echo -e "\nUnzipping reads file:\n ${SEQFILE}\nto temporary FASTQ file:\n ${FASTQ}"
+        echo -e "CMD: pigz -d -c ${SEQFILE} > ${FASTQ}\n"
+        pigz -d -c ${SEQFILE} > ${FASTQ}
+    else
+        echo -e "\nGiven .gz file but using pre-existing FASTQ file:\n ${FASTQ}\n"
+    fi
 else
-    echo "file extension not recognized: $SEQFILE"
+    echo -e "file extension not recognized:\n $SEQFILE"
     exit;
 fi
 
