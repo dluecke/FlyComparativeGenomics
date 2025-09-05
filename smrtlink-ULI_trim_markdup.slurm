@@ -10,7 +10,7 @@
 #SBATCH --mail-user=david.luecke@usda.gov
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
-module load smrtlink/25.1.0.257715 
+module load smrtlink/25.3.0.273777
 echo "smrtlink loaded"
 which lima
 which pbmarkdup
