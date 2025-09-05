@@ -53,7 +53,9 @@ done
 # call usage if not bam or fastq file
 [[ "$SEQFILE" == *".bam" || \
     "$SEQFILE" == *".fastq" || \
-    "$SEQFILE" == *".fq"  ]] || { echo "need bam or fastq file"; usage; }
+    "$SEQFILE" == *".fastq.gz" || \
+    "$SEQFILE" == *".fq" || \
+    "$SEQFILE" == *".fq.gz"  ]] || { echo "need bam or fastq file"; usage; }
 
 # STARTING SCRIPT ACTIONS
 

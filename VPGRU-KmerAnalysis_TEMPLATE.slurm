@@ -25,7 +25,8 @@ if [[ "$SEQFILE" == *".bam" ]]; then
     else
         echo -e "\nUsing pre-existing FASTQ file:\n ${FASTQ}\n"
     fi
-elif [[ "$SEQFILE" == *".fq" || "$SEQFILE" == *".fastq" ]]; then
+elif [[ "$SEQFILE" == *".fq" || "$SEQFILE" == *".fastq" || \
+        "$SEQFILE" == *".fq.gz" || "$SEQFILE" == *".fastq.gz" ]]; then
     FASTQ=$SEQFILE
     echo -e "\nUsing provided FASTQ file:\n ${FASTQ}\n"
 else
