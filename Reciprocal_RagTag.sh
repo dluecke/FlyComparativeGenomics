@@ -11,10 +11,12 @@
 #  which uses nucmer COORDS output to ID alignment regions where qry assembly has greater contiguity
 #  writes GFF formated file with these regions to give RagTag correct, preventing breaks in these regions
 
-# USAGE: sbatch Reciprocal_RagTag.slurm REF.fa QRY.fa QRY_READS.fq
+# USAGE: sbatch Reciprocal_RagTag.slurm REF.fa QRY.fa QRY_READS.fq N_pass (number for which pass in pipeline 1-3)
 REF_ASM=$1
 QRY_ASM=$2
 QRY_READS=$3
+# added in .sh version for running in SnakeMake pipeline
+PASS_TAG=$4
 
 # check reads file (3rd argument) exists 
 [[ -f $QRY_READS ]] || \
@@ -80,11 +82,12 @@ ragtag.py scaffold -r -t 32 -o ./ragtag_output-round1 $REF_ASM ragtag_output-rou
 
 # A known issue in RagTag can introduce duplicate sequence header names: https://github.com/malonge/RagTag/issues/94#issuecomment-1006880604
 # This case is slightly different.  Not using -u, but the "_RagTag" label on modified scaffolds can still cause duplicates in round 2.
-# Easiest fix is editing this tag in the round1 output. Also has the benefit of tracking which round introduced changes
-echo -e "\nEditing sequence headers in round 1 output to avoid duplicates in round 2"
-echo -e "Command:\n sed -i 's/RagTag/RT1/' ragtag_output-round1/ragtag.scaffold.fasta"
+# Similar issue can also crop up between passes in the larger pipeline (3 total passes, 2 rounds each)
+# Easiest fix is editing this tag in the round1 output. Also has the benefit of tracking which pass and round introduced changes
+echo -e "\nEditing sequence headers in pass $PASS_TAG round 1 output to avoid duplicates in round 2 or future passes"
+echo -e "Command:\n sed -i 's/RagTag/RTp${PASS_TAG}r1/' ragtag_output-round1/ragtag.scaffold.fasta"
 
-sed -i 's/RagTag/RT1/' ragtag_output-round1/ragtag.scaffold.fasta
+sed -i "s/RagTag/RTp${PASS_TAG}r1/" ragtag_output-round1/ragtag.scaffold.fasta
 
 # stats for new assembly
 echo -e "\nRunning gfastats and get_pct_chrs.sh on ragtag_output-round1/ragtag.scaffold.fasta"
@@ -125,9 +128,9 @@ ragtag.py correct --debug --intra -f 5000 -t 32 \
 
 ragtag.py scaffold -r -t 32 -o ./ragtag_output-round2 $QRY_ASM ragtag_output-round2/ragtag.correct.fasta
 
-echo -e "\nEditing sequence headers in round 2 output to same syntax used for round 1"
-echo -e "Command:\n sed -i 's/RagTag/RT2/' ragtag_output-round2/ragtag.scaffold.fasta"
-sed -i 's/RagTag/RT2/' ragtag_output-round2/ragtag.scaffold.fasta
+echo -e "\nEditing sequence headers in output of pass $PASS_TAG round 2 to avoid potential duplicates in subsequent passes"
+echo -e "Command:\n sed -i 's/RagTag/RTp${PASS_TAG}r2/' ragtag_output-round2/ragtag.scaffold.fasta"
+sed -i "s/RagTag/RTp${PASS_TAG}r2/" ragtag_output-round2/ragtag.scaffold.fasta
 
 # stats for new assembly
 sbatch $GIT_REPOS/FlyComparativeGenomics/gfastats.slurm ragtag_output-round2/ragtag.scaffold.fasta
