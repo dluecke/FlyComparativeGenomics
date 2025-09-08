@@ -122,17 +122,31 @@ df.JUMPS_QryBetter = df.JUMPS %>%
   filter(d_jump < median(d_jump, na.rm = T) - 2*sd(d_jump, na.rm = T))
 
 # gff formatted table for "QryBetter" regions to be shielded
-df.GFF_QryBetter = data.frame(
-  SEQ = df.JUMPS_QryBetter$qry_SeqName,
-  SOURCE = "RagTagShield",
-  FEATURE = "BetterInQry",
-  # coordinates, buffer by 100bp in case of alignment ambiguity
-  START = df.JUMPS_QryBetter$Q2 - 100,
-  END = df.JUMPS_QryBetter$Qnext + 100,
-  SCORE = ".",
-  STRAND = ".",
-  FRAME = ".")
-
+if( nrow(df.JUMPS_QryBetter > 0) ){
+  df.GFF_QryBetter = data.frame(
+    SEQ = df.JUMPS_QryBetter$qry_SeqName,
+    SOURCE = "RagTagShield",
+    FEATURE = "BetterInQry",
+    # coordinates, buffer by 100bp in case of alignment ambiguity
+    START = df.JUMPS_QryBetter$Q2 - 100,
+    END = df.JUMPS_QryBetter$Qnext + 100,
+    SCORE = ".",
+    STRAND = ".",
+    FRAME = ".")
+} else {
+  # if no regions to be shielded use an empty output, 1 line with coords 0, 0
+  df.GFF_QryBetter = data.frame(
+    SEQ = df.JUMPS$qry_SeqName[1],
+    SOURCE = "RagTagShield",
+    FEATURE = "BetterInQry",
+    # coordinates, buffer by 100bp in case of alignment ambiguity
+    START = 0,
+    END = 0,
+    SCORE = ".",
+    STRAND = ".",
+    FRAME = ".")
+  
+}
 # write output GFF file
 write.table(df.GFF_QryBetter, file = OUT_GFF.QRY, sep = '\t',
             col.names = F, row.names = F, quote = F)
@@ -141,18 +155,30 @@ write.table(df.GFF_QryBetter, file = OUT_GFF.QRY, sep = '\t',
 df.JUMPS_RefBetter = df.JUMPS %>%
   filter(d_jump > median(d_jump, na.rm = T) + 2*sd(d_jump, na.rm = T))
 
-# gff formatted table for "QryBetter" regions to be shielded
-df.GFF_RefBetter = data.frame(
-  SEQ = df.JUMPS_RefBetter$ref_SeqName,
-  SOURCE = "RagTagShield",
-  FEATURE = "BetterInRef",
-  # coordinates, buffer by 100bp in case of alignment ambiguity
-  START = df.JUMPS_RefBetter$R2 - 100,
-  END = df.JUMPS_RefBetter$Rnext + 100,
-  SCORE = ".",
-  STRAND = ".",
-  FRAME = ".")
-
+# gff formatted table for "RefBetter" regions to be shielded
+if( nrow(df.JUMPS_RefBetter) > 0 ){
+  df.GFF_RefBetter = data.frame(
+    SEQ = df.JUMPS_RefBetter$ref_SeqName,
+    SOURCE = "RagTagShield",
+    FEATURE = "BetterInRef",
+    # coordinates, buffer by 100bp in case of alignment ambiguity
+    START = df.JUMPS_RefBetter$R2 - 100,
+    END = df.JUMPS_RefBetter$Rnext + 100,
+    SCORE = ".",
+    STRAND = ".",
+    FRAME = ".")
+} else {
+  df.GFF_RefBetter = data.frame(
+    SEQ = df.JUMP$ref_SeqName[1],
+    SOURCE = "RagTagShield",
+    FEATURE = "BetterInRef",
+    # coordinates, buffer by 100bp in case of alignment ambiguity
+    START = 0,
+    END = 0,
+    SCORE = ".",
+    STRAND = ".",
+    FRAME = ".")
+}
 # write output GFF file
 write.table(df.GFF_RefBetter, file = OUT_GFF.REF, sep = '\t',
             col.names = F, row.names = F, quote = F)
