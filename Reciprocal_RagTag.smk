@@ -529,18 +529,11 @@ rule final:
         "RT_final/Mp_RTfinal.fa",
         "RT_final/Mh1_RTfinal.fa",
         "RT_final/Mh2_RTfinal.fa"
+    log:
+        stdout="rrt.final_step.stdout",
+        stderr="rrt.final_step.stderr"
     shell:
         r"""
-        {config[repo_location]}/recip_ragtag-copy_logs.sh
-        mkdir RT_final
-        cd RT_final
-        ln -s ../{input.FpA} Fp_RTfinal.fa
-        ln -s ../{input.Fh1} Fh1_RTfinal.fa
-        ln -s ../{input.Fh2} Fh2_RTfinal.fa
-        ln -s ../{input.MpA} Mp_RTfinal.fa
-        ln -s ../{input.Mh1} Mh1_RTfinal.fa
-        ln -s ../{input.Mh2} Mh2_RTfinal.fa
-        ln -s ../{input.FpB} ALT-Fp_RTfinal.fa
-        ln -s ../{input.MpB} ALT-Mp_RTfinal.fa
-        cd ..
+        {config[repo_location]}/recip_ragtag-copy_logs.sh >> {log.stdout} 2>> {log.stderr}
+        {config[repo_location]}/recip_ragtag-link_results.sh >> {log.stdout} 2>> {log.stderr}
         """
