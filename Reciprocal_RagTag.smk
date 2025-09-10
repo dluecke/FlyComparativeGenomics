@@ -1,7 +1,7 @@
 # ReciprocalRagtag.smk workflow for reciprocal ragtag using FlyComparativeGenomics scripts
 
 configfile: "config.yaml"
-localrules: all, final
+localrules: all
 
 rule all:
     input:
@@ -531,6 +531,7 @@ rule final:
         "RT_final/Mh2_RTfinal.fa"
     shell:
         r"""
+        {config[repo_location]}/recip_ragtag-copy_logs.sh
         mkdir RT_final
         cd RT_final
         ln -s ../{input.FpA} Fp_RTfinal.fa
