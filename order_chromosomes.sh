@@ -91,11 +91,11 @@ cut -f1 $SCAFFOLDS.fai.sort > non-chr-scafs.list
 while read rm_scaf; do
     sed -i "/$rm_scaf/d" non-chr-scafs.list
 done < <(cut -f2 $ORDER_OUT)
-rm non-chr-scafs.list
 
 # append all remaining scaffolds to CHROMOSOMES assembly
 echo -e "\nWriting remaining scaffolds to assembly"
 echo "CMD: samtools faidx -r non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES"
 samtools faidx -r non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES
+rm non-chr-scafs.list
 
 echo -e "\nChromosome assembly $CHROMOSOMES finished.\nSee $ORDER_OUT for scaffold-to-chromosome relationships"
