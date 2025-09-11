@@ -69,7 +69,7 @@ while IFS=$'\t' read -r -a arr_ORDERING; do
 
     # write sequence to output assembly
     echo -e "\nWriting sequence $SCAFi as $CHRi in file $CHROMOSOMES"
-    echo 'CMD: samtools faidx --mark-strand no '${RC_TAG}${SCAFFOLDS} $SCAFi' | sed "s/'$SCAFi/$CHRi'/" | sed "s@/rc@@" >> '$CHROMOSOMES
+    echo 'CMD: samtools faidx --mark-strand no '${RC_TAG}${SCAFFOLDS} $SCAFi' | sed "s/'$SCAFi/$CHRi'/" >> '$CHROMOSOMES
     # extract SCAFi
     samtools faidx --mark-strand no ${RC_TAG}${SCAFFOLDS} $SCAFi | \
     # change name to ChromosomeN and append to new assembly file
