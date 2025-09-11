@@ -32,6 +32,8 @@ ORDERING=$2
 CHROMOSOMES=${SCAFFOLDS%.*}-Chromosomes.fa
 # assignments with full scaffold names
 ORDER_OUT=${SCAFFOLDS%.*}-chr_assignment.tsv
+# list of non-chromosome scaffolds
+NON_SCAF_LIST=${SCAFFOLDS%.*}-non_chr-scafs.list
 
 # index input fasta
 samtools faidx $SCAFFOLDS || usage
@@ -85,17 +87,16 @@ done < $ORDERING
 ### Write remaining scaffolds to new assembly
 
 # list of all scaffolds, will remove those already extracted
-cut -f1 $SCAFFOLDS.fai.sort > non-chr-scafs.list
+cut -f1 $SCAFFOLDS.fai.sort > $NON_SCAF_LIST
 
 # remove scaffolds already extracted as recorded in ORDER_OUT
 while read rm_scaf; do
-    sed -i "/$rm_scaf/d" non-chr-scafs.list
+    sed -i "/$rm_scaf/d" $NON_SCAF_LIST
 done < <(cut -f2 $ORDER_OUT)
 
 # append all remaining scaffolds to CHROMOSOMES assembly
-echo -e "\nWriting remaining scaffolds to assembly"
-echo "CMD: samtools faidx -r non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES"
-samtools faidx -r non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES
-rm non-chr-scafs.list
+echo -e "\nWriting remaining scaffolds to assembly, see $NON_SCAF_LIST for sequence IDs"
+echo "CMD: samtools faidx -r $NON_SCAF_LIST $SCAFFOLDS >> $CHROMOSOMES"
+samtools faidx -r $NON_SCAF_LIST $SCAFFOLDS >> $CHROMOSOMES
 
 echo -e "\nChromosome assembly $CHROMOSOMES finished.\nSee $ORDER_OUT for scaffold-to-chromosome relationships"
