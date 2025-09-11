@@ -65,7 +65,7 @@ while IFS=$'\t' read -r -a arr_ORDERING; do
     fi
 
     # get full scaffold name, longest sequence starting with input scaffold_i
-    SCAFi=$(grep -m1 ${arr_ORDERING[1]} $SCAFFOLDS.fai.sort)
+    SCAFi=$(grep -m1 ${arr_ORDERING[1]} $SCAFFOLDS.fai.sort | cut -f1)
 
     # write sequence to output assembly
     echo -e "\nWriting sequence $SCAFi as $CHRi in file $CHROMOSOMES"
