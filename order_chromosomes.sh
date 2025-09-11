@@ -95,6 +95,8 @@ while read rm_scaf; do
 done < <(cut -f2 $ORDER_OUT)
 
 # append all remaining scaffolds to CHROMOSOMES assembly
-samtools faidx -f non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES
+echo -e "\nWriting remaining scaffolds to assembly"
+echo "CMD: samtools faidx -r non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES
+samtools faidx -r non-chr-scafs.list $SCAFFOLDS >> $CHROMOSOMES
 
 echo -e "\nChromosome assembly $CHROMOSOMES finished.\nSee $ORDER_OUT for scaffold-to-chromosome relationships"
