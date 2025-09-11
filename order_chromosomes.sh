@@ -46,10 +46,8 @@ sort -nr -k2,2 $SCAFFOLDS.fai > $SCAFFOLDS.fai.sort
 
 ### Write chromosomes to new assembly
 
-# loop through ORDERING 
-while read line; do
-    # ordering array
-    arr_ORDERING=("$line")
+# loop through ORDERING, each line as tab sep array
+while IFS=$'\t' read -r -a arr_ORDERING; do
 
     # Chromosome name
     CHRi=${arr_ORDERING[0]}
@@ -58,7 +56,7 @@ while read line; do
     ORIENTi=${arr_ORDERING[2]}
     if [ "$ORIENTi" = "F" ]; then
         RC_TAG=""
-    elif [ "${arr_ORDERING[2]}" = "R" ]; then
+    elif [ "$ORIENTi" = "R" ]; then
         RC_TAG="--reverse-complement "
     else
         echo -e "\nDon't recognize orientation, should be F or R"
