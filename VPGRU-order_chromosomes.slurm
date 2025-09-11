@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH -A vpgru
-#SBATCH -J order_chrs
+#SBATCH -J order_CHR_ASSIGN
 #SBATCH -o "oc.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "oc.%j.%N.stderr"
 #SBATCH -c 4
 #SBATCH -p ceres
-#SBATCH -t 2:00:00
+#SBATCH -t 1:00:00
 #SBATCH -N 1
 
 # location for order_chromosomes.sh
@@ -17,19 +17,31 @@ FCG=~/FlyComparativeGenomics
 date
 module load samtools/1.17
 
-CHRS=$1
+CHR_ASSIGN=$1
 
-# array with fastas (if none will include '*.fa' etc)
-FASTAS=( *.fa *.fasta )
+# array with fasta file candidates (if no match this will include '*.fa' etc)
+FASTA_SCAN=( *.fa *.fasta )
 
-for f in ${FASTAS[@]}; do
-    # check that file exists to avoid running with '*.fa' or '*.fasta'
+# check each candidate file exists, build FASTAS filename array
+unset FASTAS
+for f in "${FASTA_SCAN[@]}"; do
     if [ -e "$f" ]; then
-        echo -e "\n_________________________________________________\n"
-        echo "Starting chromosome ordering for scaffolds $f using assignments $1"
-        $FCG/order_chromosomes.sh $f $1
+        FASTAS+=("$f")
     fi
 done
 
-echo -e "\n------------------------------------------------\n"
+echo -e "\n================================================\n"
+echo -e "\nRE-ORDERING AND ORIENTING CHROMOSOMES"
+echo -e "\nScaffold assemblies:"
+printf '  %s\n' "${FASTAS[@]}"
+echo -e "\nChromosome assignments:"
+awk '{print "  " $0}' $CHR_ASSIGN
+
+for f in ${FASTAS[@]}; do
+    echo -e "\n------------------------------------------------\n"
+    echo "Starting chromosome ordering for scaffolds $f using assignments $CHR_ASSIGN"
+    $FCG/order_chromosomes.sh $f $CHR_ASSIGN
+done
+
+echo -e "\n================================================\n"
 samtools --version
