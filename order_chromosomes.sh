@@ -99,4 +99,30 @@ echo -e "\nWriting remaining scaffolds to assembly, see $NON_SCAF_LIST for seque
 echo "CMD: samtools faidx -r $NON_SCAF_LIST $SCAFFOLDS >> $CHROMOSOMES"
 samtools faidx -r $NON_SCAF_LIST $SCAFFOLDS >> $CHROMOSOMES
 
+
+### Clean up sequences: remove leading/trailing Ns and wrap to 80 bp per line
+# code cribbed from https://www.biostars.org/p/412636/#9494761
+echo -e "\nRemoving any leading or trailing N/n characters and wrapping line length"
+echo "CMD: awk '/^>/ "'{printf("%s%s\t",(N>0?"\n":""),$0);N++;next;} {printf("%s",$0);} END {printf("\n");}'"'\
+ $CHROMOSOMES "'| tr "\t" "\n" |'" sed -r '/^>/! s/[Nn]+$|^[Nn]+//g' | fold -w 80 > $CHROMOSOMES.clean; mv $CHROMOSOMES.clean $CHROMOSOMES"
+
+# Linearize sequences to single line
+awk '
+  # Header lines
+  /^>/ {
+    # Print the header line followed by a tab, with leading newline if not first record
+    printf("%s%s\t", (N>0?"\n":""), $0)
+    N++
+    next # skip next block for header lines
+  }
+  { printf("%s", $0) }    # Print the sequence line without newline  
+  END { printf("\n") }    # Final newline after last record   
+' $CHROMOSOMES | tr "\t" "\n" | \
+# Remove leading or trailing N or n from non-header lines
+  sed -r '/^>/! s/[Nn]+$|^[Nn]+//g' | \
+ # Wrap to 80 character lines (will also wrap header lines, but header will only be "ChromosomeN" or scaffold ID so should be fine)
+  fold -w 80 > $CHROMOSOMES.clean
+mv $CHROMOSOMES.clean $CHROMOSOMES
+
+
 echo -e "\nChromosome assembly $CHROMOSOMES finished.\nSee $ORDER_OUT for scaffold-to-chromosome relationships"
