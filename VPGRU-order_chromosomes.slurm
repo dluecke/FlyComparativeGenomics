@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A vpgru
-#SBATCH -J order_CHR_ASSIGN
+#SBATCH -J order_chrs
 #SBATCH -o "oc.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "oc.%j.%N.stderr"
 #SBATCH -c 4
@@ -30,7 +30,7 @@ for f in "${FASTA_SCAN[@]}"; do
     fi
 done
 
-echo -e "\n================================================\n"
+echo -e "\n================================================"
 echo -e "\nRE-ORDERING AND ORIENTING CHROMOSOMES"
 echo -e "\nScaffold assemblies:"
 printf '  %s\n' "${FASTAS[@]}"
