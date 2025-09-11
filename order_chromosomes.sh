@@ -69,13 +69,11 @@ while IFS=$'\t' read -r -a arr_ORDERING; do
 
     # write sequence to output assembly
     echo -e "\nWriting sequence $SCAFi as $CHRi in file $CHROMOSOMES"
-    echo 'CMD: samtools faidx '${RC_TAG}${SCAFFOLDS} $SCAFi' | sed "s/'$SCAFi/$CHRi'/" | sed "s@/rc@@" >> '$CHROMOSOMES
+    echo 'CMD: samtools faidx --mark-strand no '${RC_TAG}${SCAFFOLDS} $SCAFi' | sed "s/'$SCAFi/$CHRi'/" | sed "s@/rc@@" >> '$CHROMOSOMES
     # extract SCAFi
-    samtools faidx ${RC_TAG}${SCAFFOLDS} $SCAFi | \
-    # change name to ChromosomeN
-        sed "s/$SCAFi/$CHRi/" | \
-    # remove "/rc" tag and append to chromosome assembly
-        sed "s@/rc@@" >> $CHROMOSOMES
+    samtools faidx --mark-strand no ${RC_TAG}${SCAFFOLDS} $SCAFi | \
+    # change name to ChromosomeN and append to new assembly file
+        sed "s/$SCAFi/$CHRi/" >> $CHROMOSOMES
 
     # write line for full scaffold name chr_assignment.tsv output
     # both a good record and will be used to extract non-chromosome scaffolds
