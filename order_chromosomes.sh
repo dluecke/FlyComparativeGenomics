@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # order_chromosomes.sh converts chr-scale scaffolds to properly oriented chromosomes
+# also removes leading/trailing Ns and wraps line lengths to 80
 # takes SCAFFOLDS.fa and chr_assignment.tsv, outputs SCAFFOLDS-Chromosomes.fa
 # chr_assignment.tsv format is Chromosome/Scaffold/Orientation:
 #   Chromosome1 scaffold_i  F
