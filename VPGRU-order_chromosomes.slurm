@@ -5,7 +5,7 @@
 #SBATCH -e "oc.%j.%N.stderr"
 #SBATCH -c 4
 #SBATCH -p ceres
-#SBATCH -t 1:00:00
+#SBATCH -t 4:00:00
 #SBATCH -N 1
 
 # location for order_chromosomes.sh
