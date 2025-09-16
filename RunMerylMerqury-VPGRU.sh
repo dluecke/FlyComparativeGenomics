@@ -3,12 +3,13 @@
 # RunMerylMerqury-VPGRU.sh runs meryl kmer analysis and merqury reads vs assembly tool
 
 usage() { 
-    echo "USAGE: $0 [-h|-o|-l|-t<-m-p>|-k|-c|-g] READS.FASTQ ASSEMBLY.FASTA"
+    echo "USAGE: $0 [-h|-o|-d|-t<-m-p>|-l|-k|-c|-g] READS.FASTQ ASSEMBLY.FASTA"
     echo "  -o STRING FCS output directory, default ASSEMBLYNAME"
-    echo "  -l FLAG write ReadsOnly files for leftovers"
+    echo "  -d HAP2.FASTA run on diploid mode with HAP2.FASTA assembly and append -diploid to outname"
     echo "  -t FLAG do trio binning hapmer steps, REQUIRES:"
-    echo "    -m MATERNAL_READS.FASTA (quote globs)"
-    echo "    -p PATERNAL_READS.FASTA (quote globs)"
+    echo "    -m MATERNAL_READS.FASTQ (quote globs)"
+    echo "    -p PATERNAL_READS.FASTQ (quote globs)"
+    echo "  -l FLAG write ReadsOnly files for leftovers"
     echo "  -k INT kmer length, default 21"
     echo "  -c INT cores, default 48"
     echo "  -g PATH to FlyComparativeGenomics git repo, default ~/FlyComparativeGenomics"
@@ -23,10 +24,12 @@ usage() {
 
 # last 2 args the reference and query seq files
 READS_FASTQ="${@: -2:1}"
-ASM_FASTA="${@: -1}"
-ASM_FN="$(basename $ASM_FASTA)"
+ASM_FA="${@: -1}"
+ASM_FN="$(basename $ASM_FA)"
 OUT_PREFIX="${ASM_FN%%.f*a}"
 # default run parameters
+ASM2_FA=""
+DIPLOID=""
 READS_ONLY="" # empty string won't trigger ReadsOnly section
 TRIO=""
 K_LEN=21
@@ -39,10 +42,9 @@ while getopts ":ho:ltm:p:k:c:g:" arg; do
         o) # name for RunID and output directory, default assembly filename
             OUT_PREFIX="${OPTARG}"
             ;;
-        l) # flag for writing leftover ReadsOnly files
-            # any string will do
-            READS_ONLY="l" 
-            ;;
+        d) # second haplotype assembly fasta
+            ASM2_FA="${OPTARG}"
+            DIPLOID="-diploid"
         t) # flag for trio binning hapmer analysis
             TRIO="t"
             ;;
@@ -51,6 +53,10 @@ while getopts ":ho:ltm:p:k:c:g:" arg; do
             ;;
         p) # paternal read file used in trio binning
             PATERNAL="${OPTARG}"
+            ;;
+        l) # flag for writing leftover ReadsOnly files
+            # any string will do
+            READS_ONLY="l" 
             ;;
         k) # kmer length for reads meryl
             K_LEN=${OPTARG}
@@ -68,7 +74,7 @@ while getopts ":ho:ltm:p:k:c:g:" arg; do
 done
 
 [[ -f $READS_FASTQ ]] || { echo "Can't find reads file ${READS_FASTQ}"; usage; }
-[[ -f $ASM_FASTA ]] || { echo "Can't find assembly file ${ASM_FASTA}"; usage; }
+[[ -f $ASM_FA ]] || { echo "Can't find assembly file ${ASM_FA}"; usage; }
 [[ -d $FCG_PATH ]] || { echo "Can't find FlyComparativeGenomics repo at $FCG_PATH"; usage; }
 
 if [[ -n $TRIO ]]; then
@@ -76,8 +82,15 @@ if [[ -n $TRIO ]]; then
     find $PATERNAL -quit &> /dev/null || { echo "Can't find reads file ${PATERNAL}"; usage; }
 fi
 
+if [[ -n $TRIO && -z $DIPLOID ]]; then
+    echo -e "\n\nWARNING: Trio mode but no second assembly provided. Did you mean to include -d ASM2.fa???\n\n"
+    sleep 10
+fi
+
+OUT_PREFIX=${OUT_PREFIX}${DIPLOID}
+
 echo -e "Running meryl and merqury with k=${K_LEN} on reads:\n ${READS_FASTQ}"
-echo -e "and assembly:\n ${ASM_FASTA}\nRun in :\n $PWD"
+echo -e "and assembly:\n ${ASM_FA}\nRun in :\n $PWD"
 echo -e "with merqury output prefix ${OUT_PREFIX}"
 
 if [[ -n $READS_ONLY ]]; then
@@ -102,7 +115,7 @@ sbatch --job-name="Meryl-${OUT_PREFIX}" \
     -n ${N_THREAD} \
     -o "Meryl-${OUT_PREFIX}.stdout.%j.%N" \
     -e "Meryl-${OUT_PREFIX}.stderr.%j.%N" \
-    --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FASTA=${ASM_FASTA},K_LEN=${K_LEN},\
+    --export=ALL,READS_FASTQ=${READS_FASTQ},ASM_FA=${ASM_FA},ASM2_FA=${ASM2_FA},K_LEN=${K_LEN},\
 MERQURY_OUT=${OUT_PREFIX},READS_ONLY=${READS_ONLY},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH},\
 TRIO=${TRIO},MATERNAL="${MATERNAL}",PATERNAL="${PATERNAL}" \
     ${FCG_PATH}/VPGRU-meryl_merqury_TEMPLATE.slurm
