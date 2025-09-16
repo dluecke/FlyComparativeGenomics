@@ -4,7 +4,7 @@
 
 usage() { 
     echo "USAGE: $0 [-h|-o|-d|-t<-m-p>|-l|-k|-c|-g] READS.FASTQ ASSEMBLY.FASTA"
-    echo "  -o STRING FCS output directory, default ASSEMBLYNAME"
+    echo "  -o STRING output prefix, default ASSEMBLYNAME"
     echo "  -d HAP2.FASTA run on diploid mode with HAP2.FASTA assembly and append -diploid to outname"
     echo "  -t FLAG do trio binning hapmer steps, REQUIRES:"
     echo "    -m MATERNAL_READS.FASTQ (quote globs)"
