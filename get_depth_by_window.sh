@@ -18,7 +18,7 @@ else
 fi
 
 
-awk -v win=$WINDOW -v OFS='\t' '{w=int($2/win)} {print $0, $1"-"w}' $DEPTHFILE > $DEPTHFILE-${WIN_KB}kb_windows.tsv
+awk -v win=$WINDOW -v OFS='\t' '{w=int($2/win)} {print $0, $1":"w}' $DEPTHFILE > $DEPTHFILE-${WIN_KB}kb_windows.tsv
 
 awk -v OFS='\t' '{
    sum[$4] += $3; count[$4]++
@@ -29,7 +29,7 @@ awk -v OFS='\t' '{
     } 
 }' $DEPTHFILE-${WIN_KB}kb_windows.tsv | \
     awk -v OFS='\t' '{
-        split($1, arr, "-")
+        split($1, arr, ":")
     } {
         print length(arr[1]), arr[1], arr[2], $0
     }' | \
