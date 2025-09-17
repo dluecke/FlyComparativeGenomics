@@ -4,7 +4,9 @@
 #SBATCH -o "bcf.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "bcf.%j.%N.stderr"
 #SBATCH -c 17
-#SBATCH -p mem
+#SBATCH -p ceres
+#SBATCH --mem-per-cpu=16G
+#SBATCH -t 1-00:00:00
 #SBATCH -N 1
 
 module load samtools/1.17
