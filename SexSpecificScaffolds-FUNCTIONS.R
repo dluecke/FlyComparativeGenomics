@@ -403,8 +403,8 @@ make_df.DepthWindows <- function(INFILE_DEPTH, INFILE_NMASKED,
   row.names(DF.DEPTH_IN) = DF.DEPTH_IN$window
   # build depth df, treating unobserved windows (present in DF.NMASK) as depth 0
   DF.DEPTH <- data.frame(
-    scaffold = rownames(DF.NMASKED) %>% str_split_i(pattern = "-", 1),
-    position = rownames(DF.NMASKED) %>% str_split_i(pattern = "-", 2),
+    scaffold = rownames(DF.NMASKED) %>% str_split_i(pattern = ":", 1),
+    position = rownames(DF.NMASKED) %>% str_split_i(pattern = ":", 2),
     window = row.names(DF.NMASKED),
     nsites = DF.DEPTH_IN[row.names(DF.NMASKED),]$nsites,
     depth = DF.DEPTH_IN[row.names(DF.NMASKED),]$depth,

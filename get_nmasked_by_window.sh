@@ -22,6 +22,6 @@ while read SCAF; do
         WINDOW_LENGTH=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -d '\n' | wc -c)
         WINDOW_MASKED=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -c -d 'N' | wc -c)
         rm tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa
-        echo $SCAF-$i, $WINDOW_LENGTH, $WINDOW_MASKED
+        echo ${SCAF}:$i, $WINDOW_LENGTH, $WINDOW_MASKED
     done
 done < <(grep ">" $HMASM | tr -d '>' | awk '{print $1}') > $HMASM.windows${WIN_KB}kb_nmasked.csv
