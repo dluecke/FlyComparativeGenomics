@@ -37,7 +37,7 @@ N_THREAD=48
 FCG_PATH=~/FlyComparativeGenomics
 
 # get options, including call usage if -h flag
-while getopts ":ho:ltm:p:k:c:g:" arg; do
+while getopts ":ho:d:tm:p:lk:c:g:" arg; do
     case $arg in
         o) # name for RunID and output directory, default assembly filename
             OUT_PREFIX="${OPTARG}"
