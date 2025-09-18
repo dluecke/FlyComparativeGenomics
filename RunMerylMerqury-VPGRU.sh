@@ -45,6 +45,7 @@ while getopts ":ho:ltm:p:k:c:g:" arg; do
         d) # second haplotype assembly fasta
             ASM2_FA="${OPTARG}"
             DIPLOID="-diploid"
+            ;;
         t) # flag for trio binning hapmer analysis
             TRIO="t"
             ;;
