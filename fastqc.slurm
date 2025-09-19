@@ -12,4 +12,4 @@
 
 module load fastqc/0.12.1
 fastqc --version
-fastqc $1
+fastqc -t 32 $1
