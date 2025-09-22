@@ -23,7 +23,6 @@ SEQFILE="${@: -1}"
 #OUT_DIR="$(basename $SEQFILE)-FCSout"
 OUT_DIR="FCS-${SEQFILE%.*}"
 # default run parameters
-CLEAN="c"
 N_THREAD=32
 FCG_PATH=~/FlyComparativeGenomics
 
@@ -85,5 +84,5 @@ sbatch --job-name="FCS-${TAXID}-${OUT_DIR}" \
     -o "FCS-${TAXID}-${OUT_DIR}.stdout.%j.%N" \
     -e "FCS-${TAXID}-${OUT_DIR}.stderr.%j.%N" \
     --export=ALL,IN_SEQFILE=${SEQFILE},OUTDIR=${OUT_DIR},\
-TAXID=${TAXID},CLEAN=${CLEAN},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
+TAXID=${TAXID},THREADS=${N_THREAD},FCG_REPO=${FCG_PATH} \
     ${FCG_PATH}/VPGRU-FCS_screen_TEMPLATE.slurm
