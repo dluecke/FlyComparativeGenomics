@@ -4,7 +4,8 @@
 #SBATCH -o "bwa.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "bwa.%j.%N.stderr"
 #SBATCH -c 32
-#SBATCH -p medium
+#SBATCH -p ceres
+#SBATCH -t 3-00:00:00
 #SBATCH -N 1
 #SBATCH -C INTEL
 
