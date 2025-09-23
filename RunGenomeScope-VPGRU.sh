@@ -28,9 +28,9 @@ SEQFILE="${@: -1}"
 K_LEN=21
 N_CORES=32
 SEQNAME=$(basename $SEQFILE)
-[[ "$SEQNAME" == *".bam" ]] && RUN_ID="${SEQNAME%%.bam}"
-[[ "$SEQNAME" == *".fq" ]] && RUN_ID="${SEQNAME%%.fq}"
-[[ "$SEQNAME" == *".fastq" ]] && RUN_ID="${SEQNAME%%.fastq}"
+[[ "$SEQNAME" == *".gz" ]] && RUN_ID="${SEQNAME%.*.gz}"
+[[ -z $RUN_ID ]] && RUN_ID="${SEQNAME%.*}"
+
 
 # get options, including call usage if -h flag
 while getopts ":hk:o:t:" arg; do
