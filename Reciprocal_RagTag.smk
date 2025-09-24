@@ -29,8 +29,8 @@ rule pass1_priF:
         r"""
         mkdir -p pri/female
         cd pri/female
-        ln -s {input.priF} Fpri.fa
-        ln -s {input.priM} Mpri.fa
+        ln -s {input.priF} Fpri.fa 2> /dev/null
+        ln -s {input.priM} Mpri.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mpri.fa Fpri.fa {input.readsF} 1 >> ../../{log.stdout} 2>> ../../{log.stderr}
         cd ../..
         """
@@ -49,8 +49,8 @@ rule pass1_priM:
         r"""
         mkdir -p pri/male
         cd pri/male
-        ln -s {input.priF} Fpri.fa
-        ln -s {input.priM} Mpri.fa
+        ln -s {input.priF} Fpri.fa 2> /dev/null
+        ln -s {input.priM} Mpri.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fpri.fa Mpri.fa {input.readsM} 1 >> ../../{log.stdout} 2>> ../../{log.stderr}
         cd ../..
         """
@@ -70,8 +70,8 @@ rule pass1_hapsF1:
         r"""
         mkdir -p haps_female/hap1
         cd haps_female/hap1
-        ln -s {input.hap1} Fh1.fa
-        ln -s {input.hap2} Fh2.fa
+        ln -s {input.hap1} Fh1.fa 2> /dev/null
+        ln -s {input.hap2} Fh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fh2.fa Fh1.fa {input.reads} 1 >> ../../{log.stdout} 2>> ../../{log.stderr}
         cd ../..
         """
@@ -90,8 +90,8 @@ rule pass1_hapsF2:
         r"""
         mkdir -p haps_female/hap2
         cd haps_female/hap2
-        ln -s {input.hap1} Fh1.fa
-        ln -s {input.hap2} Fh2.fa
+        ln -s {input.hap1} Fh1.fa 2> /dev/null
+        ln -s {input.hap2} Fh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fh1.fa Fh2.fa {input.reads} 1 >> ../../{log.stdout} 2>> ../../{log.stderr}
         cd ../..
         """
@@ -111,8 +111,8 @@ rule pass1_hapsM1:
         r"""
         mkdir -p haps_male/hap1
         cd haps_male/hap1
-        ln -s {input.hap1} Mh1.fa
-        ln -s {input.hap2} Mh2.fa
+        ln -s {input.hap1} Mh1.fa 2> /dev/null
+        ln -s {input.hap2} Mh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mh2.fa Mh1.fa {input.reads} 1 >> ../../{log.stdout} 2>> ../../{log.stderr}
         cd ../..
         """
@@ -131,8 +131,8 @@ rule pass1_hapsM2:
         r"""
         mkdir -p haps_male/hap2
         cd haps_male/hap2
-        ln -s {input.hap1} Mh1.fa
-        ln -s {input.hap2} Mh2.fa
+        ln -s {input.hap1} Mh1.fa 2> /dev/null
+        ln -s {input.hap2} Mh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mh1.fa Mh2.fa {input.reads} 1 >> ../../{log.stdout} 2>> ../../{log.stderr}
         cd ../..
         """
@@ -156,8 +156,8 @@ rule pass2_F_first1_pri:
         r"""
         mkdir -p pri_haps-female/first_hap1/pri
         cd pri_haps-female/first_hap1/pri
-        ln -s ../../../{input.pri} Fp_RT1Mp.fa
-        ln -s ../../../{input.hap1} Fh1_RT1Fh2.fa
+        ln -s ../../../{input.pri} Fp_RT1Mp.fa 2> /dev/null
+        ln -s ../../../{input.hap1} Fh1_RT1Fh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fh1_RT1Fh2.fa Fp_RT1Mp.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -178,8 +178,8 @@ rule pass2_F_first1_hap:
         r"""
         mkdir -p pri_haps-female/first_hap1/hap1
         cd pri_haps-female/first_hap1/hap1
-        ln -s ../../../{input.pri} Fp_RT1Mp.fa
-        ln -s ../../../{input.hap1} Fh1_RT1Fh2.fa
+        ln -s ../../../{input.pri} Fp_RT1Mp.fa 2> /dev/null
+        ln -s ../../../{input.hap1} Fh1_RT1Fh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fp_RT1Mp.fa Fh1_RT1Fh2.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -201,8 +201,8 @@ rule pass2_F_first2_pri:
         r"""
         mkdir -p pri_haps-female/first_hap2/pri
         cd pri_haps-female/first_hap2/pri
-        ln -s ../../../{input.pri} Fp_RT1Mp.fa
-        ln -s ../../../{input.hap2} Fh2_RT1Fh1.fa
+        ln -s ../../../{input.pri} Fp_RT1Mp.fa 2> /dev/null
+        ln -s ../../../{input.hap2} Fh2_RT1Fh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fh2_RT1Fh1.fa Fp_RT1Mp.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -223,8 +223,8 @@ rule pass2_F_first2_hap:
         r"""
         mkdir -p pri_haps-female/first_hap2/hap2
         cd pri_haps-female/first_hap2/hap2
-        ln -s ../../../{input.pri} Fp_RT1Mp.fa
-        ln -s ../../../{input.hap2} Fh2_RT1Fh1.fa
+        ln -s ../../../{input.pri} Fp_RT1Mp.fa 2> /dev/null
+        ln -s ../../../{input.hap2} Fh2_RT1Fh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fp_RT1Mp.fa Fh2_RT1Fh1.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -246,8 +246,8 @@ rule pass2_M_first1_pri:
         r"""
         mkdir -p pri_haps-male/first_hap1/pri
         cd pri_haps-male/first_hap1/pri
-        ln -s ../../../{input.pri} Mp_RT1Fp.fa
-        ln -s ../../../{input.hap1} Mh1_RT1Mh2.fa
+        ln -s ../../../{input.pri} Mp_RT1Fp.fa 2> /dev/null
+        ln -s ../../../{input.hap1} Mh1_RT1Mh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mh1_RT1Mh2.fa Mp_RT1Fp.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -268,8 +268,8 @@ rule pass2_M_first1_hap:
         r"""
         mkdir -p pri_haps-male/first_hap1/hap1
         cd pri_haps-male/first_hap1/hap1
-        ln -s ../../../{input.pri} Mp_RT1Fp.fa
-        ln -s ../../../{input.hap1} Mh1_RT1Mh2.fa
+        ln -s ../../../{input.pri} Mp_RT1Fp.fa 2> /dev/null
+        ln -s ../../../{input.hap1} Mh1_RT1Mh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mp_RT1Fp.fa Mh1_RT1Mh2.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -291,8 +291,8 @@ rule pass2_M_first2_pri:
         r"""
         mkdir -p pri_haps-male/first_hap2/pri
         cd pri_haps-male/first_hap2/pri
-        ln -s ../../../{input.pri} Mp_RT1Fp.fa
-        ln -s ../../../{input.hap2} Mh2_RT1Mh1.fa
+        ln -s ../../../{input.pri} Mp_RT1Fp.fa 2> /dev/null
+        ln -s ../../../{input.hap2} Mh2_RT1Mh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mh2_RT1Mh1.fa Mp_RT1Fp.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -313,8 +313,8 @@ rule pass2_M_first2_hap:
         r"""
         mkdir -p pri_haps-male/first_hap2/hap2
         cd pri_haps-male/first_hap2/hap2
-        ln -s ../../../{input.pri} Mp_RT1Fp.fa
-        ln -s ../../../{input.hap2} Mh2_RT1Mh1.fa
+        ln -s ../../../{input.pri} Mp_RT1Fp.fa 2> /dev/null
+        ln -s ../../../{input.hap2} Mh2_RT1Mh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mp_RT1Fp.fa Mh2_RT1Mh1.fa {input.reads} 2 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -338,8 +338,8 @@ rule pass3_F_second1_pri:
         r"""
         mkdir -p pri_haps-female/second_hap1/pri
         cd pri_haps-female/second_hap1/pri
-        ln -s ../../../{input.pri} Fp_RT2MpFh2.fa
-        ln -s ../../../{input.hap} Fh1_RT1Fh2.fa
+        ln -s ../../../{input.pri} Fp_RT2MpFh2.fa 2> /dev/null
+        ln -s ../../../{input.hap} Fh1_RT1Fh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fh1_RT1Fh2.fa Fp_RT2MpFh2.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -360,8 +360,8 @@ rule pass3_F_second1_hap:
         r"""
         mkdir -p pri_haps-female/second_hap1/hap1
         cd pri_haps-female/second_hap1/hap1
-        ln -s ../../../{input.pri} Fp_RT2MpFh2.fa
-        ln -s ../../../{input.hap} Fh1_RT1Fh2.fa
+        ln -s ../../../{input.pri} Fp_RT2MpFh2.fa 2> /dev/null
+        ln -s ../../../{input.hap} Fh1_RT1Fh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fp_RT2MpFh2.fa Fh1_RT1Fh2.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -383,8 +383,8 @@ rule pass3_F_second2_pri:
         r"""
         mkdir -p pri_haps-female/second_hap2/pri
         cd pri_haps-female/second_hap2/pri
-        ln -s ../../../{input.pri} Fp_RT2MpFh1.fa
-        ln -s ../../../{input.hap} Fh2_RT1Fh1.fa
+        ln -s ../../../{input.pri} Fp_RT2MpFh1.fa 2> /dev/null
+        ln -s ../../../{input.hap} Fh2_RT1Fh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fh2_RT1Fh1.fa Fp_RT2MpFh1.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -405,8 +405,8 @@ rule pass3_F_second2_hap:
         r"""
         mkdir -p pri_haps-female/second_hap2/hap2
         cd pri_haps-female/second_hap2/hap2
-        ln -s ../../../{input.pri} Fp_RT2MpFh1.fa
-        ln -s ../../../{input.hap} Fh2_RT1Fh1.fa
+        ln -s ../../../{input.pri} Fp_RT2MpFh1.fa 2> /dev/null
+        ln -s ../../../{input.hap} Fh2_RT1Fh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Fp_RT2MpFh1.fa Fh2_RT1Fh1.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -428,8 +428,8 @@ rule pass3_M_second1_pri:
         r"""
         mkdir -p pri_haps-male/second_hap1/pri
         cd pri_haps-male/second_hap1/pri
-        ln -s ../../../{input.pri} Mp_RT2FpMh2.fa
-        ln -s ../../../{input.hap} Mh1_RT1Mh2.fa
+        ln -s ../../../{input.pri} Mp_RT2FpMh2.fa 2> /dev/null
+        ln -s ../../../{input.hap} Mh1_RT1Mh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mh1_RT1Mh2.fa Mp_RT2FpMh2.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -450,8 +450,8 @@ rule pass3_M_second1_hap:
         r"""
         mkdir -p pri_haps-male/second_hap1/hap1
         cd pri_haps-male/second_hap1/hap1
-        ln -s ../../../{input.pri} Mp_RT2FpMh2.fa
-        ln -s ../../../{input.hap} Mh1_RT1Mh2.fa
+        ln -s ../../../{input.pri} Mp_RT2FpMh2.fa 2> /dev/null
+        ln -s ../../../{input.hap} Mh1_RT1Mh2.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mp_RT2FpMh2.fa Mh1_RT1Mh2.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -473,8 +473,8 @@ rule pass3_M_second2_pri:
         r"""
         mkdir -p pri_haps-male/second_hap2/pri
         cd pri_haps-male/second_hap2/pri
-        ln -s ../../../{input.pri} Mp_RT2FpMh1.fa
-        ln -s ../../../{input.hap} Mh2_RT1Mh1.fa
+        ln -s ../../../{input.pri} Mp_RT2FpMh1.fa 2> /dev/null
+        ln -s ../../../{input.hap} Mh2_RT1Mh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mh2_RT1Mh1.fa Mp_RT2FpMh1.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
@@ -495,8 +495,8 @@ rule pass3_M_second2_hap:
         r"""
         mkdir -p pri_haps-male/second_hap2/hap2
         cd pri_haps-male/second_hap2/hap2
-        ln -s ../../../{input.pri} Mp_RT2FpMh1.fa
-        ln -s ../../../{input.hap} Mh2_RT1Mh1.fa
+        ln -s ../../../{input.pri} Mp_RT2FpMh1.fa 2> /dev/null
+        ln -s ../../../{input.hap} Mh2_RT1Mh1.fa 2> /dev/null
         {config[repo_location]}/Reciprocal_RagTag.sh Mp_RT2FpMh1.fa Mh2_RT1Mh1.fa {input.reads} 3 >> ../../../{log.stdout} 2>> ../../../{log.stderr}
         cd ../../..
         """
