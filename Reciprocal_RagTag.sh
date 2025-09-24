@@ -36,6 +36,12 @@ module load samtools/1.17
 # location of FlyComparativeGenomics/ for RagTagShield-writeGFF.R, gfastats.slurm, 
 GIT_REPOS=~
 
+# Print message for start of jobs, smk pipeline appends to a continuous log so want to distinguish runs
+echo -e "\n\n======================================" | tee /dev/stderr
+date | tee /dev/stderr
+echo -e "Starting new Reciprocal_RagTag job.\nREF_ASM:\
+ ${REF_ASM}\nQRY_ASM: ${QRY_ASM}\nQRY_READS: ${QRY_READS}\nPASS_TAG: ${PASS_TAG}\n\n" | tee /dev/stderr
+
 # ROUND 1 - rescaffold QRY_ASM based on REF_ASM
 
 # Check for prior successful round1 run using ragtag_round1-pct_chrs.txt, if round1 successful will return integer
