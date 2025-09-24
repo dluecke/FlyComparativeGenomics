@@ -36,11 +36,9 @@ module load samtools/1.17
 # location of FlyComparativeGenomics/ for RagTagShield-writeGFF.R, gfastats.slurm, 
 GIT_REPOS=~
 
-# Print message for start of jobs, smk pipeline appends to a continuous log so want to distinguish runs
-echo -e "\n\n======================================" | tee /dev/stderr
-date | tee /dev/stderr
-echo -e "Starting new Reciprocal_RagTag job.\nREF_ASM:\
- ${REF_ASM}\nQRY_ASM: ${QRY_ASM}\nQRY_READS: ${QRY_READS}\nPASS_TAG: ${PASS_TAG}\n\n" | tee /dev/stderr
+# assembly names
+REFASM_FILENAME=$(basename $REF_ASM)
+QRYASM_FILENAME=$(basename $QRY_ASM)
 
 # ROUND 1 - rescaffold QRY_ASM based on REF_ASM
 
@@ -50,14 +48,14 @@ R1_CHR_N=$(grep --no-messages ChromNumber ragtag_round1-pct_chrs.txt | cut -f2)
 # skip round 1 if integer round 1 chromosome count and round 1 output exists
 if [[ $R1_CHR_N =~ $re_int && -f ragtag_output-round1/ragtag.scaffold.fasta ]]; then
 
-  echo -n "\nFound output from successful round 1."
-  echo "Skipping to round 2 using ${QRY_ASM} and ragtag_output-round1/ragtag.scaffold.fasta"
+  echo -e "\nFound output from successful round 1."
+  echo "Skipping to round 2 with"
+  echo -e "REF: ${QRY_ASM}\nQRY: ragtag_output-round1/ragtag.scaffold.fasta\n"
 
 else
 
   # Alignment between ref and qry for RagTagShield
-  REFASM_FILENAME=$(basename $REF_ASM)
-  QRYASM_FILENAME=$(basename $QRY_ASM)
+
   ALIGNMENT1_NAME=${REFASM_FILENAME%.*}-vs-${QRYASM_FILENAME%.*}-c5000
 
   echo -e "\nRunning genome alignment to identify regions to preserve in $QRY_ASM"
