@@ -27,7 +27,7 @@ THREADS=32
 echo "Mapping reads:"
 cat $3
 echo "onto assembly $ASSEMBLY with bwa_mem2"
-which bwa_mem2
+which bwa-mem2
 echo -e "\nCalculating depth with samtools"
 which samtools
 
