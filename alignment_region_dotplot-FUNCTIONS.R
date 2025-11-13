@@ -185,6 +185,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
                          MAX_REF_LENGTH = F, MAX_QRY_LENGTH = F,
                          REF_LIM = NULL, QRY_LIM = NULL, # akin to xlim, ylim - takes c(START, STOP) coordinates
                          TIC_LABELS = FALSE, TIC_COUNT = 40, 
+                         ORIENTATION = T, MATCH_PCT = F,
                          DROP_EMPTY_SCAFFOLDS = T, FLIP_AXES = F, COORD_OFFSET = 0.02,
                          LINEWIDTH = 1, ALPHA = 0.25, POINTSIZE = 0.8,
                          SEQLABANGLE = 45,
@@ -321,21 +322,47 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
       YPOS = "right"
     }
     
+    
+    # map orientation color by default, supress if requested
+    if( ORIENTATION ){
     # only want match % to map to linewidth if pctID is variable (taken from newer .coords input path)
-    if(min(DF_COORDS$pctID) < 100){
-      p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
-        geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
-        scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
-        labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
+      if(min(DF_COORDS$pctID) < 100 && MATCH_PCT){
+        p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
+          scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
+          labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
+      } else {
+        p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_segment(aes(xend=R2, yend=Q2, color = orientation), linewidth = LINEWIDTH) +
+          labs(x=LAB_REF, y=LAB_QRY)
+      }
+      p1 <- p + 
+        geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
+        geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
+        # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
+        # so set manually to keep consistent, but still use the nice palette
+        scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
+                                      "reverse" = brewer.pal(3,"Dark2")[2])) 
+    
+    # supress orientation mapping
     } else {
-      p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
-        geom_segment(aes(xend=R2, yend=Q2, color = orientation), linewidth = LINEWIDTH) +
-        labs(x=LAB_REF, y=LAB_QRY)
+      if(min(DF_COORDS$pctID) < 100 && MATCH_PCT){
+        p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_segment(aes(xend=R2, yend=Q2, linewidth = pctID), color = "grey30") +
+          scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
+          labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
+      } else {
+        p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_segment(aes(xend=R2, yend=Q2), color = "grey30", linewidth = LINEWIDTH) +
+          labs(x=LAB_REF, y=LAB_QRY)
+      }
+      p1 <- p + 
+        geom_point(alpha=ALPHA, size=POINTSIZE, color = "grey30") +
+        geom_point(aes(x=R2, y=Q2), color = "grey30", alpha=ALPHA, size=POINTSIZE)
     }
     
-    p2 <- p + 
-      geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
-      geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
+    
+    p2 <- p1 +
       geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=QRY_MIN, yend=QRY_MAX), 
                    aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) + 
       geom_segment(data = data.frame(x=REF_MIN, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
@@ -346,11 +373,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
       scale_y_continuous(breaks = c(QRY_STARTPOS, df.QRY_TICS$position),
                          labels = c(QRY_SEQNAMES, rep("", nrow(df.QRY_TICS))), position = YPOS,
                          minor_breaks = NULL ) + 
-      guides(color = guide_legend(override.aes = list(linewidth = LINEWIDTH))) +
-      # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
-      # so set manually to keep consistent, but still use the nice palette
-      scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
-                                    "reverse" = brewer.pal(3,"Dark2")[2])) + 
+      guides(color = guide_legend(override.aes = list(linewidth = LINEWIDTH))) + 
       theme_minimal() 
     
     if( TIC_LABELS ){
