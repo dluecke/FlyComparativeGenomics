@@ -27,7 +27,8 @@ ASM=$1
 HIC_R1=$2
 HIC_R2=$3
 
-HIC_BAM=${ASM%.*}.HiC.bam
+ASM_FN=$(basename $ASM)
+HIC_BAM=${ASM_FN%.*}.HiC.bam
 
 date
 
