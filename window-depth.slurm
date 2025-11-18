@@ -4,7 +4,8 @@
 #SBATCH -o "win_depth-%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "win_depth-%j.%N.stderr"
 #SBATCH -c 2
-#SBATCH -p short
+#SBATCH -p ceres
+#SBATCH -t 4:00:00
 #SBATCH -N 1
 
 date
