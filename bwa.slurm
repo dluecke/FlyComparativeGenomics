@@ -24,6 +24,8 @@ INDEX=$2 # prefix string for index
 SAMPLES=$3 # READS.tsv samples file
 THREADS=32
 
+ASSEMBLY_FN=$(basename $ASSEMBLY) # assembly file name for out prefix
+
 echo "Mapping reads:"
 cat $3
 echo "onto assembly $ASSEMBLY with bwa_mem2"
@@ -42,7 +44,7 @@ Map_GetDepths() {
   SAMPLE=$1
   R1=$2
   R2=$3
-  OUT="${ASSEMBLY%.f*a}.$SAMPLE"
+  OUT="${ASSEMBLY_FN%.f*a}.$SAMPLE"
   echo -e "\nAligning sample $SAMPLE to $INDEX, command:"
   echo " bwa-mem2 mem -t $THREADS $INDEX $R1 $R2 | samtools sort -o $OUT.bam"
   bwa-mem2 mem -t $THREADS $INDEX $R1 $R2 | samtools sort -o $OUT.bam
