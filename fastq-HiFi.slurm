@@ -17,9 +17,9 @@ BAM=$1
 FQ_OUT=$(basename ${BAM%.*}.fastq.gz)
 
 echo -e "\nUsing samtools fastq to convert ${BAM} to $FQ_OUT"
-echo -e "\nCommand:\n samtools fastq -c 6 --threads 3 ${BAM} > $FQ_OUT"
-# compression -c 6 is default for gzip
-samtools fastq -c 6 --threads 3 ${BAM} > $FQ_OUT
+echo -e "\nCommand:\n samtools fastq --threads 3 ${BAM} | gzip > $FQ_OUT"
+
+samtools fastq --threads 3 ${BAM} | gzip > $FQ_OUT
 
 date
 samtools --version
