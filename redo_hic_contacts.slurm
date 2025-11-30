@@ -44,7 +44,8 @@ HIC_R2=$3
 
 NCORE=16
 
-CTG_ASM=${SCAF_ASM%.*}.split.fa
+SCAF_ASM_FN=$(basename $SCAF_ASM)
+CTG_ASM=${SCAF_ASM_FN%.*}.split.fa
 HIC_BAM=${CTG_ASM%.*}.HiC.bam
 
 date
