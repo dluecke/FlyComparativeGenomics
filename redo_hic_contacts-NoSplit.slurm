@@ -75,7 +75,7 @@ echo -e "Generating BAM stats file. Command:\n samtools stats $HIC_BAM > $HIC_BA
 samtools stats $HIC_BAM > $HIC_BAM.stats
 
 echo -e "\nWriting files ${SCAF_ASM_FN%.*}.agp and ${SCAF_ASM_FN%.*}.assembly with juicebox_scripts:"
-grep -H version $SOFTWARE_DIR/juicebox_scripts/juicebox_scripts/setup.py
+grep -H version $SOFTWARE_DIR/juicebox_scripts/setup.py
 echo -e "\ncommands:\n $SOFTWARE_DIR/juicebox_scripts/juicebox_scripts/makeAgpFromFasta.py\
  $SCAF_ASM_FN ${SCAF_ASM_FN%.*}.agp"
 echo -e " $SOFTWARE_DIR/juicebox_scripts/juicebox_scripts/agp2assembly.py\
@@ -102,12 +102,12 @@ echo -e "\nMaking contacts file ${SCAF_ASM_FN%.*}.JBAT.hic using juicer_tools si
 echo -e "command:\n singularity exec $SOFTWARE_DIR/NextflowSingularityLibrary/dmolik-juicer-tools.img\
  java -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar\
  pre ${SCAF_ASM_FN%.*}.JBAT.txt ${SCAF_ASM_FN%.*}.JBAT.hic.part\
- <(cat ${SCAF_ASM_FN%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print $2" "$3}') &&\
+ <(cat ${SCAF_ASM_FN%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print \$2" "\$3}') &&\
  mv ${SCAF_ASM_FN%.*}.JBAT.hic.part ${SCAF_ASM_FN%.*}.JBAT.hic"
 
 singularity exec $SOFTWARE_DIR/NextflowSingularityLibrary/dmolik-juicer-tools.img java \
   -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar pre ${SCAF_ASM_FN%.*}.JBAT.txt ${SCAF_ASM_FN%.*}.JBAT.hic.part \
-  <(cat ${SCAF_ASM_FN%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print $2" "$3}') && \
+  <(cat ${SCAF_ASM_FN%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print $2\" \"$3}') && \
   mv ${SCAF_ASM_FN%.*}.JBAT.hic.part ${SCAF_ASM_FN%.*}.JBAT.hic
 
 echo -e "\nFinished\n"
