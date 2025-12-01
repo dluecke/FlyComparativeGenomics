@@ -125,5 +125,16 @@ awk '
   fold -w 80 > $CHROMOSOMES.clean
 mv $CHROMOSOMES.clean $CHROMOSOMES
 
+# index new assembly
+samtools faidx $CHROMOSOMES
+
+# can end up with empty sequences if they were fully N before cleanup, want to remove these
+# headers w/o sequence are absent from FAI, so can compare counts and re-write output from FAI if needed
+X=$(cat $CHROMOSOMES.fai | wc -l)
+Y=$(grep ">" $CHROMOSOMES | wc -l)
+if [[ ! $X -eq $Y ]]; then
+    samtools faidx -r <(cut -f1 $CHROMOSOMES.fai) $CHROMOSOMES > tmp.$CHROMOSOMES \
+      && mv tmp.$CHROMOSOMES $CHROMOSOMES
+fi
 
 echo -e "\nChromosome assembly $CHROMOSOMES finished.\nSee $ORDER_OUT for scaffold-to-chromosome relationships"
