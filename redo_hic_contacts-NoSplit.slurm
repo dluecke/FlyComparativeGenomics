@@ -45,7 +45,7 @@ SCAF_ASM_FN=$(basename $SCAF_ASM)
 HIC_BAM=${SCAF_ASM_FN%.*}.HiC.bam
 
 # link for target scaffold assembly
-[[ -f $SCAF_ASM_FN ]] !! ln -s $SCAF_ASM .
+[[ -f $SCAF_ASM_FN ]] || ln -s $SCAF_ASM .
 
 date
 
