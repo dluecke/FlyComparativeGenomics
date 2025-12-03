@@ -110,7 +110,7 @@ echo -e "\nMaking contacts file ${CTG_ASM%.*}.JBAT.hic using juicer_tools singul
 echo -e "command:\n singularity exec $SOFTWARE_DIR/NextflowSingularityLibrary/dmolik-juicer-tools.img\
  java -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar\
  pre ${CTG_ASM%.*}.JBAT.txt ${CTG_ASM%.*}.JBAT.hic.part\
- <(cat ${CTG_ASM%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print $2" "$3}') &&\
+ <(cat ${CTG_ASM%.*}.JBAT/tmp_juicer_pre_JBAT.log | grep PRE_C_SIZE | awk '{print \$2\" \"\$3}') &&\
  mv ${CTG_ASM%.*}.JBAT.hic.part ${CTG_ASM%.*}.JBAT.hic"
 
 singularity exec $SOFTWARE_DIR/NextflowSingularityLibrary/dmolik-juicer-tools.img java \
