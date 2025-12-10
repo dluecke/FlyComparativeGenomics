@@ -106,8 +106,8 @@ sbatch --job-name="pbmm2-${OUT_PREFIX}" \
     --mail-user="${USER}@usda.gov" \
     -p ${SLURM_QUEUE} \
     -n ${N_THREAD} \
-    -o "pbmm2.stdout-${OUT_PREFIX}.%j.%N" \
-    -e "pbmm2.stderr-${OUT_PREFIX}.%j.%N" \
+    -o "pbmm2.${OUT_PREFIX}.%j.%N.stdout" \
+    -e "pbmm2.${OUT_PREFIX}.%j.%N.stderr" \
     --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},N_THREAD=${N_THREAD},SLURM_QUEUE=${SLURM_QUEUE},\
 OUT_PREFIX=${OUT_PREFIX},SAM_OUT=${SAM_OUT},PAF_OUT=${PAF_OUT},GET_DEPTH=${GET_DEPTH},CALL_VARS=${CALL_VARS},GITLOC=${GITLOC} \
     ${GITLOC}/VPGRU-pbmm2_TEMPLATE.slurm

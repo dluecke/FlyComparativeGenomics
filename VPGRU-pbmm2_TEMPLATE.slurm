@@ -26,8 +26,8 @@ echo -e "\nRan on the ${SLURM_QUEUE} partition with $N_THREAD cores"
 echo -e "Job name:\n pbmm2-${OUT_PREFIX}\n"
 
 pbmm2 --version
-echo -e "\nCommand:\n pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
-pbmm2 align --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
+echo -e "\nCommand:\n pbmm2 align -j $N_THREAD --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam\n"
+pbmm2 align -j $N_THREAD --preset HIFI --log-level INFO --sort ${ASM_FASTA} ${HIFI_FOFN} ${OUT_PREFIX}.bam
 echo -e "\n pbmm2 align finished at:"
 date
 
