@@ -11,7 +11,7 @@
 #SBATCH -o "pbmm2.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "pbmm2.%j.%N.stderr"     #optional, prints our standard error
 
-module load smrtlink/13.0.0.207600
+module load smrtlink/25.3.0.273777
 module load samtools
 
 date
