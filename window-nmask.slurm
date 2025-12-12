@@ -5,7 +5,7 @@
 #SBATCH -e "win_nmask-%j.%N.stderr"
 #SBATCH -c 2
 #SBATCH -p ceres
-#SBATCH -t 12:00:00
+#SBATCH -t 36:00:00
 #SBATCH -N 1
 
 date
