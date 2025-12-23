@@ -17,8 +17,8 @@ VCF=$1
 
 # select heterozygous high quality variants
 echo "extracting heterozygous variants with quality > 100 from $VCF"
-echo "CMD: bcftools view -i 'QUAL>100 && GT="alt"' -Ov -o ${VCF%.*}.alts.vcf $VCF"
-bcftools view -i 'QUAL>100 && GT="alt"' -Ov -o ${VCF%.*}.alts.vcf $VCF
+echo "CMD: bcftools view -i 'QUAL>100 && GT="AA"' -Ov -o ${VCF%.*}.alts.vcf $VCF"
+bcftools view -i 'QUAL>100 && GT="AA"' -Ov -o ${VCF%.*}.alts.vcf $VCF
 
 # write csv counting variant lines per scaffold
 echo "counting variants per scaffold"
