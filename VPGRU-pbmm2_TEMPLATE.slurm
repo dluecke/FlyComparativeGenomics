@@ -37,18 +37,16 @@ echo -e "\nCommand:\n samtools stats ${OUT_PREFIX}.bam > ${OUT_PREFIX}.bam.stats
 samtools stats ${OUT_PREFIX}.bam > ${OUT_PREFIX}.bam.stats
 date
 
+echo -e "\nFiltering ${OUT_PREFIX}.bam for mapping quality >50"
+echo -e "CMD: sbatch samtools_view-q.slurm ${OUT_PREFIX}.bam 50"
+sbatch samtools_view-q.slurm ${OUT_PREFIX}.bam 50
+
 # submit BAM to bcfcall.slurm if requested
 if [[ -n $CALL_VARS ]]; then
     echo -e "\nUsing bcftools to write:\n ${OUT_PREFIX}.bam.vcf\n \
     ${OUT_PREFIX}.bam.nseg_by_scaffold.csv"
     echo -e "Command:\n sbatch bcfcall.slurm ${OUT_PREFIX}.bam ${ASM_FASTA}"
     sbatch bcfcall.slurm ${OUT_PREFIX}.bam ${ASM_FASTA}
-fi
-
-# load samtools if needed
-if [[ -n $SAM_OUT || -n $PAF_OUT || -n $GET_DEPTH ]]; then
-    module load samtools
-    samtools --version
 fi
 
 if [[ -n $SAM_OUT || -n $PAF_OUT ]]; then
