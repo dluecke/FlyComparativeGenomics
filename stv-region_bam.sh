@@ -25,8 +25,8 @@ if [ ! -f ${IN_ALN}.csi ]; then
     samtools index -c $IN_ALN
 fi
 
-# write output bam file
-samtools view -b -o $OUT_BAM $IN_ALN $REGION
+# write output bam file, skip secondary alignments 
+samtools view -F 256 -b -o $OUT_BAM $IN_ALN $REGION
 
 # index output bam
 samtools index $OUT_BAM
