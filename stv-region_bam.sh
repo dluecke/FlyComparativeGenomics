@@ -15,7 +15,7 @@ REGION=$2
   { echo "USAGE: sbatch samtools_view-region.slurm IN.SAM|IN.BAM seq:c1-c2"; exit; }
 
 # convert region syntax seq_N:0-100 to filename syntax seqN_0to100
-REG_TAG=$(echo $REGION | tr -d '_' | tr ':' '_' | sed 's/-/to/')
+REG_TAG=$(echo $REGION | tr -d '_' | tr ':' '_' | sed -E 's/-([0-9])/to\1/')
 
 # output BAM
 OUT_BAM=${IN_ALN%.*}-${REG_TAG}.bam
