@@ -11,6 +11,9 @@
 IN_ALN=$1
 REGION=$2
 
+# match length filter threshold
+FLEN=2000
+
 [[ -n $REGION ]] || \
   { echo "USAGE: sbatch samtools_view-region.slurm IN.SAM|IN.BAM seq:c1-c2"; exit; }
 
@@ -25,8 +28,8 @@ if [ ! -f ${IN_ALN}.csi ]; then
     samtools index -c $IN_ALN
 fi
 
-# write output bam file, skip secondary alignments 
-samtools view -F 256 -b -o $OUT_BAM $IN_ALN $REGION
+# write output bam file, skip secondary alignments, filter for match length > $FLEN 
+samtools view -F 256 -e "rlen >= $FLEN" -b -o $OUT_BAM $IN_ALN $REGION
 
 # index output bam
 samtools index $OUT_BAM
