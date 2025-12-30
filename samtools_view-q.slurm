@@ -38,8 +38,12 @@ date
 # -@ threads used in compression
 # -c use CSI indexing (BAI index breaks when sequence > ~512Mb)
 
-echo -e "\nCMD: samtools view -h -u -q $MAPQ $IN_BAM | samtools sort -@ 7 -o $OUT_BAM\n"
-samtools view -h -u -q $MAPQ $IN_BAM | samtools sort -@ 7 -o $OUT_BAM
+#echo -e "\nCMD: samtools view -h -u -q $MAPQ $IN_BAM | samtools sort -@ 7 -o $OUT_BAM\n"
+#samtools view -h -u -q $MAPQ $IN_BAM | samtools sort -@ 7 -o $OUT_BAM
+samtools view -h -u -e " \
+    mapq >= $MAPQ || ( mapq == 0 && rlen > 1000 && qlen/rlen > 0.9 && qlen/rlen < 1.1 ) \
+    " $IN_BAM \
+    | samtools sort -@ 7 -o $OUT_BAM
 
 echo -e "\nIndexing $OUT_BAM"
 echo -e "CMD: samtools index -c $OUT_BAM\n"
