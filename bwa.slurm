@@ -22,7 +22,9 @@ module load samtools/1.17
 ASSEMBLY=$1 # assembly file
 INDEX=$2 # prefix string for index 
 SAMPLES=$3 # READS.tsv samples file
-THREADS=32
+
+# optional threads/cores given as $4, otherwise default 32 (if using sbatch -c)
+[[ -n $4 ]] && THREADS=$4 || THREADS=32
 
 ASSEMBLY_FN=$(basename $ASSEMBLY) # assembly file name for out prefix
 
