@@ -5,7 +5,7 @@
 #SBATCH -e "fq.%j.%N.stderr"
 #SBATCH -c 4
 #SBATCH -p ceres
-#SBATCH -t 2:00:00
+#SBATCH -t 6:00:00
 #SBATCH -N 1
 
 # script to convert BAM to fastq, intended for HiFi data (not paired)
