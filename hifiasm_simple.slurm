@@ -19,3 +19,6 @@ OUTNAME=$1
 READS=$2
 
 hifiasm -o $OUTNAME -t 32 $READS
+
+# convert to fasta contigs https://hifiasm.readthedocs.io/en/latest/faq.html#how-do-i-get-contigs-in-fasta
+awk '/^S/{print ">"$2;print $3}' $OUTNAME.bp.p_ctg.gfa > $OUTNAME.bp.p_ctg.fa
