@@ -25,8 +25,8 @@ echo "indexing $BAM"
 samtools index -M $BAM
 
 echo "writing VCF file, command:"
-echo "bcftools mpileup --threads 32 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf"
-bcftools mpileup --threads 32 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf
+echo "bcftools mpileup --threads 32 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 32 -cv -Ov -o $BAM.vcf"
+bcftools mpileup --threads 32 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 32 -cv -Ov -o $BAM.vcf
 echo "VCF file done"
 date
 
