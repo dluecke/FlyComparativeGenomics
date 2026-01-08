@@ -3,7 +3,7 @@
 #SBATCH -J bcfcall
 #SBATCH -o "bcf.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "bcf.%j.%N.stderr"
-#SBATCH -c 17
+#SBATCH -c 32
 #SBATCH -p ceres
 #SBATCH --mem-per-cpu=16G
 #SBATCH -t 1-00:00:00
@@ -25,8 +25,8 @@ echo "indexing $BAM"
 samtools index -M $BAM
 
 echo "writing VCF file, command:"
-echo "bcftools mpileup --threads 16 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf"
-bcftools mpileup --threads 16 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf
+echo "bcftools mpileup --threads 32 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf"
+bcftools mpileup --threads 32 -Ou -f $ASSEMBLY $BAM | bcftools call --threads 16 -cv -Ov -o $BAM.vcf
 echo "VCF file done"
 date
 
