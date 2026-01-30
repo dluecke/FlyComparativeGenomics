@@ -9,8 +9,7 @@
 #SBATCH -N 1
 #SBATCH -C INTEL
 
-# USAGE: sbatch path/to/bwa.slurm ASSEMBLY INDEX READS.tsv
-# INDEX the string for bwa index
+# USAGE: sbatch path/to/bwa.slurm ASSEMBLY READS.tsv
 # READS.tsv in this format:
 # SampleID  path/to/R1.fastq    path/to/R2.fastq
 
@@ -20,13 +19,13 @@ module load bwa_mem2/2.2.1
 module load samtools/1.17
 
 ASSEMBLY=$1 # assembly file
-INDEX=$2 # prefix string for index 
-SAMPLES=$3 # READS.tsv samples file
+SAMPLES=$2 # READS.tsv samples file
 
 # optional threads/cores given as $4, otherwise default 32 (if using sbatch -c)
 [[ -n $4 ]] && THREADS=$4 || THREADS=32
 
 ASSEMBLY_FN=$(basename $ASSEMBLY) # assembly file name for out prefix
+INDEX=${ASSEMBLY_FN%.f*a}.bwa
 
 echo "Mapping reads:"
 cat $3
