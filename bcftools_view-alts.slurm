@@ -15,8 +15,8 @@ module load bcftools/1.20
 
 VCF=$1
 
-# select heterozygous high quality variants
-echo "extracting heterozygous variants with quality > 100 from $VCF"
+# select all-alternate (no reference allele present) high quality variants
+echo "extracting all-alternate variants with quality > 100 from $VCF"
 echo "CMD: bcftools view -i 'QUAL>100 && GT="AA"' -Ov -o ${VCF%.*}.alts.vcf $VCF"
 bcftools view -i 'QUAL>100 && GT="AA"' -Ov -o ${VCF%.*}.alts.vcf $VCF
 
