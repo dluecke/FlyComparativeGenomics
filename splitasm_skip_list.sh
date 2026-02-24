@@ -25,7 +25,7 @@ SKIP_LIST_FN=$(basename $SKIP_LIST)
 
 sort $IN_ASM.fai -nr -k2,2 | \
     cut -f1 | \
-    grep -F -f $SKIP_LIST \
+    grep -F -f -w $SKIP_LIST \
     > ${IN_ASM%.*}.${SKIP_LIST_FN%.*}_scaffolds.list
 
 seqtk subseq $IN_ASM ${IN_ASM_FN%.*}.${SKIP_LIST_FN%.*}_scaffolds.list > ${IN_ASM_FN%.*}.scaffolds.fa
