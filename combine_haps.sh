@@ -6,6 +6,6 @@
 
 [ $# -eq 2 ] || { echo "USAGE: combine_haps.sh hap1.fa hap2.fa > diploid.fa"; exit; }
 
-sed 's/>/>h1-/' $1
+sed 's/>/>h1./' $1
 
-sed 's/>/>h2-/' $2
+sed 's/>/>h2./' $2
