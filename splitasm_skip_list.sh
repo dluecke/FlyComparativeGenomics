@@ -32,7 +32,7 @@ seqtk subseq $IN_ASM ${IN_ASM_FN%.*}.${SKIP_LIST_FN%.*}_scaffolds.list > ${IN_AS
 
 sort $IN_ASM.fai -nr -k2,2 | \
     cut -f1 | \
-    grep -v -F -f $SKIP_LIST \
+    grep -v -w -F -f $SKIP_LIST \
     > ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.list
 
 seqtk subseq $IN_ASM ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.list \
