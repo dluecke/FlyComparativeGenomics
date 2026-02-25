@@ -65,7 +65,7 @@ Yahs="" #Yahs will not be run
 
 #Comment/Uncomment for Runner (only select one of)
 #Runner="slurm_usda"
-Runner="slurm_usda_mem"
+Runner="slurm_usda_ceres"
 
 Threads="32"
 
@@ -77,7 +77,13 @@ Busco_Location="" #"-p /project/ag100pest/software/OTB_test/busco"
 Busco_DB="-l diptera_odb10"
 
 # RUNNING OTB (NO MORE TEMPLATE EDITS NEEDED BELOW HERE)
-# Modifications by DL 
+# Modifications by DL
+
+# add -A option to SLURM config (if not already done on earlier run)
+if ! grep -qF -- "vpgru" config/${Runner}.cfg; then
+    sed -i 's/clusterOptions="/clusterOptions="-A vpgru /' config/${Runner}.cfg
+fi
+
 # Singularity path assignment isn't working, pre-installed but need to link them where expected
 mkdir work
 mkdir work/singularity
