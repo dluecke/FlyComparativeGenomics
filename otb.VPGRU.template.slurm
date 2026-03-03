@@ -65,7 +65,8 @@ Yahs="" #Yahs will not be run
 
 #Comment/Uncomment for Runner (only select one of)
 #Runner="slurm_usda"
-Runner="slurm_usda_ceres"
+# a config that works for 2026 ceres requirements, will copy from /project/vpgru/software/Nextflow_config
+Runner="slurm_usda_ceres_2026"
 
 Threads="32"
 
@@ -88,6 +89,9 @@ fi
 mkdir work
 mkdir work/singularity
 ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
+
+# copy ceres 2026 config file
+cp /project/vpgru/software/Nextflow_config/slurm_usda_ceres_2026.cfg config/
 
 # HiFi read processing pre-OTB
 # Current OTB needs a single HiFi input file, so if there's multiple we need to concatenate
