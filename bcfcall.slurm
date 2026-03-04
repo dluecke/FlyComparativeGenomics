@@ -9,6 +9,7 @@
 #SBATCH -t 1-00:00:00
 #SBATCH -N 1
 
+FCG=~/FlyComparativeGenomics
 module load samtools/1.17
 module load bcftools/1.20
 
@@ -31,8 +32,10 @@ echo "VCF file done"
 date
 
 # write csv counting variant lines per scaffold
-echo "counting variants per scaffold, command:"
-echo "grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > $BAM.nseg_by_scaffold.csv"
-grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv
+echo "counting variants per scaffold with $FCG/get_variants_by_sequence.sh"
+$FCG/get_variants_by_sequence.sh $BAM.vcf
+
+#echo "grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > $BAM.nseg_by_scaffold.csv"
+#grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv
 
 date

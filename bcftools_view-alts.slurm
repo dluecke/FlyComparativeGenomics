@@ -11,6 +11,7 @@
 
 # filter VCF for sites homozygous for alternate allele
 
+FCG=~/FlyComparativeGenomics
 module load bcftools/1.20
 
 VCF=$1
@@ -21,8 +22,10 @@ echo "CMD: bcftools view -i 'QUAL>100 && GT="AA"' -Ov -o ${VCF%.*}.alts.vcf $VCF
 bcftools view -i 'QUAL>100 && GT="AA"' -Ov -o ${VCF%.*}.alts.vcf $VCF
 
 # write csv counting variant lines per scaffold
-echo "counting variants per scaffold"
-echo "CMD: grep -a -v ^# ${VCF%.*}.alts.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > ${VCF%.*}.nalts_by_scaffold.csv"
-grep -a -v ^# ${VCF%.*}.alts.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > ${VCF%.*}.nalts_by_scaffold.csv
+echo "counting all-alternate sites per scaffold with $FCG/get_variants_by_sequence.sh"
+$FCG/get_variants_by_sequence.sh ${VCF%.*}.alts.vcf
+
+#echo "CMD: grep -a -v ^# ${VCF%.*}.alts.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > ${VCF%.*}.nalts_by_scaffold.csv"
+#grep -a -v ^# ${VCF%.*}.alts.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > ${VCF%.*}.nalts_by_scaffold.csv
 
 date
