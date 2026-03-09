@@ -40,7 +40,7 @@ seqtk subseq $IN_ASM ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.list \
 
 ragtag.py splitasm -o ${IN_ASM_FN%.*}.${SKIP_LIST_FN%.*}_contigs.agp \
   ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.fa \
-  > ${IN_ASM_FN%.*}.${SKIP_LIST_FN%.*}_contigs.fa
+  > ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_contigs.fa
 
-cat ${IN_ASM%.*}.scaffolds.fa
-cat ${IN_ASM%.*}.${SKIP_LIST_FN%.*}_contigs.fa
+cat ${IN_ASM_FN%.*}.scaffolds.fa
+cat ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_contigs.fa
