@@ -7,8 +7,8 @@
 #SBATCH --job-name="busco5_hyme"
 #SBATCH --mail-user=david.luecke@usda.gov   # email address
 #SBATCH --mail-type=FAIL
-#SBATCH --output="busco5_insecta-%j-%N.stdout" # job standard output file (%j replaced by job id)
-#SBATCH --error="busco5_insecta-%j-%N.stderr" # job standard error file (%j replaced by job id)
+#SBATCH --output="busco5_hymenoptera-%j-%N.stdout" # job standard output file (%j replaced by job id)
+#SBATCH --error="busco5_hymenoptera-%j-%N.stderr" # job standard error file (%j replaced by job id)
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 
