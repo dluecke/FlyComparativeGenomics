@@ -19,6 +19,7 @@ usage() {
     echo "Will take longest partial match of provided scaffold ID"
     echo -e "Outputs assembly files:\n SCAFFOLD-Chromosomes.all.fa\n SCAFFOLD-Chromosomes.fa (purge sequences <1kb)"
     echo -e "and exact scaffold-to-chromosome relationships:\n SCAFFOLDS-chr_assignment.tsv"
+    echo "NOTE: existing copies of these files will be overwritten"
     echo "requires samtools faidx"
     exit
 }
@@ -52,6 +53,8 @@ sort -nr -k2,2 $SCAFFOLDS.fai > $SCAFFOLDS.fai.sort
 
 ### Write chromosomes to new assembly
 
+# delete prior output file (all output is appended)
+> $CHROMOSOMES.all.fa
 # loop through ORDERING, each line as tab sep array
 while IFS=$'\t' read -r -a arr_ORDERING; do
 
@@ -129,14 +132,14 @@ awk '
 mv $CHROMOSOMES.clean.tmp $CHROMOSOMES.all.fa
 
 echo -e "\nWriting final assembly with cleaned sequences >$PURGE_BELOW_BP bps"
-echo "CMD: samtools faidx $CHROMOSOMES.all.fa; awk -v bpthreshold=$PURGE_BELOW_BP '"'$2 > bpthreshold'"'\
+echo "CMD: samtools faidx $CHROMOSOMES.all.fa; awk -v bpthreshold=$PURGE_BELOW_BP '"'$2 > bpthreshold {print $1}'"'\
  $CHROMOSOMES.all.fa.fai > $CHROMOSOMES.final_seqs.txt;\
  samtools faidx -r $CHROMOSOMES.final_seqs.txt $CHROMOSOMES.all.fa > $CHROMOSOMES.fa"
 # index clean assembly
 samtools faidx $CHROMOSOMES.all.fa
 
 # get sequences longer than 1kb
-awk -v bpthreshold=$PURGE_BELOW_BP '$2 > bpthreshold' $CHROMOSOMES.all.fa.fai > $CHROMOSOMES.final_seqs.txt
+awk -v bpthreshold=$PURGE_BELOW_BP '$2 > bpthreshold {print $1}' $CHROMOSOMES.all.fa.fai > $CHROMOSOMES.final_seqs.txt
 
 # write sequences above threshold to final assembly
 samtools faidx -r $CHROMOSOMES.final_seqs.txt $CHROMOSOMES.all.fa > $CHROMOSOMES.fa
