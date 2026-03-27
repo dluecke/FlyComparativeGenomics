@@ -5,11 +5,11 @@
 usage() {
     echo "USAGE: $0 [-o|-g|-h] CTG_ASM.fa[sta] HiC_R1.fq HiC_R2.fq"
     echo "REQUIRED:"
-    echo "  CTG_ASM.fa - contig assembly (input to yahs)"
+    echo "  CTG_ASM.fa - contig assembly"
     echo "  HiC_R[1,2].fq - HiC paired reads"
     echo "OPTIONAL:"
     echo "  -o STRING prefix for curated scaffold output, default CTG_ASM.yahs"
-    echo "      output file STRING.JBAT.final.fa"
+    echo "      output file STRING_scaffolds_final.fa"
     echo "  -g PATH to directory with git repo, default ~"
     echo "  -h FLAG print usage statement"
     exit 0
