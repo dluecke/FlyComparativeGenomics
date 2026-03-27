@@ -29,13 +29,13 @@ AGP="${@: -2:1}"
 REVIEW="${@: -1}"
 
 # call usage if inputs don't look right
-[[ "$CTG_ASM" != *".fa"* ]] && {echo "no FASTA file"; usage; }
-[[ "$HIC_BAM" != *".bam" ]] && {echo "no BAM file"; usage; }
-[[ "$AGP" != *".agp" ]] && {echo "no AGP file"; usage; }
-[[ "$REVIEW" != *".assembly" ]] && {echo "no ASSEMBLY file"; usage; }
+[[ "$CTG_ASM" != *".fa"* ]] && { echo "no FASTA file"; usage; }
+[[ "$HIC_BAM" != *".bam" ]] && { echo "no BAM file"; usage; }
+[[ "$AGP" != *".agp" ]] && { echo "no AGP file"; usage; }
+[[ "$REVIEW" != *".assembly" ]] && { echo "no ASSEMBLY file"; usage; }
 
 # default parameter values
-PREFIX=$(basename ${CTG_ASM%.*})".syahs"
+PREFIX=$(basename ${CTG_ASM%.*})".yahs"
 GITLOC=~
 
 # get options, including call usage if -h or unrecognized flag
