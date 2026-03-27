@@ -9,6 +9,7 @@ usage() {
     echo "  CTG_ASM.fa - contig assembly (input to yahs)"
     echo "  ASM_HIC.bam - BAM alignment of HiC to assembly (used by yahs)"
     echo "  YAHS_OUT.agp - AGP output from yahs (eg *scaffolds_final.agp)"
+    echo "  REVIEW.assembly - ASSEMBLY file output from JBAT curation"
     echo "  -o STRING prefix for curated scaffold output, default CTG_ASM.yahs"
     echo "      output file STRING.JBAT.final.fa"
     echo "  -g PATH to directory with git repo, default ~"
@@ -32,9 +33,23 @@ REVIEW="${@: -1}"
 [[ "$AGP" != *".agp" ]] && (echo "no AGP file"; usage; )
 [[ "$REVIEW" != *".assembly" ]] && (echo "no ASSEMBLY file"; usage; )
 
-
 # default parameter values
 PREFIX=$(basename ${PRI_ASM%.*})".yahs"
 GITLOC=~
+
+# get options, including call usage if -h or unrecognized flag
+while getopts ":hp:o:t:m:" arg; do
+    case $arg in
+        o) # output prefix
+            PREFIX="${OPTARG}"
+            ;;
+        g) # location of git repo
+            GITLOC=${OPTARG}
+            ;;
+        h | *) # print help
+            usage
+            ;;
+    esac
+done
 
 echo "sbatch $GITLOC/FlyComparativeGenomics/VPGRU-JuicerPost_TEMPLATE.slurm $PREFIX $CTG_ASM $HIC_BAM $AGP $REVIEW"
