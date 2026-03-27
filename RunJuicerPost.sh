@@ -10,6 +10,7 @@ usage() {
     echo "  ASM_HIC.bam - BAM alignment of HiC to assembly (used by yahs)"
     echo "  YAHS_OUT.agp - AGP output from yahs (eg *scaffolds_final.agp)"
     echo "  REVIEW.assembly - ASSEMBLY file output from JBAT curation"
+    echo "OPTIONAL:"
     echo "  -o STRING prefix for curated scaffold output, default CTG_ASM.yahs"
     echo "      output file STRING.JBAT.final.fa"
     echo "  -g PATH to directory with git repo, default ~"
@@ -28,13 +29,13 @@ AGP="${@: -2:1}"
 REVIEW="${@: -1}"
 
 # call usage if inputs don't look right
-[[ "$CTG_ASM" != *".fa"* ]] && (echo "no FASTA file"; usage; )
-[[ "$HIC_BAM" != *".bam" ]] && (echo "no BAM file"; usage; )
-[[ "$AGP" != *".agp" ]] && (echo "no AGP file"; usage; )
-[[ "$REVIEW" != *".assembly" ]] && (echo "no ASSEMBLY file"; usage; )
+[[ "$CTG_ASM" != *".fa"* ]] && {echo "no FASTA file"; usage; }
+[[ "$HIC_BAM" != *".bam" ]] && {echo "no BAM file"; usage; }
+[[ "$AGP" != *".agp" ]] && {echo "no AGP file"; usage; }
+[[ "$REVIEW" != *".assembly" ]] && {echo "no ASSEMBLY file"; usage; }
 
 # default parameter values
-PREFIX=$(basename ${PRI_ASM%.*})".yahs"
+PREFIX=$(basename ${CTG_ASM%.*})".syahs"
 GITLOC=~
 
 # get options, including call usage if -h or unrecognized flag
