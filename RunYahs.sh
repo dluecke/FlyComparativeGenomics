@@ -48,4 +48,5 @@ while getopts ":hp:o:t:m:" arg; do
     esac
 done
 
-echo "sbatch $GITLOC/FlyComparativeGenomics/VPGRU-YaHS_TEMPLATE.slurm $PREFIX $CTG_ASM $HIC_R1 $HIC_R2"
+echo -e "submitting:\n sbatch $GITLOC/FlyComparativeGenomics/VPGRU-YaHS_TEMPLATE.slurm $PREFIX $CTG_ASM $HIC_R1 $HIC_R2"
+sbatch $GITLOC/FlyComparativeGenomics/VPGRU-YaHS_TEMPLATE.slurm $PREFIX $CTG_ASM $HIC_R1 $HIC_R2
