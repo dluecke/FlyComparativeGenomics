@@ -17,7 +17,7 @@ else
     OUTFILE="$DEPTHFILE.depth_by_windows${WIN_KB}kb.tsv"
 fi
 
-
+# write tmp file with window ID as last column, skipping header rows (start with #)
 awk -v win=$WINDOW -v OFS='\t' '/^ *#/ {next} {w=int($2/win)} {print $0, $1":"w}' $DEPTHFILE \
  > $DEPTHFILE-${WIN_KB}kb_windows.tsv.tmp
 
