@@ -53,8 +53,9 @@ sort -nr -k2,2 $SCAFFOLDS.fai > $SCAFFOLDS.fai.sort
 
 ### Write chromosomes to new assembly
 
-# delete prior output file (all output is appended)
+# delete prior output files (all output is appended)
 > $CHROMOSOMES.all.fa
+> $ORDER_OUT
 # loop through ORDERING, each line as tab sep array
 while IFS=$'\t' read -r -a arr_ORDERING; do
 
