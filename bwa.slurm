@@ -64,8 +64,5 @@ Map_GetDepths() {
 }
 
 while read SAMPLE_LINE; do
-    S=$(echo $SAMPLE_LINE | cut -f1)
-    R1=$(echo $SAMPLE_LINE | cut -f2)
-    R2=$(echo $SAMPLE_LINE | cut -f3)
-    Map_GetDepths $S $R1 $R2
+    Map_GetDepths $SAMPLE_LINE
 done < $SAMPLES
