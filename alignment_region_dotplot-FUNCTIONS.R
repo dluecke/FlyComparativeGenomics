@@ -185,7 +185,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
                          MAX_REF_LENGTH = F, MAX_QRY_LENGTH = F,
                          REF_LIM = NULL, QRY_LIM = NULL, # akin to xlim, ylim - takes c(START, STOP) coordinates
                          TIC_LABELS = FALSE, TIC_COUNT = 40, 
-                         ORIENTATION = T, MATCH_PCT = F,
+                         ORIENTATION = T, MATCH_PCT = T,
                          DROP_EMPTY_SCAFFOLDS = T, FLIP_AXES = F, COORD_OFFSET = 0.02,
                          LINEWIDTH = 1, ALPHA = 0.25, POINTSIZE = 0.8,
                          SEQLABANGLE = 45,
@@ -204,9 +204,9 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     QUERY <- BREAKS_QRY$SeqName
   }
   
-  # filter qry and ref by length
-  REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH]
-  QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH]
+  # filter qry and ref by length, make sure is character vector
+  REFERENCE <- REFERENCE[BREAKS_REF[REFERENCE,]$SeqLength > MIN_REF_LENGTH] %>% as.character()
+  QUERY <- QUERY[BREAKS_QRY[QUERY,]$SeqLength > MIN_QRY_LENGTH] %>% as.character()
   COORDS <- COORDS[((COORDS$ref_SeqName %in% REFERENCE) & (COORDS$qry_SeqName %in% QUERY)),]
   # if filtering for MAX length (by default skip)
   if( is.numeric(MAX_REF_LENGTH) ){
@@ -325,48 +325,54 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     
     # map orientation color by default, supress if requested
     if( ORIENTATION ){
-    # only want match % to map to linewidth if pctID is variable (taken from newer .coords input path)
+      # only want match % to map to size if pctID is variable (taken from newer .coords input path)
       if(min(DF_COORDS$pctID) < 100 && MATCH_PCT){
         p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_point(aes(color=orientation, size = pctID), alpha=ALPHA) + # , size=POINTSIZE) +
+          geom_point(aes(x=R2, y=Q2, color=orientation, size = pctID), alpha=ALPHA) + # , size=POINTSIZE) +
           geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
-          scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
-          labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
+          scale_size_continuous(range = c(0.2, POINTSIZE+0.2)) +
+          scale_linewidth_continuous(range = c(0.2, POINTSIZE+0.2)) +
+          labs(x=LAB_REF, y=LAB_QRY, size = "match %")
       } else {
         p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
+          geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
           geom_segment(aes(xend=R2, yend=Q2, color = orientation), linewidth = LINEWIDTH) +
           labs(x=LAB_REF, y=LAB_QRY)
       }
       p1 <- p + 
-        geom_point(aes(color=orientation), alpha=ALPHA, size=POINTSIZE) +
-        geom_point(aes(x=R2, y=Q2, color=orientation), alpha=ALPHA, size=POINTSIZE) +
+        #scale_linewidth_continuous(range = c(0.2, LINEWIDTH)) +
         # just mapping orientation to color via aes and scale_color_brewer means only-reverse plots use the otherwise "forward" color
         # so set manually to keep consistent, but still use the nice palette
         scale_color_manual(values = c("forward" = brewer.pal(3,"Dark2")[1],
                                       "reverse" = brewer.pal(3,"Dark2")[2])) 
-    
-    # supress orientation mapping
+      
+      # supress orientation mapping
     } else {
       if(min(DF_COORDS$pctID) < 100 && MATCH_PCT){
-        p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
-          geom_segment(aes(xend=R2, yend=Q2, linewidth = pctID), color = "grey30") +
-          scale_linewidth_continuous(range = c(0.4, LINEWIDTH)) +
+        p1 <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_point(aes(size = pctID), alpha=ALPHA, color = "grey30") +
+          geom_point(aes(x=R2, y=Q2, size = pctID), color = "grey30", alpha=ALPHA) +
+          geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID), color = "grey30") +
+          scale_size_continuous(range = c(0.2, POINTSIZE+0.2)) +
+          scale_linewidth_continuous(range = c(0.2, POINTSIZE+0.2)) +
           labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
       } else {
-        p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+        p1 <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
+          geom_point(alpha=ALPHA, size=POINTSIZE, color = "grey30") +
+          geom_point(aes(x=R2, y=Q2), color = "grey30", alpha=ALPHA, size=POINTSIZE) +
           geom_segment(aes(xend=R2, yend=Q2), color = "grey30", linewidth = LINEWIDTH) +
           labs(x=LAB_REF, y=LAB_QRY)
       }
-      p1 <- p + 
-        geom_point(alpha=ALPHA, size=POINTSIZE, color = "grey30") +
-        geom_point(aes(x=R2, y=Q2), color = "grey30", alpha=ALPHA, size=POINTSIZE)
     }
     
     
     p2 <- p1 +
       geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=QRY_MIN, yend=QRY_MAX), 
-                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) + 
+                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25, inherit.aes = F) + 
       geom_segment(data = data.frame(x=REF_MIN, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
-                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25) +
+                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25, inherit.aes = F) +
       scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position), 
                          labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))), position = XPOS,
                          minor_breaks = NULL) +
