@@ -430,6 +430,29 @@ make_df.DepthWindows <- function(INFILE_DEPTH, INFILE_NMASKED,
   return(DF.DEPTH)
 }
 
+make_l.df.DepthWindows <- function(LIST_INFILE_DEPTH, INFILE_NMASKED,
+                                  AVG_CLIP_PCTILE = 0){
+  # lists for reps and sex per file
+  v.REP = lapply(LIST_INFILE_DEPTH, names) %>% unlist()
+  v.SEX = c(rep(names(LIST_INFILE_DEPTH)[1], length(LIST_INFILE_DEPTH[[1]])),
+            rep(names(LIST_INFILE_DEPTH)[2], length(LIST_INFILE_DEPTH[[2]])))
+  # run make_df.DepthWindows() for each filename in list
+  l.DF_DEPTH.WINDOWS = lapply(
+    unlist(LIST_INFILE_DEPTH), function(x){
+      make_df.DepthWindows(x, INFILE_NMASKED, AVG_CLIP_PCTILE)
+    }
+  )
+  # name list by rep
+  names(l.DF_DEPTH.WINDOWS) = v.REP
+  # add rep and sex column
+  for(i in 1:length(v.REP)){
+    l.DF_DEPTH.WINDOWS[[i]]$rep = v.REP[i]
+    l.DF_DEPTH.WINDOWS[[i]]$sex = v.SEX[i]
+  }
+  return(l.DF_DEPTH.WINDOWS)
+}
+
+
 
 # function to link variant count windows to unmasked lengths 
 #  and find variant frequencies per unmasked bp
@@ -452,6 +475,26 @@ make_df.VariantWindows <- function(INFILE_VARIANT, INFILE_NMASKED){
   return(DF.VARIANT)
 }
 
+make_l.df.VariantWindows <- function(LIST_INFILE_VARNT, INFILE_NMASKED){
+  # lists for reps and sex per file
+  v.REP = lapply(LIST_INFILE_VARNT, names) %>% unlist()
+  v.SEX = c(rep(names(LIST_INFILE_VARNT)[1], length(LIST_INFILE_VARNT[[1]])),
+            rep(names(LIST_INFILE_VARNT)[2], length(LIST_INFILE_VARNT[[2]])))
+  # run make_df.DepthWindows() for each filename in list
+  l.DF_VARNT.WINDOWS = lapply(
+    unlist(LIST_INFILE_VARNT), function(x){
+      make_df.VariantWindows(x, INFILE_NMASKED)
+    }
+  )
+  # name list by rep
+  names(l.DF_VARNT.WINDOWS) = v.REP
+  # add rep and sex column
+  for(i in 1:length(v.REP)){
+    l.DF_VARNT.WINDOWS[[i]]$rep = v.REP[i]
+    l.DF_VARNT.WINDOWS[[i]]$sex = v.SEX[i]
+  }
+  return(l.DF_VARNT.WINDOWS)
+}
 
 # Functions for plotting windows data
 # make the dataframe for plotting 
@@ -543,20 +586,22 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
     # other plot formatting
     coord_cartesian(ylim = c(Y_MIN,Y_MAX)) + 
     theme_light() +
+    theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
     labs( y = 'normalized depth', 
           x = paste0(ASSEMBLY_NAME, " - ", WINDOW_LABEL, " windows, >", 
-                   MIN_UNMASKED, " unmasked bp, loess span=", SPAN) )
+                     MIN_UNMASKED, " unmasked bp, loess span=", SPAN) )
   
   return(PLOT)
-
+  
 }
 
 
 PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, 
-                             ASSEMBLY_NAME, WINDOW_LABEL,
-                             POOL_N = 1,
-                             SPAN=0.4, ALPHA=0.05, 
-                             Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
+                               ASSEMBLY_NAME, WINDOW_LABEL,
+                               SITE_TYPE_LAB = 'variant', # generic site type
+                               POOL_N = 1,
+                               SPAN=0.4, ALPHA=0.05, 
+                               Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
   # get dataframe for plotting
   PLOTDF <- make_df.WindowPlots(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED)
   
@@ -569,15 +614,15 @@ PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED,
                 offset = max(offset) )
     WINDOW_LABEL = paste0(POOL_N, " pooled ", WINDOW_LABEL)
   }
-
-    # set color scale for sex based on how many sexes represented
+  
+  # set color scale for sex based on how many sexes represented
   N_SEX = PLOTDF$sex %>% factor() %>% levels() %>% length()
   if( N_SEX == 2 ){
     SCALE_VALUES = c('red', 'blue')
   } else {
     SCALE_VALUES=c('slateblue')
   }
-
+  
   # set Y min and max based on PLOTDF unless set by command call
   if(Y_MIN == 'auto'){
     Y_MIN <- min(PLOTDF$fr_var)
@@ -622,7 +667,8 @@ PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED,
     # other plot formatting
     coord_cartesian(ylim = c(Y_MIN,Y_MAX)) + 
     theme_light() +
-    labs( y = 'frequency variant sites', 
+    theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    labs( y = paste0('frequency ', SITE_TYPE_LAB, ' sites'), 
           x = paste0(ASSEMBLY_NAME, " - ", WINDOW_LABEL, " windows, >", 
                      MIN_UNMASKED, " unmasked bp, loess span=", SPAN) )
   
