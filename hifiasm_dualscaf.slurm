@@ -19,12 +19,16 @@ module load hifiasm/0.25.0
 OUTNAME=$1
 READS=$2
 
-# dual-scaf option tries to scaffold haps against eachother 
+# dual-scaf option tries to scaffold haps against eachother
+echo -e "Starting HiFiASM.\nCMD: hifiasm --dual-scaf -o $OUTNAME -t 48 $READS\n"
 hifiasm --dual-scaf -o $OUTNAME -t 48 $READS
+date
 
 # convert to fasta contigs https://hifiasm.readthedocs.io/en/latest/faq.html#how-do-i-get-contigs-in-fasta
+echo "HiFiASM finished. Converting GFA output to fasta."
 awk '/^S/{print ">"$2;print $3}' $OUTNAME.bp.p_ctg.gfa > $OUTNAME.bp.p_ctg.fa
 awk '/^S/{print ">"$2;print $3}' $OUTNAME.bp.hap1.p_ctg.gfa > $OUTNAME.bp.hap1.p_ctg.fa
 awk '/^S/{print ">"$2;print $3}' $OUTNAME.bp.hap2.p_ctg.gfa > $OUTNAME.bp.hap2.p_ctg.fa
 
+echo "Finished"
 date
