@@ -10,7 +10,7 @@
 #SBATCH --mail-user=david.luecke@usda.gov
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
-# USAGE: sbatch hifiasm_dualscaf.slurm OUTNAME "READS_BLOB*[bam|fq.gz]"
+# USAGE: sbatch hifiasm_dualscaf.slurm OUTNAME "READS_BLOB*.fq.gz"
 #   quote blobs for reads
 
 date
