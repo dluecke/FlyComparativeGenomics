@@ -11,7 +11,7 @@ usage() {
     echo "    -p PATERNAL_READS.FASTQ (quote globs)"
     echo "  -l FLAG write ReadsOnly files for leftovers"
     echo "  -k INT kmer length, default 21"
-    echo "  -c INT cores, default 48"
+    echo "  -c INT hi-mem (16G) cores, default 16"
     echo "  -g PATH to FlyComparativeGenomics git repo, default ~/FlyComparativeGenomics"
     echo "  -h FLAG print usage statement"
     exit 0
@@ -33,7 +33,7 @@ DIPLOID=""
 READS_ONLY="" # empty string won't trigger ReadsOnly section
 TRIO=""
 K_LEN=21
-N_THREAD=48
+N_THREAD=16
 FCG_PATH=~/FlyComparativeGenomics
 
 # get options, including call usage if -h flag
