@@ -25,6 +25,11 @@ ALN_BAM=$3
 # no extension filename of contig assembly
 PCTG_NAME=$(basename ${PCTG_ASM%f*a})
 
+# index fasta if not already
+if [[ ! -f ${PCTG_ASM}.fai ]]; then
+  ml samtools
+  samtools faidx $PCTG_ASM
+fi
 
 echo -e "\nStarting YaHS scaffolding"
 echo -e "command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img yahs -o $YAHS_OUT --no-contig-ec $PCTG_ASM $ALN_BAM"
