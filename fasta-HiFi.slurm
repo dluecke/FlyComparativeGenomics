@@ -17,9 +17,9 @@ BAM=$1
 FA_OUT=$(basename ${BAM%.*}.fa.gz)
 
 echo -e "\nUsing samtools fastq to convert ${BAM} to $FA_OUT"
-echo -e "\nCMD: samtools fasta --threads 3 -o $FA_OUT ${BAM}"
+echo -e "\nCMD: samtools fasta --threads 3 ${BAM} | gzip > $FA_OUT"
 
-samtools fasta --threads 3 -o $FA_OUT ${BAM}
+samtools fasta --threads 3 ${BAM} | gzip > $FA_OUT
 
 date
 samtools --version
