@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -A vpgru
 #SBATCH -J fasta-HiFi
-#SBATCH -o "fq.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
-#SBATCH -e "fq.%j.%N.stderr"
+#SBATCH -o "fa.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
+#SBATCH -e "fa.%j.%N.stderr"
 #SBATCH -c 4
 #SBATCH -p ceres
 #SBATCH -t 6:00:00
