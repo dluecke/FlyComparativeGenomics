@@ -422,10 +422,12 @@ make_l.df.purge_dups_pairs = function(l.BEDFILES, df.REPHASE){
 # set a threshold for difference in length between haplotigs, avoids small ctg forcing rephasing of much bigger pair
 # set a threshold for Y score of "Y to X" changes, since high Yscore not likely in true X sequence
 update_phasing = function(df.REPHASE, l.PURGE_DUPS,
-                          LENGTH_DIFF_THRESHOLD = 0.5,
+                          LENGTH_DIFF_THRESHOLD = 1, # 3:1, max limit is 2
                           X_YSCORE_THRESHOLD = 2){
-  # save original phasing
-  df.REPHASE$phase_v0 = df.REPHASE$phase
+  # save original phasing (put in new column named based on how many phase columns already present)
+  n_phase_col = grep("phase", colnames(df.REPHASE)) %>% length
+  last_phase = paste0("phase_v", n_phase_col-1)
+  df.REPHASE = df.REPHASE %>% mutate(!!last_phase := phase)
   # contigs to swap from X to Y
   v.CTG_newY = c(
     (l.PURGE_DUPS$X %>%
