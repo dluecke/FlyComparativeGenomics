@@ -1,10 +1,11 @@
 #!/bin/bash
 #SBATCH -A vpgru
+#SBATCH -p ceres
+#SBATCH -t 3-00:00:00
 #SBATCH -J repeatModMask
 #SBATCH -o "rm-stdout.%j.%N"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "rm-stderr.%j.%N"
 #SBATCH -c 32
-#SBATCH -p medium
 #SBATCH -N 1
 
 date
