@@ -511,6 +511,7 @@ make_df.WindowPlots <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED){
 }
 
 PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS = T,
+                             NORMALIZED = T,
                              POOL_N = 1, # can pool windows to speed up plotting
                              ASSEMBLY_NAME, WINDOW_LABEL,
                              SPAN=0.4, ALPHA=0.05, 
@@ -518,17 +519,27 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
   # get dataframe for plotting
   PLOTDF <- make_df.WindowPlots(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED)
   
+  # call outliers based on normalized depth even when plotting raw depth
   if( DROP_OUTLIERS ){
     PLOTDF <- PLOTDF  %>% group_by(scaffold, rep) %>% 
       filter(!(abs(depth_norm - median(depth_norm)) > 2*sd(depth_norm)) 
              | n() == 1) # keep single observations (were getting dropped since sd NA)
   }
   
+  if(NORMALIZED){
+    PLOTDF$depth_plot = PLOTDF$depth_norm
+    Y_LAB = "normalized depth"
+  } else {
+    # unnormalized but still accounting for N vs true 0s
+    PLOTDF$depth_plot = PLOTDF$depth_w0s
+    Y_LAB = "read depth"
+  }
+  
   if( POOL_N > 1 ){
     PLOTDF <- PLOTDF %>% 
       mutate(pool = as.integer(as.numeric(position) / POOL_N)) %>% 
       group_by(scaffold, pool, sex, rep) %>% 
-      summarise(depth_norm = weighted.mean(depth_norm, unmasked), 
+      summarise(depth_plot = weighted.mean(depth_plot, unmasked), 
                 position = median(as.numeric(position)), 
                 offset = max(offset) )
     WINDOW_LABEL = paste0(POOL_N, " pooled ", WINDOW_LABEL)
@@ -544,10 +555,10 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
   
   # set Y min and max based on PLOTDF unless set by command call
   if(Y_MIN == 'auto'){
-    Y_MIN <- min(PLOTDF$depth_norm)
+    Y_MIN <- min(PLOTDF$depth_plot)
   }
   if(Y_MAX == 'auto'){
-    Y_MAX <- max(PLOTDF$depth_norm)
+    Y_MAX <- max(PLOTDF$depth_plot)
   }
   
   if(FLIP_SCAF_LAB){
@@ -566,7 +577,7 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
   OFFSETS <- PLOTDF %>% group_by(scaffold) %>% summarise(offset=max(offset))
   
   PLOT <- ggplot(PLOTDF, aes(x = as.numeric(position) + offset + 0.5, 
-                             y = depth_norm, 
+                             y = depth_plot, 
                              color = sex, 
                              shape = rep, linetype = rep, 
                              lineend = scaffold)) +
@@ -587,7 +598,7 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
     coord_cartesian(ylim = c(Y_MIN,Y_MAX)) + 
     theme_light() +
     theme(axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-    labs( y = 'normalized depth', 
+    labs( y = Y_LAB, 
           x = paste0(ASSEMBLY_NAME, " - ", WINDOW_LABEL, " windows, >", 
                      MIN_UNMASKED, " unmasked bp, loess span=", SPAN) )
   
