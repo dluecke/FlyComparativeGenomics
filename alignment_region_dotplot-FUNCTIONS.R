@@ -26,8 +26,8 @@ make_l.coords <- function(COORDSFILE, REF_FAI, QRY_FAI){
                            "ref_SeqName", "qry_SeqName")
   # assign orientation, in coords format reverse matches shown in query start/stop reversal
   df.coords$orientation <- apply(df.coords, 1, FUN = function(x){
-    if( x[3] <= x[4] ){return("forward")}
-    if( x[3] >= x[4] ){return("reverse")}
+    if( as.numeric(x[3]) < as.numeric(x[4]) ){return("forward")}
+    if( as.numeric(x[3]) > as.numeric(x[4]) ){return("reverse")}
   })
   
   # "breaks" dfs for tracking sequence lengths
@@ -332,7 +332,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
           geom_point(aes(x=R2, y=Q2, color=orientation, size = pctID), alpha=ALPHA) + # , size=POINTSIZE) +
           geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID)) +
           scale_size_continuous(range = c(0.2, POINTSIZE+0.2)) +
-          scale_linewidth_continuous(range = c(0.2, POINTSIZE+0.2)) +
+          scale_linewidth_continuous(range = c(0.2, LINEWIDTH+0.2)) +
           labs(x=LAB_REF, y=LAB_QRY, size = "match %")
       } else {
         p <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
@@ -356,7 +356,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
           geom_point(aes(x=R2, y=Q2, size = pctID), color = "grey30", alpha=ALPHA) +
           geom_segment(aes(xend=R2, yend=Q2, color = orientation, linewidth = pctID), color = "grey30") +
           scale_size_continuous(range = c(0.2, POINTSIZE+0.2)) +
-          scale_linewidth_continuous(range = c(0.2, POINTSIZE+0.2)) +
+          scale_linewidth_continuous(range = c(0.2, LINEWIDTH+0.2)) +
           labs(x=LAB_REF, y=LAB_QRY, linewidth = "match %")
       } else {
         p1 <- ggplot(DF_COORDS, aes(x=R1, y=Q1)) +
