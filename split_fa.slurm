@@ -11,4 +11,4 @@
 
 module load purge_dups
 
-split_fa $1 > $1.split.fa
+split_fa $1 > ${1%.*}.split.fa
