@@ -4,6 +4,7 @@
 #SBATCH -o "sbs.%j.%N.stdout"     # standard output, %j adds job number to output file name and %N adds the node name
 #SBATCH -e "sbs.%j.%N.stderr"
 #SBATCH -c 4
+#SBATCH -t 6:00:00
 #SBATCH -p ceres
 #SBATCH -N 1
 date
