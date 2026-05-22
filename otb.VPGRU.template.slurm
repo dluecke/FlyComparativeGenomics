@@ -80,6 +80,9 @@ Busco_DB="-l diptera_odb10"
 # RUNNING OTB (NO MORE TEMPLATE EDITS NEEDED BELOW HERE)
 # Modifications by DL
 
+# copy ceres 2026 config file
+cp /project/vpgru/software/Nextflow_config/slurm_usda_ceres_2026.cfg config/
+
 # add -A option to SLURM config (if not already done on earlier run)
 if ! grep -qF -- "vpgru" config/${Runner}.cfg; then
     sed -i 's/clusterOptions="/clusterOptions="-A vpgru /' config/${Runner}.cfg
@@ -89,9 +92,6 @@ fi
 mkdir work
 mkdir work/singularity
 ln -s /project/vpgru/software/NextflowSingularityLibrary/*.img work/singularity/
-
-# copy ceres 2026 config file
-cp /project/vpgru/software/Nextflow_config/slurm_usda_ceres_2026.cfg config/
 
 # HiFi read processing pre-OTB
 # Current OTB needs a single HiFi input file, so if there's multiple we need to concatenate
