@@ -20,7 +20,7 @@ echo "CMD: bcftools view -i 'QUAL>100 && GT="het"' -Ov -o ${VCF%.*}.hets.vcf $VC
 bcftools view -i 'QUAL>100 && GT="het"' -Ov -o ${VCF%.*}.hets.vcf $VCF
 
 # write csv counting variant lines per scaffold
-echo "counting all-alternate sites per scaffold with $FCG/get_variants_by_sequence.sh"
+echo "counting heterozygous sites per scaffold with $FCG/get_variants_by_sequence.sh"
 $FCG/get_variants_by_sequence.sh ${VCF%.*}.hets.vcf
 
 #echo "CMD: grep -a -v ^# ${VCF%.*}.hets.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > ${VCF%.*}.nhets_by_scaffold.csv"
