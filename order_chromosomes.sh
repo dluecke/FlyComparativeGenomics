@@ -99,7 +99,7 @@ cut -f1 $SCAFFOLDS.fai.sort > $NON_SCAF_LIST
 
 # remove scaffolds already extracted as recorded in ORDER_OUT
 while read rm_scaf; do
-    sed -i "/$rm_scaf/d" $NON_SCAF_LIST
+    sed -i "/^$rm_scaf$/d" $NON_SCAF_LIST
 done < <(cut -f2 $ORDER_OUT)
 
 # append all remaining scaffolds to CHROMOSOMES assembly
