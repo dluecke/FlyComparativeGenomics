@@ -12,7 +12,7 @@ usage() {
     echo "  REVIEW.assembly - ASSEMBLY file output from JBAT curation"
     echo "OPTIONAL:"
     echo "  -o STRING prefix for curated scaffold output, default CTG_ASM.yahs"
-    echo "      output file STRING.JBAT.final.fa"
+    echo "      output file STRING.review.FINAL.fa"
     echo "  -g PATH to directory with git repo, default ~"
     echo "  -h FLAG print usage statement"
     exit 0
