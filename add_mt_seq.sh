@@ -119,7 +119,13 @@ samtools faidx "$TEMP_FILE" 2>&1 | tee -a "$LOG_FILE"
 
 # Create list of sequences to keep
 log_msg "Creating keep list, filtering sequences from remove list"
-samtools faidx "$TEMP_FILE" | cut -f1 | while IFS= read -r seq_id; do
+# Ensure index exists (samtools faidx writes to ${TEMP_FILE}.fai)
+if [[ ! -f "${TEMP_FILE}.fai" ]]; then
+    log_msg "Index ${TEMP_FILE}.fai not found; creating index with samtools faidx"
+    samtools faidx "$TEMP_FILE" 2>&1 | tee -a "$LOG_FILE"
+fi
+# Read sequence IDs from the .fai index file
+cut -f1 "${TEMP_FILE}.fai" | while IFS= read -r seq_id; do
     if ! grep -Fxq "$seq_id" "$REMOVE_LIST"; then
         echo "$seq_id"
     fi
