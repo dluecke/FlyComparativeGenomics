@@ -10,10 +10,14 @@
 
 usage() {
     cat << EOF
-Usage: $(basename "$0") SCAFFOLDS.fa MITO.fa SCAF_MITO_SEQS.txt
+Usage: $(basename "$0") [OPTIONS] SCAFFOLDS.fa MITO.fa SCAF_MITO_SEQS.txt
 
 Description:
     Appends MITO.fa to SCAFFOLDS.fa and removes sequences listed in SCAF_MITO_SEQS.txt
+
+Options:
+    -h, --help          Show this help message and exit
+    -k, --keep-temp     Do not delete temporary files after completion
 
 Arguments:
     SCAFFOLDS.fa           Path to scaffold sequences FASTA file
@@ -27,13 +31,36 @@ Requirements:
     samtools
 
 Example:
-    $(basename "$0") input_scaffolds.fa mitochondria.fa sequences_to_remove.txt
+    $(basename "$0") --keep-temp input_scaffolds.fa mitochondria.fa sequences_to_remove.txt
 
 EOF
     exit 1
 }
 
-# Check arguments
+KEEP_TEMP=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -k|--keep-temp)
+            KEEP_TEMP=true
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            echo "Error: Unknown option '$1'" >&2
+            usage
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 if [[ $# -ne 3 ]]; then
     echo "Error: Incorrect number of arguments" >&2
     usage
@@ -77,8 +104,9 @@ BASE_NAME="$(basename "${SCAFFOLDS%.*}")"
 OUTPUT_FILE="${BASE_NAME}-w_mt.fa"
 log_msg "Output file: $OUTPUT_FILE"
 
-# Create temporary combined file
-TEMP_FILE=$(mktemp)
+# Create temporary files in current working directory
+TEMP_FILE="./${BASE_NAME}-tmp.fa"
+KEEP_LIST="./${BASE_NAME}-keep.txt"
 log_msg "Creating temporary combined file: $TEMP_FILE"
 cat "$SCAFFOLDS" "$MITO" > "$TEMP_FILE"
 log_msg "Concatenated $SCAFFOLDS and $MITO"
@@ -102,7 +130,11 @@ log_msg "Sequences to keep: $KEEP_COUNT"
 log_msg "Extracting sequences to keep using samtools faidx"
 samtools faidx "$TEMP_FILE" $(cat "$KEEP_LIST") > "$OUTPUT_FILE" 2>&1 | tee -a "$LOG_FILE"
 
-log_msg "Cleaning up temporary files"
-rm "$TEMP_FILE" "$TEMP_FILE.fai" "$KEEP_LIST"
-
 log_msg "Completed. Output written to $OUTPUT_FILE"
+
+if [[ "$KEEP_TEMP" == false ]]; then
+    log_msg "Cleaning up temporary files"
+    rm -f "$TEMP_FILE" "$TEMP_FILE.fai" "$KEEP_LIST"
+else
+    log_msg "Temporary files retained: $TEMP_FILE, $TEMP_FILE.fai, $KEEP_LIST"
+fi
