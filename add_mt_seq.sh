@@ -12,8 +12,6 @@ usage() {
     cat << EOF
 Usage: $(basename "$0") [OPTIONS] SCAFFOLDS.fa MITO.fa SCAF_MITO_SEQS.txt
 
-Will not run on head node, must be run on compute node for tmp file behavior
-
 Description:
     Appends MITO.fa to SCAFFOLDS.fa and removes sequences listed in SCAF_MITO_SEQS.txt
 
@@ -27,7 +25,7 @@ Arguments:
     SCAF_MITO_SEQS.txt    Path to file containing sequence IDs to remove (one per line)
 
 Output:
-    {SCAFFOLDS_basename}-w_mt.fa
+    ./{SCAFFOLDS_basename}-w_mt.fa
 
 Requirements:
     samtools
