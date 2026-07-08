@@ -124,12 +124,8 @@ if [[ ! -f "${TEMP_FILE}.fai" ]]; then
     log_msg "Index ${TEMP_FILE}.fai not found; creating index with samtools faidx"
     samtools faidx "$TEMP_FILE" 2>&1 | tee -a "$LOG_FILE"
 fi
-# Read sequence IDs from the .fai index file
-cut -f1 "${TEMP_FILE}.fai" | while IFS= read -r seq_id; do
-    if ! grep -Fxq "$seq_id" "$REMOVE_LIST"; then
-        echo "$seq_id"
-    fi
-done > "$KEEP_LIST"
+# Read sequence IDs from the .fai index file and exclude any IDs listed in remove list
+cut -f1 "${TEMP_FILE}.fai" | grep -v -F -f "$REMOVE_LIST" > "$KEEP_LIST"
 KEEP_COUNT=$(wc -l < "$KEEP_LIST")
 log_msg "Sequences to keep: $KEEP_COUNT"
 
