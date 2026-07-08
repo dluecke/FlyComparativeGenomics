@@ -12,6 +12,8 @@ usage() {
     cat << EOF
 Usage: $(basename "$0") [OPTIONS] SCAFFOLDS.fa MITO.fa SCAF_MITO_SEQS.txt
 
+Will not run on head node, must be run on compute node for tmp file behavior
+
 Description:
     Appends MITO.fa to SCAFFOLDS.fa and removes sequences listed in SCAF_MITO_SEQS.txt
 
@@ -105,8 +107,8 @@ OUTPUT_FILE="${BASE_NAME}-w_mt.fa"
 log_msg "Output file: $OUTPUT_FILE"
 
 # Create temporary files in current working directory
-TEMP_FILE="./${BASE_NAME}-tmp.fa"
-KEEP_LIST="./${BASE_NAME}-keep.txt"
+TEMP_FILE=$(mktemp -p . "${BASE_NAME}-tmp.XXXXXX.fa")
+KEEP_LIST=$(mktemp -p . "${BASE_NAME}-keep.XXXXXX.txt")
 log_msg "Creating temporary combined file: $TEMP_FILE"
 cat "$SCAFFOLDS" "$MITO" > "$TEMP_FILE"
 log_msg "Concatenated $SCAFFOLDS and $MITO"
@@ -116,10 +118,9 @@ log_msg "Indexing combined file with samtools faidx"
 samtools faidx "$TEMP_FILE" 2>&1 | tee -a "$LOG_FILE"
 
 # Create list of sequences to keep
-KEEP_LIST=$(mktemp)
 log_msg "Creating keep list, filtering sequences from remove list"
 samtools faidx "$TEMP_FILE" | cut -f1 | while IFS= read -r seq_id; do
-    if ! grep -qx "$seq_id" "$REMOVE_LIST"; then
+    if ! grep -Fxq "$seq_id" "$REMOVE_LIST"; then
         echo "$seq_id"
     fi
 done > "$KEEP_LIST"
