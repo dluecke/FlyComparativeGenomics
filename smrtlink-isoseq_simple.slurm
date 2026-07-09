@@ -29,6 +29,7 @@ echo "Extracting transcripts from $IN_BAM, output prefix: $FILE_PREFIX"
 
 lima --version
 isoseq --version
+bam2fasta --version
 
 # get isoseq primers (unclear if these are precisely correct, but seem to work for required primers in isoseq refine step)
 if [ ! -f IsoSeq_v2_primers_12.fasta ]; then
@@ -50,9 +51,14 @@ echo "running isoseq refine to get full-length non-chimeric reads"
 echo "CMD: isoseq refine --num-threads 16 ${FILE_PREFIX}_trimmed.bam IsoSeq_v2_primers_12.fasta ${FILE_PREFIX}_refined.bam --require-polya"
 isoseq refine --num-threads 16 ${FILE_PREFIX}_trimmed.bam IsoSeq_v2_primers_12.fasta ${FILE_PREFIX}_refined.bam --require-polya
 
-# isoseq cluster to get high-quality isoforms, including fasta output
-echo "running isoseq cluster2 to get high-quality isoforms"
-echo "CMD: isoseq cluster2 --singletons ${FILE_PREFIX}_refined.bam ${FILE_PREFIX}.bam ${FILE_PREFIX}.fasta"
-isoseq cluster2 --singletons ${FILE_PREFIX}_refined.bam ${FILE_PREFIX}.bam ${FILE_PREFIX}.fasta
+# isoseq cluster to get high-quality isoforms
+echo "running isoseq cluster2 to get high-quality isoforms, include singletons"
+echo "CMD: isoseq cluster2 --singletons ${FILE_PREFIX}_refined.bam ${FILE_PREFIX}_clustered.bam"
+isoseq cluster2 --singletons ${FILE_PREFIX}_refined.bam ${FILE_PREFIX}_clustered.bam
+
+# extract transcripts fasta
+echo "Extracting transcripts fasta from ${FILE_PREFIX}_clustered.bam"
+echo "CMD: bam2fasta ${FILE_PREFIX}_clustered.bam -o ${FILE_PREFIX}.transcripts"
+bam2fasta ${FILE_PREFIX}_clustered.bam -o ${FILE_PREFIX}.transcripts
 
 date
