@@ -79,6 +79,11 @@ log_msg() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $msg" | tee -a "$LOG_FILE"
 }
 
+# Enable command tracing to log all commands
+set -x
+exec 4>> "$LOG_FILE"
+BASH_XTRACEFD="4"
+
 if [[ ! -f "$SCAFFOLDS" ]]; then
     log_msg "Error: SCAFFOLDS file '$SCAFFOLDS' not found"
     exit 1
