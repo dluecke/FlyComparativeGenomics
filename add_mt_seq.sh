@@ -113,8 +113,10 @@ log_msg "Output file: $OUTPUT_FILE"
 
 # Create temporary files in current working directory
 log_msg "Creating temporary files"
-run_and_log "TEMP_FILE=$(mktemp -p . \"${BASE_NAME}-tmp.XXXXXX.fa\")"
-run_and_log "KEEP_LIST=$(mktemp -p . \"${BASE_NAME}-keep.XXXXXX.txt\")"
+TEMP_FILE=$(mktemp -p . "${BASE_NAME}-tmp.XXXXXX.fa")
+log_msg "+ mktemp -p . \"${BASE_NAME}-tmp.XXXXXX.fa\" => $TEMP_FILE"
+KEEP_LIST=$(mktemp -p . "${BASE_NAME}-keep.XXXXXX.txt")
+log_msg "+ mktemp -p . \"${BASE_NAME}-keep.XXXXXX.txt\" => $KEEP_LIST"
 log_msg "Creating temporary combined file: $TEMP_FILE"
 run_and_log "cat \"$SCAFFOLDS\" \"$MITO\" > \"$TEMP_FILE\""
 log_msg "Concatenated $SCAFFOLDS and $MITO"
