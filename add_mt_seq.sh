@@ -69,7 +69,10 @@ fi
 SCAFFOLDS="$1"
 MITO="$2"
 REMOVE_LIST="$3"
-LOG_FILE="add_mt_seq.log"
+
+# Extract base name without extension for output file (in current working directory)
+BASE_NAME="$(basename "${SCAFFOLDS%.*}")"
+LOG_FILE="${BASE_NAME}.add_mt_seq.log"
 
 # Initialize log file
 > "$LOG_FILE"
@@ -106,8 +109,6 @@ log_msg "Input SCAFFOLDS: $SCAFFOLDS"
 log_msg "Input MITO: $MITO"
 log_msg "Remove list: $REMOVE_LIST"
 
-# Extract base name without extension for output file (in current working directory)
-BASE_NAME="$(basename "${SCAFFOLDS%.*}")"
 OUTPUT_FILE="${BASE_NAME}-w_mt.fa"
 log_msg "Output file: $OUTPUT_FILE"
 
@@ -139,7 +140,8 @@ log_msg "Sequences to keep: $KEEP_COUNT"
 
 # Extract sequences to keep using samtools faidx
 log_msg "Extracting sequences to keep using samtools faidx"
-run_and_log "samtools faidx \"$TEMP_FILE\" $(cat \"$KEEP_LIST\") > \"$OUTPUT_FILE\" 2>&1 | tee -a \"$LOG_FILE\""
+log_msg "+ samtools faidx \"$TEMP_FILE\" \$(cat \"$KEEP_LIST\") > \"$OUTPUT_FILE\" 2>&1 | tee -a \"$LOG_FILE\""
+samtools faidx "$TEMP_FILE" $(cat "$KEEP_LIST") > "$OUTPUT_FILE" 2>&1 | tee -a "$LOG_FILE"
 
 log_msg "Completed. Output written to $OUTPUT_FILE"
 
