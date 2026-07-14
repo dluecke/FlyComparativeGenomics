@@ -79,10 +79,12 @@ log_msg() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $msg" | tee -a "$LOG_FILE"
 }
 
-# Enable command tracing to log all commands
-set -x
-exec 4>> "$LOG_FILE"
-BASH_XTRACEFD="4"
+# Log command invocations explicitly
+run_and_log() {
+    local cmd="$1"
+    log_msg "+ $cmd"
+    eval "$cmd"
+}
 
 if [[ ! -f "$SCAFFOLDS" ]]; then
     log_msg "Error: SCAFFOLDS file '$SCAFFOLDS' not found"
@@ -110,37 +112,38 @@ OUTPUT_FILE="${BASE_NAME}-w_mt.fa"
 log_msg "Output file: $OUTPUT_FILE"
 
 # Create temporary files in current working directory
-TEMP_FILE=$(mktemp -p . "${BASE_NAME}-tmp.XXXXXX.fa")
-KEEP_LIST=$(mktemp -p . "${BASE_NAME}-keep.XXXXXX.txt")
+log_msg "Creating temporary files"
+run_and_log "TEMP_FILE=$(mktemp -p . \"${BASE_NAME}-tmp.XXXXXX.fa\")"
+run_and_log "KEEP_LIST=$(mktemp -p . \"${BASE_NAME}-keep.XXXXXX.txt\")"
 log_msg "Creating temporary combined file: $TEMP_FILE"
-cat "$SCAFFOLDS" "$MITO" > "$TEMP_FILE"
+run_and_log "cat \"$SCAFFOLDS\" \"$MITO\" > \"$TEMP_FILE\""
 log_msg "Concatenated $SCAFFOLDS and $MITO"
 
 # Index the combined file
 log_msg "Indexing combined file with samtools faidx"
-samtools faidx "$TEMP_FILE" 2>&1 | tee -a "$LOG_FILE"
+run_and_log "samtools faidx \"$TEMP_FILE\" 2>&1 | tee -a \"$LOG_FILE\""
 
 # Create list of sequences to keep
 log_msg "Creating keep list, filtering sequences from remove list"
 # Ensure index exists (samtools faidx writes to ${TEMP_FILE}.fai)
 if [[ ! -f "${TEMP_FILE}.fai" ]]; then
     log_msg "Index ${TEMP_FILE}.fai not found; creating index with samtools faidx"
-    samtools faidx "$TEMP_FILE" 2>&1 | tee -a "$LOG_FILE"
+    run_and_log "samtools faidx \"$TEMP_FILE\" 2>&1 | tee -a \"$LOG_FILE\""
 fi
 # Read sequence IDs from the .fai index file and exclude any IDs listed in remove list
-cut -f1 "${TEMP_FILE}.fai" | grep -v -F -f "$REMOVE_LIST" > "$KEEP_LIST"
+run_and_log "cut -f1 \"${TEMP_FILE}.fai\" | grep -v -F -f \"$REMOVE_LIST\" > \"$KEEP_LIST\""
 KEEP_COUNT=$(wc -l < "$KEEP_LIST")
 log_msg "Sequences to keep: $KEEP_COUNT"
 
 # Extract sequences to keep using samtools faidx
 log_msg "Extracting sequences to keep using samtools faidx"
-samtools faidx "$TEMP_FILE" $(cat "$KEEP_LIST") > "$OUTPUT_FILE" 2>&1 | tee -a "$LOG_FILE"
+run_and_log "samtools faidx \"$TEMP_FILE\" $(cat \"$KEEP_LIST\") > \"$OUTPUT_FILE\" 2>&1 | tee -a \"$LOG_FILE\""
 
 log_msg "Completed. Output written to $OUTPUT_FILE"
 
 if [[ "$KEEP_TEMP" == false ]]; then
     log_msg "Cleaning up temporary files"
-    rm -f "$TEMP_FILE" "$TEMP_FILE.fai" "$KEEP_LIST"
+    run_and_log "rm -f \"$TEMP_FILE\" \"$TEMP_FILE.fai\" \"$KEEP_LIST\""
 else
     log_msg "Temporary files retained: $TEMP_FILE, $TEMP_FILE.fai, $KEEP_LIST"
 fi
