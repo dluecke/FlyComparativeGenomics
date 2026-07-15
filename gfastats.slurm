@@ -10,6 +10,8 @@
 #SBATCH --mail-user=david.luecke@usda.gov
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
+date
+
 module load apptainer
 
 ASM=$1
@@ -17,3 +19,5 @@ ASM=$1
 ASM_FN=$(basename $ASM)
 
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img gfastats $ASM > ${ASM_FN%.*}.gfastats
+
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img gfastats -v
