@@ -23,3 +23,5 @@ singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.s
     -g $3 \
     -o 5 \
     -t 32
+
+singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.sif mitohifi.py -v
