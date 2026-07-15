@@ -33,7 +33,16 @@ echo " singularity exec /project/vpgru/software/NextflowSingularityLibrary/staph
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/staphb-bwa.img bwa index $PCTG_ASM
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/staphb-bwa.img bwa mem -5SP -t 32 $PCTG_ASM $LEFT_HIC $RIGHT_HIC > $ALN_SAM
 
-echo -e "\nConverting alignment from SAM to BAM format"
+echo "BWA steps done"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/staphb-bwa.img bwa 2>&1 | grep Version
+date
+
+echo -e "\nGenerating stats file for $ALN_BAM"
+echo -e "Command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools stats $ALN_BAM > $ALN_BAM.stats"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools stats $ALN_BAM > $ALN_BAM.stats
+date
+
+echo -e "\nCleaning alignments and converting alignment from SAM to BAM format"
 echo "commands:"
 echo " singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools view -S -h -F 2316 $ALN_SAM |\
   singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samblaster |\
@@ -46,20 +55,17 @@ singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-align
 
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools faidx -o $PCTG_ASM.fai $PCTG_ASM
 
-echo "BWA steps done"
-date
-
-echo -e "\nGenerating stats file for $ALN_BAM"
-echo -e "Command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools stats $ALN_BAM > $ALN_BAM.stats"
-singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools stats $ALN_BAM > $ALN_BAM.stats
-date
+echo "Conversion steps done"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samtools --version
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/mgibio-alignment_helper-cwl-2.2.1.img samblaster --version
 
 echo -e "\nStarting YaHS scaffolding"
 echo -e "command:\n singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img yahs -o $YAHS_OUT --no-contig-ec $PCTG_ASM $ALN_BAM"
 
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img yahs -o $YAHS_OUT --no-contig-ec $PCTG_ASM $ALN_BAM
 
-echo "yahs step finished"
+echo "yahs step finished, version:"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-yahs.img yahs --version
 date
 
 echo -e "\nStarting juicer steps to prepare for JBAT curation"
@@ -89,9 +95,16 @@ singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juice
   mv $YAHS_OUT.JBAT.hic.part $YAHS_OUT.JBAT.hic
 
 echo "juicer steps finished"
+echo "branched yahs-juicer (github.com/zengxiaofei/yahs.git) version:"
+/project/vpgru/software/yahs-juicer/juicer --help | grep Version
+echo "main juicer version:"
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juicer-tools.img java \
+  -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar --help | grep Version
 
-echo "calculating assembly statistics"
+echo -e "\nCalculating assembly statistics"
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img \
    gfastats ${YAHS_OUT}_scaffolds_final.fa > ${YAHS_OUT}_scaffolds_final.fa.stats
+singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img \
+   gfastats --version
 
 echo; date
