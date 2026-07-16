@@ -99,7 +99,7 @@ echo "branched yahs-juicer (github.com/zengxiaofei/yahs.git) version:"
 /project/vpgru/software/yahs-juicer/juicer --help | grep Version
 echo "main juicer version:"
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-juicer-tools.img java \
-  -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar --help | grep Version
+  -Xms16384m -Xmx32768m -jar /home/genomics/juicer_tools_1.22.01.jar --help 2>/dev/null | grep Version
 
 echo -e "\nCalculating assembly statistics"
 singularity exec /project/vpgru/software/NextflowSingularityLibrary/dmolik-gfastats.img \
