@@ -43,7 +43,8 @@ NON_SCAF_LIST=${SCAFFOLDS%.*}-non_chr-scafs.list
 # index input fasta
 samtools faidx $SCAFFOLDS || usage
 
-echo -e "\nConverting scaffolds assembly:\n $SCAFFOLDS"
+echo -e "\nConverting scaffolds assembly:"
+ls -lh $SCAFFOLDS
 echo -e "into chromosome assembly:\n $CHROMOSOMES.fa"
 echo -e "using renaming and orienting information in:\n $ORDERING"
 
