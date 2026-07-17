@@ -14,7 +14,7 @@
 # Usage: sbatch ~/FlyComparativeGenomics mitohifi.slurm CONTIGS.fa REFMT.fa REFMT.gb
 # -o option for code, 5 = invertebrate mitochondrial
 
-module load apptainer
+module load apptainer/1.4.1
 
 singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.sif \
     mitohifi.py \
