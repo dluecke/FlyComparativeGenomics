@@ -10,4 +10,4 @@
 
 # touch all files in working directory or subdirectories
 
-find . -type f -exec touch {} +
+find . '(' -type f -o -type f ')' -exec --no-dereference touch {} +
