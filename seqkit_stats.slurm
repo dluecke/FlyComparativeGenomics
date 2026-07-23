@@ -23,7 +23,7 @@ OUTFILE="${1%.tsv}".tsv
 echo -e "Calculating statistics using seqkit for files:"
 echo ${@:2} | tr ' ' '\n'
 echo -e "Output file: $OUTFILE\n"
-echo -e "CMD: seqkit stats --all --basename -o $OUTFILE ${@:2}\n"
-seqkit stats --all --basename -o "$OUTFILE" ${@:2}
+echo -e "CMD: seqkit stats --all --basename -T -o $OUTFILE ${@:2}\n"
+seqkit stats --all --basename -T -o "$OUTFILE" ${@:2}
 
 seqkit --help | head
