@@ -12,13 +12,13 @@
 #SBATCH -e "sks.%j.%N.stderr"     #optional, prints our standard error
 
 # USAGE: sbatch seqkit_stats.slurm OUTNAME FAST*gz SEQS.fa FASTQ_FILE2.gz ...
-# outputs OUTNAME.tsv with all seqkit stats (see https://bioinf.shenwei.me/seqkit/usage/#stats)
+# outputs OUTNAME.sk_stats.tsv with all seqkit stats (see https://bioinf.shenwei.me/seqkit/usage/#stats)
 
 date
 
 module load seqkit/2.4.0
 
-OUTFILE="${1%.tsv}".tsv
+OUTFILE="${1%.tsv}".sk_stats.tsv
 
 echo -e "Calculating statistics using seqkit for files:"
 echo ${@:2} | tr ' ' '\n'
