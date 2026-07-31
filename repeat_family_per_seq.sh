@@ -26,38 +26,45 @@ BEGIN {
     seqPrefix = $1
     # Count occurrences of each family/sequence combination
     counts[family, seqPrefix]++
-    # Track which families and sequence prefixes have been encountered
-    famSeen[family] = 1
-    seqSeen[seqPrefix] = 1
 }
 END {
-    # Build sorted list of sequence prefixes
+    # Build sorted list of sequence prefixes with at least one hit
     seqCount = 0
-    for (seq in seqSeen) {
-        seqCount++
-        seqList[seqCount] = seq
+    for (key in counts) {
+        split(key, parts, SUBSEP)
+        seq = parts[2]
+        if (!(seq in seqSeen)) {
+            seqSeen[seq] = 1
+            seqCount++
+            seqList[seqCount] = seq
+        }
     }
     nSeq = asort(seqList)
 
     # Build sorted list of families
     famCount = 0
-    for (fam in famSeen) {
-        famCount++
-        famList[famCount] = fam
+    for (key in counts) {
+        split(key, parts, SUBSEP)
+        fam = parts[1]
+        if (!(fam in famSeen)) {
+            famSeen[fam] = 1
+            famCount++
+            famList[famCount] = fam
+        }
     }
     nFam = asort(famList)
 
-    # Print header row: Family followed by sequence prefixes
-    printf "%-25s", "Family"
+    # Print header row as tab-separated output
+    printf "Family"
     for (i = 1; i <= nSeq; i++) {
         printf "\t%s", seqList[i]
     }
     printf "\n"
 
-    # Print one row per family with counts for each sequence prefix
+    # Print one row per family with tab-separated counts
     for (f = 1; f <= nFam; f++) {
         fam = famList[f]
-        printf "%-25s", fam
+        printf "%s", fam
         for (i = 1; i <= nSeq; i++) {
             val = counts[fam, seqList[i]]
             if (val == "") val = 0
