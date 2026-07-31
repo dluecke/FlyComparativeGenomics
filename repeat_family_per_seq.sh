@@ -25,22 +25,34 @@ BEGIN {
     seqSeen[seqPrefix] = 1
 }
 END {
+    # Build sorted sequence list
+    seqCount = 0
+    for (seq in seqSeen) {
+        seqCount++
+        seqList[seqCount] = seq
+    }
+    nSeq = asort(seqList)  # sorted sequence IDs
+
+    # Build sorted family list
+    famCount = 0
+    for (fam in famSeen) {
+        famCount++
+        famList[famCount] = fam
+    }
+    nFam = asort(famList)  # sorted families
+
     # Print header
     printf "%-25s", "Family"
-    for (seq in seqSeen) {
-        seqList[++seqCount] = seq
-    }
-    # Sort sequence IDs alphabetically
-    n = asort(seqList)
-    for (i = 1; i <= n; i++) {
+    for (i = 1; i <= nSeq; i++) {
         printf "\t%s", seqList[i]
     }
     printf "\n"
 
     # Print counts per family
-    for (fam in famSeen) {
+    for (f = 1; f <= nFam; f++) {
+        fam = famList[f]
         printf "%-25s", fam
-        for (i = 1; i <= n; i++) {
+        for (i = 1; i <= nSeq; i++) {
             val = counts[fam, seqList[i]]
             if (val == "") val = 0
             printf "\t%d", val
