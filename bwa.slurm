@@ -34,10 +34,14 @@ which bwa-mem2
 echo -e "\nCalculating depth with samtools"
 which samtools
 
-echo "indexing assembly, command:"
-echo " bwa-mem2 index -p $INDEX $ASSEMBLY"
-bwa-mem2 index -p $INDEX $ASSEMBLY
-echo "indexing complete"
+if [ ! -f $INDEX.amb ]; then
+  echo "indexing assembly, command:"
+  echo " bwa-mem2 index -p $INDEX $ASSEMBLY"
+  bwa-mem2 index -p $INDEX $ASSEMBLY
+  echo "indexing complete"
+else 
+  echo "index $INDEX already exists, skipping indexing"
+fi
 date
 
 # function for mapping steps, call with SAMPLE, R1, R2
