@@ -56,12 +56,14 @@ Map_GetDepths() {
   echo "Finished writing $OUT.bam"
   echo "Submitting bcfcall.slurm job"
   sbatch ~/FlyComparativeGenomics/bcfcall.slurm $OUT.bam $ASSEMBLY
-  echo -e "\nGetting statistics for $OUT.bam, command:\n samtools stats $OUT.bam > $OUT.bam.stats"
-  samtools stats $OUT.bam > $OUT.bam.stats
+  echo -e "\nGetting statistics for $OUT.bam"
+  echo "CMD: sbatch samtools_bamstats.slurm $OUT.bam"
+  sbatch samtools_bamstats.slurm $OUT.bam
   echo -e "\nCalculating depth in $OUT.bam, command:"
   echo " samtools depth -a $OUT.bam > $OUT.depth.tsv"
   samtools depth -a $OUT.bam > $OUT.depth.tsv
   echo "Writing $OUT.depth_by_scaffold.tsv"
+  echo "CMD: ~/FlyComparativeGenomics/get_depth_by_scaffold.sh $OUT.depth.tsv"
   ~/FlyComparativeGenomics/get_depth_by_scaffold.sh $OUT.depth.tsv
   echo -e "Done with $SAMPLE.\n"
   date
