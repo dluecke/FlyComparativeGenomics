@@ -32,9 +32,8 @@ echo -e "\n pbmm2 align finished at:"
 date
 
 echo -e "\nUsing samtools to generate statistics for ${OUT_PREFIX}.bam"
-samtools --version
-echo -e "\nCommand:\n samtools stats ${OUT_PREFIX}.bam > ${OUT_PREFIX}.bam.stats"
-samtools stats ${OUT_PREFIX}.bam > ${OUT_PREFIX}.bam.stats
+echo -e "CMD: sbatch samtools_bamstats.slurm ${OUT_PREFIX}.bam"
+sbatch samtools_bamstats.slurm ${OUT_PREFIX}.bam
 date
 
 echo -e "\nFiltering ${OUT_PREFIX}.bam for mapping quality >50"
@@ -71,6 +70,7 @@ fi
 if [[ -n $GET_DEPTH ]]; then
     # considered using mpileup instead of depth but much slower and don't gain towards VCF pipeline (use bcftools mpileup for that)
     echo -e "\nUsing samtools to write ${OUT_PREFIX}.depth.tsv"
+    samtools --version
     echo -e "\nCommand:\n samtools depth -a ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv"
     samtools depth -a ${OUT_PREFIX}.bam > ${OUT_PREFIX}.depth.tsv
     echo -e "\n samtools depth finished at:"
