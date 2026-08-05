@@ -20,7 +20,7 @@ while read SCAF; do
         # have to do seqtk subseq to get count of Ns anyway 
         seqtk subseq $HMASM <(echo -e "$SCAF\t$BEG\t$END") > tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa
         WINDOW_LENGTH=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -d '\n' | wc -c)
-        WINDOW_MASKED=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -c -d 'N' | wc -c)
+        WINDOW_MASKED=$(tail -n1 tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa | tr -c -d 'nN' | wc -c)
         rm tmp.ScafWindow-$HMASM-$SCAF-$BEG-$END.fa
         echo ${SCAF}:$i, $WINDOW_LENGTH, $WINDOW_MASKED
     done
