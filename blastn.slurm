@@ -25,4 +25,6 @@ blastn -num_threads 32 \
     -outfmt 6 \
     -out ${QUERY%.f*a}-${TARGET%.f*a}-blastn.out6
 
+date
+echo "BLAST output file: ${QUERY%.f*a}-${TARGET%.f*a}-blastn.out6"
 blastn -version
