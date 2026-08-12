@@ -24,3 +24,5 @@ blastn -num_threads 32 \
     -query $QUERY \
     -outfmt 6 \
     -out ${QUERY%.f*a}-${TARGET%.f*a}-blastn.out6
+
+blastn -version
