@@ -26,3 +26,4 @@ while read SRR; do
 done < $SRR_LIST
 
 date
+fasterq-dump --version
