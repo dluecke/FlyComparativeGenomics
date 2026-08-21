@@ -27,17 +27,26 @@ which samtools
 echo "indexing $BAM"
 samtools index -M -c $BAM
 
-echo "writing VCF file, command:"
-echo "bcftools mpileup --threads 4 -X pacbio-ccs -Ou -f $ASSEMBLY $BAM | bcftools call --threads 4 -cv -Ov -o $BAM.vcf"
-bcftools mpileup --threads 4 -X pacbio-ccs -Ou -f $ASSEMBLY $BAM | bcftools call --threads 4 -cv -Ov -o $BAM.vcf
+echo "writing BCF file, command:"
+echo "CMD: bcftools mpileup --threads 4 -X pacbio-ccs -Ou -f $ASSEMBLY $BAM | bcftools call --threads 4 -cv -Ob -o $BAM.bcf"
+bcftools mpileup --threads 4 -X pacbio-ccs -Ou -f $ASSEMBLY $BAM | bcftools call --threads 4 -cv -Ob -o $BAM.bcf
+echo "BCF file done"
+date
+
+echo -e "\nCalculating variant statistics for $BAM.bcf"
+echo "CMD: bcftools stats --threads 4 $BAM.bcf > $BAM.bcf.stats"
+bcftools stats --threads 4 $BAM.bcf > $BAM.bcf.stats
+echo "bcftools stats done"
+date
+
+echo -e "\nConverting BCF to VCF"
+echo "CMD: bcftools view --threads 4 -Ov -o $BAM.vcf $BAM.bcf"
+bcftools view --threads 4 -Ov -o $BAM.vcf $BAM.bcf
 echo "VCF file done"
 date
 
 # write csv counting variant lines per scaffold
 echo "counting variants per scaffold with $FCG/get_variants_by_sequence.sh"
 $FCG/get_variants_by_sequence.sh $BAM.vcf
-
-#echo "grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print \$2","\$1}' > $BAM.nseg_by_scaffold.csv"
-#grep -a -v ^# $BAM.vcf | cut -f1 | sort | uniq -c | awk '{print $2","$1}' > $BAM.nseg_by_scaffold.csv
 
 date
