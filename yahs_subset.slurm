@@ -43,18 +43,32 @@ which bwa-mem2
 echo -e "and filtering using samtools and samblaster:"
 which samtools
 $SOFTWARE_DIR/samblaster/samblaster --version
-echo -e "\nOutput file: $HIC_SUBSET_BAM"
+echo -e "\nFull HiC alignment file: $HIC_FULL_BAM"
+echo -e "Subset HiC alignmentfile: $HIC_SUBSET_BAM"
 echo -e "\nCMD: bwa-mem2 index -p ${ASM%.*} $ASM"
+bwa-mem2 index -p ${ASM%.*} $ASM
 echo -e "CMD: bwa-mem2 mem -5SP -t $THREADS ${ASM%.*} $HIC_R1 $HIC_R2 -o $HIC_FULL_BAM"
-echo -e "CMD: samtools view -N $SUBSET -h -F 2316 $HIC_FULL_BAM |\\
+bwa-mem2 mem -5SP -t $THREADS ${ASM%.*} $HIC_R1 $HIC_R2 -o $HIC_FULL_BAM
+echo "finished bwa"
+date
+echo "Filtering BAM file to only include reads mapped to contigs in $SUBSET"
+echo -e "CMD: samtools sort -o $HIC_FULL_BAM -@ $THREADS $HIC_FULL_BAM"
+samtools sort -o $HIC_FULL_BAM -@ $THREADS $HIC_FULL_BAM
+echo -e "CMD: samtools index -@ $THREADS $HIC_FULL_BAM"
+samtools index -@ $THREADS $HIC_FULL_BAM
+echo -e "\nWriting subset BED file\nCMD: grep -Fwf $SUBSET <(samtools idxstats $HIC_FULL_BAM | cut -f1,2) |\\
+ awk 'BEGIN{OFS=\"\\\t\"} {print $1, 0, $2}' > ${SUBSET_FN%.*}.bed"
+grep -Fwf $SUBSET <(samtools idxstats $HIC_FULL_BAM | cut -f1,2) |\
+ awk 'BEGIN{OFS="\t"} {print $1, 0, $2}' > ${SUBSET_FN%.*}.bed
+echo -e "CMD: samtools view --region-file ${SUBSET_FN%.*}.bed -h -F 2316 $HIC_FULL_BAM |\\
+ samtools sort -n -@ $THREADS |\\
  $SOFTWARE_DIR/samblaster/samblaster |\\
  samtools sort -n -@ $THREADS -o $HIC_SUBSET_BAM"
-bwa-mem2 index -p ${ASM%.*} $ASM
-bwa-mem2 mem -5SP -t $THREADS ${ASM%.*} $HIC_R1 $HIC_R2 -o $HIC_FULL_BAM
-samtools view -N $SUBSET -h -F 2316 $HIC_FULL_BAM |\
+samtools view --region-file ${SUBSET_FN%.*}.bed -h -F 2316 $HIC_FULL_BAM |\
+ samtools sort -n -@ $THREADS |\
  $SOFTWARE_DIR/samblaster/samblaster |\
  samtools sort -n -@ $THREADS -o $HIC_SUBSET_BAM
-echo "finished bwa"
+echo "Finished BAM filtering"
 date
 
 echo -e "\nStarting YaHS scaffolding for subset of contigs in $SUBSET"
