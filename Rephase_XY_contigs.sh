@@ -23,6 +23,11 @@
 GIT_REPO=~/FlyComparativeGenomics
 module load samtools/1.17
 
+if [[ $# -ne 2 ]]; then
+  echo "USAGE: Rephase_XY_contigs.sh INPUT.json ASM_NAME_PREFIX"
+  exit 1
+fi
+
 INPUT_JSON=$1
 ASM_ID=$2
 
