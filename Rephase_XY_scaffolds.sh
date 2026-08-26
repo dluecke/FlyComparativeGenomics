@@ -80,16 +80,17 @@ echo "Y phase yahs output: $Y_PHASE_YAHS_OUT" >> $LOGFILE
 mkdir -p ragtag_Yctgs
 cd ragtag_Yctgs
 
-echo -e "\nScaffolding Y yahs output onto X reference scaffold with ragtag_scaffold.sh in $PWD" >> $LOGFILE
-echo "CMD: $GIT_REPO/ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT 2" >> $LOGFILE
-$GIT_REPO/ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT 2 >> $LOGFILE 2>&1
-date >> $LOGFILE
+echo -e "\nScaffolding Y yahs output onto X reference scaffold with ragtag_scaffold.sh in $PWD" >> ../$LOGFILE
+echo "CMD: $GIT_REPO/ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT 2" >> ../$LOGFILE
+$GIT_REPO/ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT 2 >> ../$LOGFILE 2>&1
+date >> ../$LOGFILE
 Y_PHASE_RAGTAG_OUT="$PWD/ragtag_output/ragtag.scaffold.fasta"
 if [[ ! -f $Y_PHASE_RAGTAG_OUT ]]; then
-  echo "Missing ragtag output file, check ragtag_scaffold.sh step" >> $LOGFILE
+  echo "Missing ragtag output file, check ragtag_scaffold.sh step" >> ../$LOGFILE
   exit 1
 fi
-echo "RagTag Y scaffolding finished" >> $LOGFILE
+echo "RagTag Y scaffolding finished" >> ../$LOGFILE
+cd ..
 
 echo -e "\nCompiling X phase assembly with autosomes and ragtag output" >> $LOGFILE
 echo "CMD: samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V1" >> $LOGFILE
