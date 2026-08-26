@@ -81,8 +81,8 @@ mkdir -p ragtag_Yctgs
 cd ragtag_Yctgs
 
 echo -e "\nScaffolding Y yahs output onto X reference scaffold with ragtag_scaffold.sh in $PWD" >> $LOGFILE
-echo "CMD: ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT" >> $LOGFILE
-ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT >> $LOGFILE 2>&1
+echo "CMD: $GIT_REPO/ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT" >> $LOGFILE
+$GIT_REPO/ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT >> $LOGFILE 2>&1
 date >> $LOGFILE
 Y_PHASE_RAGTAG_OUT="$PWD/ragtag_output/ragtag.scaffold.fasta"
 if [[ ! -f $Y_PHASE_RAGTAG_OUT ]]; then
