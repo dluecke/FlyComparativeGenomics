@@ -96,12 +96,16 @@ echo "CMD: samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V1" >
 samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V1
 echo "CMD: cat $X_PHASE_RAGTAG_OUT >> $X_PHASE_ASM_V1" >> $LOGFILE
 cat $X_PHASE_RAGTAG_OUT >> $X_PHASE_ASM_V1
+echo "CMD: sbatch $GIT_REPO/gfastats.slurm $X_PHASE_ASM_V1" >> $LOGFILE
+sbatch $GIT_REPO/gfastats.slurm $X_PHASE_ASM_V1
 
 echo -e "\nCompiling Y phase assembly with autosomes and ragtag output" >> $LOGFILE
 echo "CMD: samtools faidx $DIPLOID_ASM -r $Y_AUTOSOMES_LIST > $Y_PHASE_ASM_V1" >> $LOGFILE
 samtools faidx $DIPLOID_ASM -r $Y_AUTOSOMES_LIST > $Y_PHASE_ASM_V1
 echo "CMD: cat $Y_PHASE_RAGTAG_OUT >> $Y_PHASE_ASM_V1" >> $LOGFILE
 cat $Y_PHASE_RAGTAG_OUT >> $Y_PHASE_ASM_V1
+echo "CMD: sbatch $GIT_REPO/gfastats.slurm $Y_PHASE_ASM_V1" >> $LOGFILE
+sbatch $GIT_REPO/gfastats.slurm $Y_PHASE_ASM_V1
 
 echo -e "\nRescaffolded X and Y phase assemblies finished" >> $LOGFILE
 echo -e "\nStarting final HiC mapping with redo_hic_contacts.slurm" >> $LOGFILE
