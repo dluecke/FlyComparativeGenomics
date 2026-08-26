@@ -6,7 +6,9 @@
 #  X reference scaffold (eg from female primary)
 #  lists for autosome scaffolds to pair with X and Y phases (better hap with X)
 #  ctg lists for X and Y from rephase_RTout-V2.R.
+#  HiC fastq files R1/R2
 # Compiles new phases with autosome scaffolds and contig set
+# Starts RagTag scaffolding for X phase with X reference scaffold
 # Starts YaHS for Y contigs with yahs_subset.slurm
 
 # USAGE Rephase_XY_contigs.sh INPUT.json ASM_NAME_PREFIX
