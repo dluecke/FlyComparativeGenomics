@@ -79,7 +79,7 @@ echo -e "CMD: samtools view --region-file ${SUBSET_FN%.*}.bed -h -F 2316 $HIC_FU
           }
         } 
     }' |\\
- samtools sort -n -@ $THREADS |\\
+ samtools sort -O SAM -n -@ $THREADS |\\
  $SOFTWARE_DIR/samblaster/samblaster |\\
  samtools sort -n -@ $THREADS -o $HIC_SUBSET_BAM"
 samtools view --region-file ${SUBSET_FN%.*}.bed -h -F 2316 $HIC_FULL_BAM |\
@@ -94,7 +94,7 @@ samtools view --region-file ${SUBSET_FN%.*}.bed -h -F 2316 $HIC_FULL_BAM |\
        }
      } 
    }' |\
- samtools sort -n -@ $THREADS |\
+ samtools sort -O SAM -n -@ $THREADS |\
  $SOFTWARE_DIR/samblaster/samblaster |\
  samtools sort -n -@ $THREADS -o $HIC_SUBSET_BAM
 echo "Finished BAM filtering"
