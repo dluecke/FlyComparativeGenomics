@@ -6,9 +6,15 @@
 
 module load ragtag/2.1.0
 
+echo "Starting RagTag scaffolding"
+date
+echo -e "\nRagTag loaded: $(ragtag.py --version)\n"
+
 REF=$1
 QRY=$2
 
 # run correct to break contigs if alignment and reads support
 # -r to estimate gap size, -u to tag unmodified sequences (better for AGP)
+echo "CMD: ragtag.py scaffold -r -u -t 32 $REF $QRY"
 ragtag.py scaffold -r -t -u 32 $REF $QRY
+
