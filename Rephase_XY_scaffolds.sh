@@ -40,8 +40,8 @@ INPUT_JSON=$1
 ASM_ID=$2
 
 # phased scaffold+contig assembly filenames (pre-scaffolding)
-X_PHASE_ASM_V0="${ASM_ID}-X_v1.fa"
-Y_PHASE_ASM_V0="${ASM_ID}-Y_v1.fa"
+X_PHASE_ASM_V1="${ASM_ID}-X_v1.fa"
+Y_PHASE_ASM_V1="${ASM_ID}-Y_v1.fa"
 
 INPUT_JSON_FN=$(basename $INPUT_JSON)
 LOGFILE="Rephase_XY_scaffolds-${INPUT_JSON_FN%.json}.log"
@@ -70,13 +70,47 @@ X_PHASE_RAGTAG_OUT="$PWD/ragtag_Xctgs/ragtag_output/ragtag.scaffold.fasta"
 Y_PHASE_YAHS_OUT="$PWD/yahs_Yctgs/${ASM_ID}-Y_scaffolds_final.fa"
 
 if [[ ! -f $X_PHASE_RAGTAG_OUT || ! -f $Y_PHASE_YAHS_OUT ]]; then
-  echo "Missing ragtag or yahs output files, check previous steps"
+  echo "Missing ragtag or yahs output files, check previous steps" >> $LOGFILE
   exit 1
 fi
 
 echo "X phase ragtag output: $X_PHASE_RAGTAG_OUT" >> $LOGFILE
 echo "Y phase yahs output: $Y_PHASE_YAHS_OUT" >> $LOGFILE
 
-echo -e "\nScaffolding Y yahs output onto X reference scaffold with ragtag_scaffold.sh" >> $LOGFILE
+mkdir -p ragtag_Yctgs
+cd ragtag_Yctgs
+
+echo -e "\nScaffolding Y yahs output onto X reference scaffold with ragtag_scaffold.sh in $PWD" >> $LOGFILE
 echo "CMD: ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT" >> $LOGFILE
-ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT
+ragtag_scaffold.sh $X_REF_FA $Y_PHASE_YAHS_OUT >> $LOGFILE 2>&1
+date >> $LOGFILE
+Y_PHASE_RAGTAG_OUT="$PWD/ragtag_output/ragtag.scaffold.fasta"
+if [[ ! -f $Y_PHASE_RAGTAG_OUT ]]; then
+  echo "Missing ragtag output file, check ragtag_scaffold.sh step" >> $LOGFILE
+  exit 1
+fi
+echo "RagTag Y scaffolding finished" >> $LOGFILE
+
+echo -e "\nCompiling X phase assembly with autosomes and ragtag output" >> $LOGFILE
+echo "CMD: samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V1" >> $LOGFILE
+samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V1
+echo "CMD: cat $X_PHASE_RAGTAG_OUT >> $X_PHASE_ASM_V1" >> $LOGFILE
+cat $X_PHASE_RAGTAG_OUT >> $X_PHASE_ASM_V1
+
+echo -e "\nCompiling Y phase assembly with autosomes and ragtag output" >> $LOGFILE
+echo "CMD: samtools faidx $DIPLOID_ASM -r $Y_AUTOSOMES_LIST > $Y_PHASE_ASM_V1" >> $LOGFILE
+samtools faidx $DIPLOID_ASM -r $Y_AUTOSOMES_LIST > $Y_PHASE_ASM_V1
+echo "CMD: cat $Y_PHASE_RAGTAG_OUT >> $Y_PHASE_ASM_V1" >> $LOGFILE
+cat $Y_PHASE_RAGTAG_OUT >> $Y_PHASE_ASM_V1
+
+echo -e "\nRescaffolded X and Y phase assemblies finished" >> $LOGFILE
+echo -e "\nStarting final HiC mapping with redo_hic_contacts.slurm" >> $LOGFILE
+
+echo -e "CMD: sbatch $GIT_REPO/redo_hic_contacts.slurm $X_PHASE_ASM_V1 $HIC_FQ1 $HIC_FQ2" >> $LOGFILE
+sbatch $GIT_REPO/redo_hic_contacts.slurm $X_PHASE_ASM_V1 $HIC_FQ1 $HIC_FQ2 >> $LOGFILE 2>&1
+echo -e "CMD: sbatch $GIT_REPO/redo_hic_contacts.slurm $Y_PHASE_ASM_V1 $HIC_FQ1 $HIC_FQ2" >> $LOGFILE
+sbatch $GIT_REPO/redo_hic_contacts.slurm $Y_PHASE_ASM_V1 $HIC_FQ1 $HIC_FQ2 >> $LOGFILE 2>&1
+
+echo -e "\nRephase_XY_scaffolds.sh finished" >> $LOGFILE
+date >> $LOGFILE
+
