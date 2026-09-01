@@ -58,6 +58,7 @@ else
     echo "Full HiC BAM file already exists, skipping mapping step."
 fi
 date
+echo
 
 echo "Filtering BAM file to only include reads mapped to contigs in $SUBSET"
 echo -e "CMD: samtools sort -o $HIC_FULL_BAM -@ $THREADS $HIC_FULL_BAM"
@@ -65,7 +66,7 @@ samtools sort -o $HIC_FULL_BAM -@ $THREADS $HIC_FULL_BAM
 echo -e "CMD: samtools index -@ $THREADS $HIC_FULL_BAM"
 samtools index -@ $THREADS $HIC_FULL_BAM
 echo -e "\nWriting subset BED file\nCMD: grep -Fwf $SUBSET <(samtools idxstats $HIC_FULL_BAM | cut -f1,2) |\\
- awk 'BEGIN{OFS=\"\\\t\"} {print $1, 0, $2}' > ${SUBSET_FN%.*}.bed"
+ awk 'BEGIN{OFS=\"\\\t\"} {print \$1, 0, \$2}' > ${SUBSET_FN%.*}.bed"
 grep -Fwf $SUBSET <(samtools idxstats $HIC_FULL_BAM | cut -f1,2) |\
  awk 'BEGIN{OFS="\t"} {print $1, 0, $2}' > ${SUBSET_FN%.*}.bed
 echo -e "CMD: samtools view --region-file ${SUBSET_FN%.*}.bed -h -F 2316 $HIC_FULL_BAM |\\

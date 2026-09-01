@@ -62,6 +62,9 @@ Y_CTGS_LIST=$(jq -r '.Y_CTGS' $INPUT_JSON)
 HIC_FQ1=$(jq -r '.HIC_FQ[0]' $INPUT_JSON)
 HIC_FQ2=$(jq -r '.HIC_FQ[1]' $INPUT_JSON)
 
+dos2unix $X_CTGS_LIST
+dos2unix $Y_CTGS_LIST
+
 echo -e "\nCompiling X phase assembly with autosomes and X contigs" >> $LOGFILE
 echo "CMD: samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V0" >> $LOGFILE
 samtools faidx $DIPLOID_ASM -r $X_AUTOSOMES_LIST > $X_PHASE_ASM_V0
