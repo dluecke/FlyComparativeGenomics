@@ -16,6 +16,15 @@
 
 module load apptainer/1.4.1
 
+date
+
+echo "Running MitoHiFi with the following parameters:"
+echo "Contigs: $1"
+echo "Reference Fasta: $2"
+echo "Reference GenBank: $3"
+
+echo -e "\nCMD: singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.sif mitohifi.py -c $1 -f $2 -g $3 -o 5 -t 32\n"
+
 singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.sif \
     mitohifi.py \
     -c $1 \
@@ -24,4 +33,7 @@ singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.s
     -o 5 \
     -t 32
 
+echo "MitoHiFi version:"
 singularity run /project/vpgru/software/OtherSingularityImages/mitohifi_master.sif mitohifi.py -v
+
+echo -e "\nMitoHiFi finished at $(date)\n"
