@@ -11,11 +11,11 @@
 #SBATCH --mail-type=START,END,FAIL               #will receive an email when job ends or fails
 
 date
-module load smrtlink/25.3.0.273777
+module load smrtlink/26.1.0.284828
 
 SUBREADS=$1
 
-echo -e "\nRunning SMRTlink CCS on subreads: $SUBREADS\n"
+echo -e "\nRunning SMRTlink CCS on subreads: $SUBREADS"
 
 MOVIE=$(echo $SUBREADS | cut -d'.' -f1)
 
