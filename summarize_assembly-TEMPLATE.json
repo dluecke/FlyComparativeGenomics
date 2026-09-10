@@ -1,0 +1,12 @@
+{
+  "ASM_TAG": "",
+  "GFASTATS_ASM": "FILE",
+  "GFASTATS_CHR_DIR": "DIRECTORY",
+  "PCT_CHRS": "FILE",
+  "DEPTH_BY_SCAF": "FILE",
+  "HIFI_ALN_STATS": "FILE",
+  "MERQURY_DIR": "DIRECTORY",
+  "BUSCO_DIRS": [
+    "DIRECTORY"
+  ]
+}
