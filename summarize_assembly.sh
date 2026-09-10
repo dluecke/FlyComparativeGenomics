@@ -17,6 +17,8 @@
 #       DIRECTORY run_LINEAGE2/ (output from busco on ASM with LINEAGE2 eg run_insecta_odb10/), ...
 #     ]
 
+# Prepared 9/10/2026 by David Luecke using MAI-Code-1.1-Flash and GitHub Copilot agent in VS Code
+
 usage() {
   cat <<'EOF'
 Usage: summarize_assembly.sh <input.json>
@@ -40,17 +42,22 @@ EOF
   exit 1
 }
 
+# INITIAL CHECKS FOR CORRECT INPUTS
+
+# check for correct number of arguments
 if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
   usage
 fi
 
 input_json="$1"
 
+# check for jq tool for parsing JSON
 if ! command -v jq >/dev/null 2>&1; then
   echo "ERROR: jq is required to parse $input_json" >&2
   usage
 fi
 
+# check for required keys in JSON
 if ! jq -e '
   type == "object" and
   (.GFASTATS_ASM | type == "string") and
@@ -65,6 +72,7 @@ if ! jq -e '
   usage
 fi
 
+# define variables from JSON key fields
 ASM_TAG=$(jq -r '.ASM_TAG // ""' "$input_json")
 GFASTATS_ASM=$(jq -r '.GFASTATS_ASM' "$input_json")
 GFASTATS_CHR_DIR=$(jq -r '.GFASTATS_CHR_DIR' "$input_json")
@@ -74,6 +82,7 @@ HIFI_ALN_STATS=$(jq -r '.HIFI_ALN_STATS' "$input_json")
 MERQURY_DIR=$(jq -r '.MERQURY_DIR' "$input_json")
 mapfile -t BUSCO_DIRS < <(jq -r '.BUSCO_DIRS[]' "$input_json")
 
+# check that required files and directories exist
 for var_name in \
   GFASTATS_ASM \
   PCT_CHRS \
@@ -104,3 +113,14 @@ for i in "${!BUSCO_DIRS[@]}"; do
   fi
 done
 
+# default output tag: if ASM_TAG is empty, use input filename stem
+if [ -z "$ASM_TAG" ]; then
+  ASM_TAG=$(basename "${input_json%.*}")
+fi
+
+# output files for full assembly summary and per-chromosome stats
+OUTFILE_FULL="${ASM_TAG}-FULL_assembly_summary.csv"
+OUTFILE_CHRS="${ASM_TAG}-CHRS_assembly_summary.csv"
+
+
+# EXTRACTING STATISTICS TO REPORT
