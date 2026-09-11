@@ -182,6 +182,7 @@ QV_FULL=$(awk '{print $4}' "${MERQURY_QV_FILES[0]}" | head -n1)
 COMPLETENESS=$(awk '{print $5}' "$MERQURY_COMPLETENESS" | head -n1)
 # Depth average weighted by length
 DEPTH_AVG=$(awk '{TotalLen+=$2; depthXlen+=$2*$3} END {printf "%.2f", depthXlen/TotalLen}' $DEPTH_BY_SCAF)
+N_MAPPED_READS=$(grep -m1 "reads mapped:" "$HIFI_ALN_STATS" | awk '{print $NF}')
 
 # Build BUSCO results keyed by lineage dataset name and value by one-line summary.
 # Each BUSCO_DIR must contain a short_summary.json file with:
@@ -233,7 +234,7 @@ N gaps, ${N_GAPS}
 Gap length (average), ${GAPS_BP} bp (${AVG_GAP_BP} bp)
 N chromosomes (% total length), ${N_CHRS} (${IN_CHR_PCT}%)
 GC content, ${GC_PCT}%
-Average HiFi coverage, ${DEPTH_AVG}
+Average HiFi coverage (N mapped reads), ${DEPTH_AVG} (${N_MAPPED_READS} reads)
 Quality value (QV), ${QV_FULL}
 Kmer completeness, ${COMPLETENESS}
 BUSCO results:
@@ -244,3 +245,44 @@ for lineage_name in "${!BUSCO_RESULTS[@]}"; do
     echo "$lineage_name, $result"
 done >> "$OUTFILE_FULL"
 
+
+# BY-CHROMOSOME ASSEMBLY SUMMARY
+# backup existing OUTFILE_CHRS if it exists
+if [ -f "$OUTFILE_CHRS" ]; then
+    cat "$OUTFILE_CHRS" >> "${OUTFILE_CHRS}.bak"
+    echo -e "\n\n\n" >> "${OUTFILE_CHRS}.bak"
+fi
+
+if [ "${#MERQURY_QV_FILES[@]}" -lt 2 ] || [ ! -f "${MERQURY_QV_FILES[1]}" ]; then
+    echo "WARNING: By-scaffold QV file not found" >&2
+    skip_chr_qv=true
+else
+    skip_chr_qv=false
+fi
+
+# Header row
+echo "Chromosome,Length (unmasked),N contigs,Contig N50 (L50),N gaps (Gap length),GC content,Average HiFi coverage,Quality value (QV)" > "$OUTFILE_CHRS"
+
+# loop through by-chromosome gfastats files, extract stats, and append to OUTFILE_CHRS
+for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
+    # stats in gfastats output
+    chr_name=$(basename "$chr_file" | sed 's/.*-\(.*\)\.gfastats/\1/')
+    chr_length=$(grep -m1 "Total scaffold length" "$chr_file" | awk '{print $NF}')
+    chr_n_contigs=$(grep -m1 "contigs" "$chr_file" | awk '{print $NF}')
+    chr_contig_n50=$(grep -m1 "Contig N50" "$chr_file" | awk '{print $NF}')
+    chr_contig_l50=$(grep -m1 "Contig L50" "$chr_file" | awk '{print $NF}')
+    chr_n_gaps=$(grep -m1 "gaps in scaffolds" "$chr_file" | awk '{print $NF}')
+    chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
+    chr_gc_content=$(grep -m1 "GC content" "$chr_file" | awk '{print $NF}')
+    # depth_by_scaffold has chromosome names in column 1
+    chr_depth_avg=$(awk '$1 == "$chr_name" {print $NF}' "$DEPTH_BY_SCAF")
+    # longer qv file has chromosome names in column 1
+    if [ "$skip_chr_qv" = true ]; then
+        chr_qv="unknown"
+    else
+        chr_qv=$(awk '$1 == "$chr_name" {print $4}' "${MERQURY_QV_FILES[1]}")
+    fi
+
+    # Append to OUTFILE_CHRS
+    echo "${chr_name},${chr_length},${chr_n_contigs},${chr_contig_n50} (${chr_contig_l50}),${chr_n_gaps} (${chr_gap_length}),${chr_gc_content},${chr_depth_avg},${chr_qv}" >> "$OUTFILE_CHRS"
+done
