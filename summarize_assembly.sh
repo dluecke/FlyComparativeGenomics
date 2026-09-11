@@ -174,11 +174,14 @@ GAPS_BP=$(grep -m1 "Total gap length" "$GFASTATS_ASM" | awk '{print $NF}')
 AVG_GAP_BP=$(grep -m1 "Average gap length" "$GFASTATS_ASM" | awk '{print $NF}')
 GC_PCT=$(grep -m1 "GC content" "$GFASTATS_ASM" | awk '{print $NF}')
 # pct_chrs.txt stat, convert to rounded percent same as GC_PCT
+N_CHRS=$(grep "ChromNumber" "$PCT_CHRS" | awk '{print $NF}')
 IN_CHR_DEC=$(grep "PctInChroms" "$PCT_CHRS" | awk '{print $NF}')
 IN_CHR_PCT=$(printf "%.2f" $(echo "$IN_CHR_DEC * 100" | bc -l))
-# Stats from merqury files
-QV_FULL=$(awk '{print $4}' "${MERQURY_QV_FILES[0]}")
-QV_COMPLETE=$(awk '{print $5}' "$MERQURY_COMPLETENESS")
+# Stats from merqury files (take first line to be safe)
+QV_FULL=$(awk '{print $4}' "${MERQURY_QV_FILES[0]}" | head -n1)
+COMPLETENESS=$(awk '{print $5}' "$MERQURY_COMPLETENESS" | head -n1)
+# Depth average weighted by length
+DEPTH_AVG=$(awk '{TotalLen+=$2; depthXlen+=$2*$3} END {printf "%.2f", depthXlen/TotalLen}' $DEPTH_BY_SCAF)
 
 # Build BUSCO results keyed by lineage dataset name and value by one-line summary.
 # Each BUSCO_DIR must contain a short_summary.json file with:
@@ -212,4 +215,32 @@ if [ "${#BUSCO_RESULTS[@]}" -ne "${#BUSCO_DIRS[@]}" ]; then
   exit 1
 fi
 
+# Write to output CSV
+# If OUTFILE_FULL already exists, back it up with .bak suffix before overwriting
+if [ -f "$OUTFILE_FULL" ]; then
+    cat "$OUTFILE_FULL" >> "${OUTFILE_FULL}.bak"
+    echo -e "\n\n\n" >> "${OUTFILE_FULL}.bak"
+fi
+
+# here-document to report variables directly in CSV format
+cat <<EOF >"$OUTFILE_FULL"
+Total length (unmasked length), ${TOTAL_BP} bp (${UNMASKED_BP} bp)
+N scaffolds, ${N_SCAFFOLDS}
+Scaffold N50 (L50), ${SCAFFOLD_N50} (${SCAFFOLD_L50})
+N contigs, ${N_CONTIGS}
+Contig N50 (L50), ${CONTIG_N50} (${CONTIG_L50})
+N gaps, ${N_GAPS}
+Gap length (average), ${GAPS_BP} bp (${AVG_GAP_BP} bp)
+N chromosomes (% total length), ${N_CHRS} (${IN_CHR_PCT}%)
+GC content, ${GC_PCT}%
+Average HiFi coverage, ${DEPTH_AVG}
+Quality value (QV), ${QV_FULL}
+Kmer completeness, ${COMPLETENESS}
+BUSCO results:
+EOF
+# loop through BUSCO_RESULTS array, write each lineage and summary to CSV (replacing , with ; in one line summary)
+for lineage_name in "${!BUSCO_RESULTS[@]}"; do
+    result=$(echo "${BUSCO_RESULTS[$lineage_name]}" | tr ',' ';')
+    echo "$lineage_name, $result"
+done >> "$OUTFILE_FULL"
 
