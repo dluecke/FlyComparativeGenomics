@@ -42,6 +42,9 @@ EOF
   exit 1
 }
 
+# empty globs will be used for file checks
+shopt -s nullglob
+
 # INITIAL CHECKS FOR CORRECT INPUTS
 
 # check for correct number of arguments
@@ -113,14 +116,100 @@ for i in "${!BUSCO_DIRS[@]}"; do
   fi
 done
 
-# default output tag: if ASM_TAG is empty, use input filename stem
+# Filename arrays from provided directories (missing files return empty array due to nullglob)
+
+# all by-chr gfastats files, default order (check these after writing full assembly summary)
+GFASTATS_CHR_FILES=("$GFASTATS_CHR_DIR"/*.gfastats)
+
+# array for all merqury qv files, ordered by wc -l
+mapfile -t MERQURY_QV_FILES < <(
+    for f in "$MERQURY_DIR"/*.qv; do
+        wc -l "$f"
+    done | sort -n | awk '{print $2}'
+)
+# check if MERQURY_QV_FILES array is empty
+if [ ${#MERQURY_QV_FILES[@]} -eq 0 ]; then
+    echo "ERROR: No .qv files found in $MERQURY_DIR" >&2
+    exit 1
+fi
+if [ ! -f ${MERQURY_QV_FILES[0]} ]; then
+    echo "ERROR: First .qv file not found: ${MERQURY_QV_FILES[0]}" >&2
+    exit 1
+fi
+
+# completeness stats file, only proceed if single file found
+if [ "$(compgen -G $MERQURY_DIR/*.completeness.stats | wc -l)" -eq 1 ]; then
+    MERQURY_COMPLETENESS="$MERQURY_DIR"/*.completeness.stats
+else
+    echo "ERROR: Expected single completeness.stats file in $MERQURY_DIR, found $(compgen -G "$MERQURY_DIR"/*.completeness.stats | wc -l)" >&2
+    exit 1
+fi
+
+
+# Default output tag: if ASM_TAG is empty, use input filename stem
 if [ -z "$ASM_TAG" ]; then
   ASM_TAG=$(basename "${input_json%.*}")
 fi
 
-# output files for full assembly summary and per-chromosome stats
+# Output files for full assembly summary and per-chromosome stats
 OUTFILE_FULL="${ASM_TAG}-FULL_assembly_summary.csv"
 OUTFILE_CHRS="${ASM_TAG}-CHRS_assembly_summary.csv"
 
 
-# EXTRACTING STATISTICS TO REPORT
+# FULL ASSEMBLY SUMMARY
+
+# Extract full assembly stats
+# Searches based on gfastats output syntax
+TOTAL_BP=$(grep -m1 "Total scaffold length" "$GFASTATS_ASM" | awk '{print $NF}')
+MASKED_BP=$(grep -m1 "soft-masked bases" "$GFASTATS_ASM" | awk '{print $NF}')
+UNMASKED_BP=$(echo $TOTAL_BP - $MASKED_BP | bc)
+N_SCAFFOLDS=$(grep -m1 "scaffolds" "$GFASTATS_ASM" | awk '{print $NF}')
+SCAFFOLD_N50=$(grep -m1 "Scaffold N50" "$GFASTATS_ASM" | awk '{print $NF}')
+SCAFFOLD_L50=$(grep -m1 "Scaffold L50" "$GFASTATS_ASM" | awk '{print $NF}')
+N_CONTIGS=$(grep -m1 "contigs" "$GFASTATS_ASM" | awk '{print $NF}')
+CONTIG_N50=$(grep -m1 "Contig N50" "$GFASTATS_ASM" | awk '{print $NF}')
+CONTIG_L50=$(grep -m1 "Contig L50" "$GFASTATS_ASM" | awk '{print $NF}')
+N_GAPS=$(grep -m1 "gaps in scaffolds" "$GFASTATS_ASM" | awk '{print $NF}')
+GAPS_BP=$(grep -m1 "Total gap length" "$GFASTATS_ASM" | awk '{print $NF}')
+AVG_GAP_BP=$(grep -m1 "Average gap length" "$GFASTATS_ASM" | awk '{print $NF}')
+GC_PCT=$(grep -m1 "GC content" "$GFASTATS_ASM" | awk '{print $NF}')
+# pct_chrs.txt stat, convert to rounded percent same as GC_PCT
+IN_CHR_DEC=$(grep "PctInChroms" "$PCT_CHRS" | awk '{print $NF}')
+IN_CHR_PCT=$(printf "%.2f" $(echo "$IN_CHR_DEC * 100" | bc -l))
+# Stats from merqury files
+QV_FULL=$(awk '{print $4}' "${MERQURY_QV_FILES[0]}")
+QV_COMPLETE=$(awk '{print $5}' "$MERQURY_COMPLETENESS")
+
+# Build BUSCO results keyed by lineage dataset name and value by one-line summary.
+# Each BUSCO_DIR must contain a short_summary.json file with:
+#   .lineage_dataset.name
+#   .results.one_line_summary
+# The final associative array length must match BUSCO_DIRS length.
+declare -A BUSCO_RESULTS=()
+for i in "${!BUSCO_DIRS[@]}"; do
+  busco_dir="${BUSCO_DIRS[$i]}"
+  short_summary="$busco_dir/short_summary.json"
+
+  if [ ! -f "$short_summary" ]; then
+    echo "ERROR: BUSCO_DIRS[$i] is missing short_summary.json: $short_summary" >&2
+    exit 1
+  fi
+
+  lineage_name=$(jq -er '.lineage_dataset.name' "$short_summary" 2>/dev/null || true)
+  one_line_summary=$(jq -er '.results.one_line_summary' "$short_summary" 2>/dev/null || true)
+
+  if [ -z "$lineage_name" ] || [ "$lineage_name" = "null" ] || [ -z "$one_line_summary" ] || [ "$one_line_summary" = "null" ]; then
+    echo "ERROR: Missing required BUSCO keys in $short_summary" >&2
+    echo "       Expected .lineage_dataset.name and .results.one_line_summary" >&2
+    exit 1
+  fi
+
+  BUSCO_RESULTS["$lineage_name"]="$one_line_summary"
+done
+
+if [ "${#BUSCO_RESULTS[@]}" -ne "${#BUSCO_DIRS[@]}" ]; then
+  echo "ERROR: BUSCO_RESULTS length (${#BUSCO_RESULTS[@]}) does not match BUSCO_DIRS length (${#BUSCO_DIRS[@]})" >&2
+  exit 1
+fi
+
+
