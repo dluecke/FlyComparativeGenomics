@@ -275,12 +275,12 @@ for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
     chr_gc_content=$(grep -m1 "GC content" "$chr_file" | awk '{print $NF}')
     # depth_by_scaffold has chromosome names in column 1
-    chr_depth_avg=$(awk '$1 == "$chr_name" {print $NF}' "$DEPTH_BY_SCAF")
+    chr_depth_avg=$(grep "$chr_name" "$DEPTH_BY_SCAF" | awk '{print $NF}')
     # longer qv file has chromosome names in column 1
     if [ "$skip_chr_qv" = true ]; then
         chr_qv="unknown"
     else
-        chr_qv=$(awk '$1 == "$chr_name" {print $4}' "${MERQURY_QV_FILES[1]}")
+        chr_qv=$(grep "$chr_name" "${MERQURY_QV_FILES[1]}" | awk '{print $4}')
     fi
 
     # Append to OUTFILE_CHRS
