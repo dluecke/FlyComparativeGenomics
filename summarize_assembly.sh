@@ -226,15 +226,15 @@ fi
 # here-document to report variables directly in CSV format
 cat <<EOF >"$OUTFILE_FULL"
 Total length (unmasked length),${TOTAL_BP} bp (${UNMASKED_BP} bp)
+N chromosomes (% total length),${N_CHRS} (${IN_CHR_PCT}%)
 N scaffolds,${N_SCAFFOLDS}
 Scaffold N50 (L50),${SCAFFOLD_N50} (${SCAFFOLD_L50})
 N contigs,${N_CONTIGS}
 Contig N50 (L50),${CONTIG_N50} (${CONTIG_L50})
 N gaps,${N_GAPS}
 Gap length (average),${GAPS_BP} bp (${AVG_GAP_BP} bp)
-N chromosomes (% total length),${N_CHRS} (${IN_CHR_PCT}%)
 GC content,${GC_PCT}%
-Average HiFi depth (N mapped reads),${DEPTH_AVG} (${N_MAPPED_READS} reads)
+Avg HiFi depth (N reads),${DEPTH_AVG} (${N_MAPPED_READS} reads)
 Quality value (QV),${QV_FULL}
 Kmer completeness,${COMPLETENESS}
 BUSCO results:
@@ -261,18 +261,21 @@ else
 fi
 
 # Header row
-echo "Chromosome,total bp (unmasked),N contigs,Contig N50 (L50),N gaps (Gap bp),GC%,HiFi depth,QV" > "$OUTFILE_CHRS"
+echo "Chromosome,Total Mb (unmasked),N contigs,Contig N50 (L50),N gaps,GC%,HiFi depth,QV" > "$OUTFILE_CHRS"
 
 # loop through by-chromosome gfastats files, extract stats, and append to OUTFILE_CHRS
 for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     # stats in gfastats output
     chr_name=$(basename "$chr_file" | sed 's/.*-\(.*\)\.gfastats/\1/')
     chr_length=$(grep -m1 "Total scaffold length" "$chr_file" | awk '{print $NF}')
+    chr_length_Mb=$(printf "%.2f" $(echo "scale=4; $chr_length / 1000000" | bc))
     chr_masked_bp=$(grep -m1 "soft-masked bases" "$chr_file" | awk '{print $NF}')
     chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
     chr_unmasked_bp=$(echo $chr_length - $chr_masked_bp - $chr_gap_length | bc)
+    chr_unmasked_Mb=$(printf "%.2f" $(echo "scale=4; $chr_unmasked_bp / 1000000" | bc))
     chr_n_contigs=$(grep -m1 "contigs" "$chr_file" | awk '{print $NF}')
     chr_contig_n50=$(grep -m1 "Contig N50" "$chr_file" | awk '{print $NF}')
+    chr_contig_n50_Mb=$(printf "%.2f" $(echo "scale=4; $chr_contig_n50 / 1000000" | bc))
     chr_contig_l50=$(grep -m1 "Contig L50" "$chr_file" | awk '{print $NF}')
     chr_n_gaps=$(grep -m1 "gaps in scaffolds" "$chr_file" | awk '{print $NF}')
     chr_gc_content=$(grep -m1 "GC content" "$chr_file" | awk '{print $NF}')
@@ -286,5 +289,5 @@ for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     fi
 
     # Append to OUTFILE_CHRS
-    echo "${chr_name},${chr_length} (${chr_unmasked_bp}),${chr_n_contigs},${chr_contig_n50} (${chr_contig_l50}),${chr_n_gaps} (${chr_gap_length}),${chr_gc_content},${chr_depth_avg},${chr_qv}" >> "$OUTFILE_CHRS"
+    echo "${chr_name},${chr_length_Mb} (${chr_unmasked_Mb}),${chr_n_contigs},${chr_contig_n50_Mb} (${chr_contig_l50}),${chr_n_gaps},${chr_gc_content},${chr_depth_avg},${chr_qv}" >> "$OUTFILE_CHRS"
 done
