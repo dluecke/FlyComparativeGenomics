@@ -181,6 +181,7 @@ GetScaffoldCoordsDF <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL,
 
 
 PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F,  # reorder query names by ref position
+                         REF_LONGEST_N = NULL, QRY_LONGEST_N = NULL, # just the longest (N) sequences, skipped if REFERENCE/QUERY provided
                          MIN_REF_LENGTH = 0, MIN_QRY_LENGTH = 0, MIN_MATCH_LENGTH = 0, 
                          MAX_REF_LENGTH = F, MAX_QRY_LENGTH = F,
                          REF_LIM = NULL, QRY_LIM = NULL, # akin to xlim, ylim - takes c(START, STOP) coordinates
@@ -188,7 +189,7 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
                          ORIENTATION = T, MATCH_PCT = T,
                          DROP_EMPTY_SCAFFOLDS = T, FLIP_AXES = F, COORD_OFFSET = 0.02,
                          LINEWIDTH = 1, ALPHA = 0.25, POINTSIZE = 0.8,
-                         SEQLABANGLE = 45,
+                         SEQLABANGLE = 45, BOUNDARY_COLOR = "slateblue",
                          MAR_T = 25, MAR_R = 5, MAR_B = 5, MAR_L = 10,
                          LAB_REF = "", LAB_QRY = ""){
   
@@ -198,10 +199,24 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
   
   # Set default REFERENCE and QUERY based on L.COORDS breaks df 
   if( is.null(REFERENCE) ){
-    REFERENCE <- BREAKS_REF$SeqName
+    if( is.null(REF_LONGEST_N) ){
+      REFERENCE <- BREAKS_REF$SeqName
+    } else {
+      REFERENCE = BREAKS_REF %>%
+        arrange(desc(SeqLength)) %>%
+        head(REF_LONGEST_N) %>%
+        select(SeqName) %>% unlist %>% as.character()
+    }
   }
   if( is.null(QUERY) ){
-    QUERY <- BREAKS_QRY$SeqName
+    if( is.null(QRY_LONGEST_N) ){
+      QUERY <- BREAKS_QRY$SeqName
+    } else {
+      QUERY = BREAKS_QRY %>%
+        arrange(desc(SeqLength)) %>%
+        head(QRY_LONGEST_N) %>%
+        select(SeqName) %>% unlist %>% as.character()
+    }
   }
   
   # filter qry and ref by length, make sure is character vector
@@ -370,9 +385,9 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
     
     p2 <- p1 +
       geom_segment(data = data.frame(x = c(REF_STARTPOS, REF_MAX), xend=c(REF_STARTPOS, REF_MAX), y=QRY_MIN, yend=QRY_MAX), 
-                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25, inherit.aes = F) + 
+                   aes(x=x, xend=xend, y=y, yend=yend), color = BOUNDARY_COLOR, linetype='solid', linewidth=0.25, inherit.aes = F) + 
       geom_segment(data = data.frame(x=REF_MIN, xend=REF_MAX, y = c(QRY_STARTPOS, QRY_MAX), yend = c(QRY_STARTPOS, QRY_MAX)), 
-                   aes(x=x, xend=xend, y=y, yend=yend), color = "slateblue", linetype='solid', linewidth=0.25, inherit.aes = F) +
+                   aes(x=x, xend=xend, y=y, yend=yend), color = BOUNDARY_COLOR, linetype='solid', linewidth=0.25, inherit.aes = F) +
       scale_x_continuous(breaks = c(REF_STARTPOS, df.REF_TICS$position), 
                          labels = c(REF_SEQNAMES, rep("", nrow(df.REF_TICS))), position = XPOS,
                          minor_breaks = NULL) +
@@ -426,11 +441,11 @@ PlotDFCoords <- function(L.COORDS, REFERENCE=NULL, QUERY=NULL, REORDER_QRY = F, 
                    axis.title.y.right = element_text(angle = 90),
                    axis.text.x = element_text(angle = -SEQLABANGLE, 
                                               hjust = 0, vjust = 0, 
-                                              color = "slateblue", 
+                                              color = BOUNDARY_COLOR, 
                                               face = "bold"), 
                    axis.text.y = element_text(angle = 90-SEQLABANGLE, 
                                               hjust = 0, vjust = 0, 
-                                              color = "slateblue", 
+                                              color = BOUNDARY_COLOR, 
                                               face = "bold") )
            
     )
