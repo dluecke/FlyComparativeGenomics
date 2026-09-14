@@ -106,6 +106,9 @@ make_df.align_yscores = function(DF.ALIGN, DF.SPLIT){
       # scale variances to 1
       Yscore_PctAbsnt = Yscore_aln/sqrt(var(Yscore_aln, na.rm = T)),
       Yscore_logQsplt = log_Q_splt/sqrt(var(log_Q_splt, na.rm = T)),
+      # center at 0
+      Yscore_PctAbsnt = Yscore_PctAbsnt - weighted.mean(Yscore_PctAbsnt, seqlength),
+      Yscore_logQsplt = Yscore_logQsplt - weighted.mean(Yscore_logQsplt, seqlength),
       # sum (will scale again when combing with mapping/ymer stats)
       Yscore_align = rowSums(across(c(Yscore_PctAbsnt, Yscore_logQsplt)), na.rm = T)
     ) %>% as.data.frame() 
@@ -143,7 +146,7 @@ make_l.df.depth_by_seq = function(l.DEPTH_FILES){
   # convert long df into sequence/sex of reads, find average values
   df.DEPTH = df.long.DEPTH %>%
     group_by(sequence, sex) %>%
-    # average number variants per sequence/sex 
+    # average depth per sequence across sex reps
     summarize(length = length[1],
               avg_norm_depth = mean(norm_depth)) %>%
     ungroup()
@@ -159,8 +162,8 @@ make_l.df.depth_by_seq = function(l.DEPTH_FILES){
     mutate(norm_depth.F = if_else(is.na(norm_depth.F), 0, norm_depth.F),
            norm_depth.M = if_else(is.na(norm_depth.M), 0, norm_depth.M),
            # Yscore_depth is log ratio of Mval:Fval (Y chr means more depth in M reads)
-           #  epsilon 0.01 to avoid issues at fr=0
-           # score=0 for same in both sexes, score>0 for more female variants (y-like)
+           #  epsilon 0.01 to avoid issues at depth=0
+           # score=0 for same in both sexes, score>0 for more male reads mapped (y-like)
            # will need to scale to var=1 before combining with other metrics (X/sqrt(var(X)))
            Yscore_depth = log2( (norm_depth.M + 0.01) / (norm_depth.F + 0.01) ) ) %>% 
     as.data.frame()
@@ -182,7 +185,7 @@ make_l.df.depth_by_seq = function(l.DEPTH_FILES){
 # inputs:
 #   list of 2 lists of variant file: IN$female and IN$male
 #   csv files with seqname,n_var,seqlength
-make_l.df.var_by_ctg = function(l.N_VAR_FILES){
+make_l.df.var_by_ctg = function(l.N_VAR_FILES, HAP_TAG=NULL){
   # tags used by rbind combine list (sex) and sublist (rep) names
   REPS.F = paste("female", names(l.N_VAR_FILES$female), sep = ".")
   REPS.M = paste("male", names(l.N_VAR_FILES$male), sep = ".")
@@ -190,7 +193,8 @@ make_l.df.var_by_ctg = function(l.N_VAR_FILES){
   df.long.N_VARS = lapply(
     l.N_VAR_FILES %>% unlist(), function(x){
       read.csv(x, header = F,
-               col.names = c('sequence','n_vrnts','seqlength'))      
+               col.names = c('sequence','n_vrnts','seqlength')) %>%
+        mutate(sequence = paste0(HAP_TAG, sequence))
     }
   ) %>% bind_rows(.id = "rep") %>%
     mutate(
@@ -240,9 +244,18 @@ make_l.df.var_by_ctg = function(l.N_VAR_FILES){
 # YMER STATS
 
 # function to read ymer coverage file and calculate yscore
-make_df.ymer = function(COVFILE){
+make_df.ymer = function(COVFILE, SKIP_CHR_SCAFS=T){
   # read in samtools .cov coverate file
-  df.YMERS = read.csv(COVFILE, sep='\t', row.names = 1)
+  df.YMERS = read.csv(COVFILE, sep='\t', row.names = 1) %>%
+    arrange(desc(endpos))
+  # remove chromosome rows, based on largest jump in seq length
+  if(SKIP_CHR_SCAFS) {  
+    i.first_ctg_row = df.YMERS %>%
+      mutate(size_jump = c(0,diff(endpos))) %>% 
+      select(size_jump) %>% unlist %>% 
+      which.min()
+    df.YMERS = df.YMERS[i.first_ctg_row:nrow(df.YMERS),]
+  }
   # yscore: log2 ratio of value to average (weighted mean) so >0 means more Ymers than average, 1=twice average
   df.YMERS$Yscore_ymers = log2(
     (df.YMERS$meandepth + 1e-4) / # epsilon 1e-4 keeps depth=0 from separating too much from depth=very small
@@ -297,7 +310,10 @@ make_df.rephase = function(DF.ALIGN, # df with alignment Yscores (percent absent
 # Add Yscores to coordinates
 make_df.coords_Yscores = function(L.COORDS, DF.REPHASE, 
                                   REF_SEQS = NULL, # list of reference sequences to filter for before calling GetScaffoldCooordsDF
-                                  MAX_REF_LENGTH = 10000000) {
+                                  MAX_REF_LENGTH = NULL ) {
+  if(is.null(MAX_REF_LENGTH)){
+    MAX_REF_LENGTH = max(L.COORDS$breaksRef$SeqLength) + 1
+  }
   if(length(REF_SEQS) > 0){
     L.COORDS[["coords"]] <- L.COORDS$coords %>% filter(ref_SeqName %in% REF_SEQS)
     MAX_REF_LENGTH = max(L.COORDS$breaksRef[REF_SEQS,]$SeqLength) + 1
@@ -366,17 +382,17 @@ dotplot_yscore = function(DF.COORDS_YSCORE_PHASE,
 # ADJUSTING PHASES BASED ON PURGE_DUPS
 # function to read purge_dups bed file output and link Yscores for haplotigs pairs
 # takes 
-#  list of BED filenames from X and Y contigs (names X and Y)
+#  BED filename
 #  df.REPHASE 
-# returns list of dataframes (tibble format) with clustered haplotig pairs and corresponding Yscores
-make_l.df.purge_dups_pairs = function(l.BEDFILES, df.REPHASE){
+# returns dataframe (tibble format) with clustered haplotig pairs and corresponding Yscores
+make_df.purge_dups_pairs = function(BEDFILE, df.REPHASE){
   # contig seqnames, use for filtering purge_dups output
   CTGS = df.REPHASE %>%
     select(SeqName) %>%
     unique %>% unlist %>% as.character()
   # bed file output from purge_dups on MhX contigs
-  DF.PURGE_DUPS_X = read.table(
-    l.BEDFILES$X, col.names = c("ctgB", "start", "stop", "type", "ctgA"), fill = T ) %>% 
+  DF.PURGE_DUPS = read.table(
+    BEDFILE, col.names = c("ctgB", "start", "stop", "type", "ctgA"), fill = T ) %>% 
     # filter for X contigs and non-OVLP lines (overlaps have ambiguous clustering)
     filter(ctgA %in% CTGS & ctgB %in% CTGS & type != "OVLP") %>%
     # once filtered for contigs/haplotigs all ctgA lines are distinct (these are kept by purge_dups)
@@ -384,36 +400,51 @@ make_l.df.purge_dups_pairs = function(l.BEDFILES, df.REPHASE){
     summarize(
       # Yscore for ctgA
       Y_A = df.REPHASE[ctgA,]$Yscore_all[1], 
+      # Yscore_ymer for ctgA
+      Ymer_A = df.REPHASE[ctgA,]$Yscore_ymers[1], 
       # contig A length
       A_length = df.REPHASE[ctgA,]$seqlength[1], 
       # list of all ctgB paired with ctgA
       l.ctgB=list(ctgB), 
+      # list of ctgB Yscores
+      l.ctgB_Y = list(df.REPHASE[ctgB,]$Yscore_all),
+      # list of ctgB Yscore_ymer
+      l.ctgB_Ymer = list(df.REPHASE[ctgB,]$Yscore_ymers),
+      # list of ctgB lengths
+      l.ctgB_len = list(df.REPHASE[ctgB,]$seqlength),
+      # number of ctgB
+      B_n = n(),
       # total length of ctgB set
       B_length = sum(df.REPHASE[ctgB,]$seqlength), 
       # average Yscore for ctgB set (mean weighted by length)
       Y_B = weighted.mean(df.REPHASE[ctgB,]$Yscore_all, df.REPHASE[ctgB,]$seqlength),
+      # max Yscore of ctgB set
+      Y_B_max = max(df.REPHASE[ctgB,]$Yscore_all),
+      # average Yscore_ymers for ctgB set (mean weighted by length)
+      Ymer_B = weighted.mean(df.REPHASE[ctgB,]$Yscore_ymers, df.REPHASE[ctgB,]$seqlength),
+      # comparison between A/B Yscore
+      Y_max = max(Y_A, Y_B),
+      Y_min = min(Y_A, Y_B),
+      Y_diff = abs(Y_A - Y_B),
       # difference between lengths
-      d = abs(A_length - B_length)/mean(c(A_length, B_length)) )
+      diff = abs(A_length - B_length)) %>%
+    ungroup %>%
+    mutate(
+      # scaled to largest gap between any A and B contigs
+      d = diff / max(c( max(A_length)-min(B_length), max(B_length)-min(A_length) ))) 
+  return(DF.PURGE_DUPS)
+}
+
+# function to process pair of bedfiles in list
+# takes 
+#  list of BED filenames from X and Y contigs (names X and Y)
+#  df.REPHASE 
+# returns list of dataframes (tibble format) with clustered haplotig pairs and corresponding Yscores
+make_l.df.purge_dups_pairs = function(l.BEDFILES, df.REPHASE){
+  # bed file output from purge_dups on MhX contigs
+ DF.PURGE_DUPS_X = make_df.purge_dups_pairs(l.BEDFILES$X, df.REPHASE) 
   # bed file output from purge_dups on MhY contigs
-  DF.PURGE_DUPS_Y = read.table(
-    l.BEDFILES$Y, col.names = c("ctgB", "start", "stop", "type", "ctgA"), fill = T ) %>% 
-    # filter for Y contigs and HAPLOTIG lines (otherwise ambiguous clustering)
-    filter(ctgA %in% CTGS & ctgB %in% CTGS & type != "OVLP") %>%
-    # once filtered for contigs/haplotigs all ctgA lines are distinct (these are kept by purge_dups)
-    group_by(ctgA) %>%
-    summarize(
-      # Yscore for ctgA
-      Y_A = df.REPHASE[ctgA,]$Yscore_all[1], 
-      # contig A length
-      A_length = df.REPHASE[ctgA,]$seqlength[1], 
-      # list of all ctgB paired with ctgA
-      l.ctgB=list(ctgB), 
-      # total length of ctgB set
-      B_length = sum(df.REPHASE[ctgB,]$seqlength), 
-      # average Yscore for ctgB set (mean weighted by length)
-      Y_B = weighted.mean(df.REPHASE[ctgB,]$Yscore_all, df.REPHASE[ctgB,]$seqlength),
-      # difference between lengths
-      d = abs(A_length - B_length)/mean(c(A_length, B_length)))
+ DF.PURGE_DUPS_Y = make_df.purge_dups_pairs(l.BEDFILES$Y, df.REPHASE) 
  l.PURGE_DUPS = list(X = DF.PURGE_DUPS_X, Y = DF.PURGE_DUPS_Y)
  return(l.PURGE_DUPS)
 }
@@ -422,7 +453,7 @@ make_l.df.purge_dups_pairs = function(l.BEDFILES, df.REPHASE){
 # set a threshold for difference in length between haplotigs, avoids small ctg forcing rephasing of much bigger pair
 # set a threshold for Y score of "Y to X" changes, since high Yscore not likely in true X sequence
 update_phasing = function(df.REPHASE, l.PURGE_DUPS,
-                          LENGTH_DIFF_THRESHOLD = 1, # 3:1, max limit is 2
+                          LENGTH_DIFF_THRESHOLD = 1, #  max = 1
                           X_YSCORE_THRESHOLD = 2){
   # save original phasing (put in new column named based on how many phase columns already present)
   n_phase_col = grep("phase", colnames(df.REPHASE)) %>% length
@@ -467,5 +498,217 @@ update_phasing = function(df.REPHASE, l.PURGE_DUPS,
   # return modified df
   return(df.REPHASE)
 }
+
+
+
+# function to make list of X and Y contigs from df.PURGE_DUPS haplotig pairs
+make_l.dups_XYctgs = function(df.PURGE_DUPS, 
+                              LENGTH_DIFF_THRESHOLD = 0.9, # d bounded [0,1]
+                              Y_DIFF_THRESHOLD = 0.5, # threshold of difference between A/B Y scores to use length instead (longer=X)
+                              X_YSCORE_THRESHOLD = NULL){
+  
+  # set X yscore threshold to max Y if not given
+  if(is.null(X_YSCORE_THRESHOLD)){
+    X_YSCORE_THRESHOLD = max(
+      c(df.PURGE_DUPS$Y_A, df.PURGE_DUPS$Y_B)
+    )
+  }
+
+  # X ctgs
+  # ctgA filter
+  v.X.A = df.PURGE_DUPS %>% 
+    # Actg is X if A has lower Yscore and Yscores are distinct or one is positive
+    filter((Y_A <= Y_B & (Y_diff >= Y_DIFF_THRESHOLD | Y_max > 0)) | 
+             # or if Yscores are similar, neither positive, and A is longer
+             (Y_diff < Y_DIFF_THRESHOLD & Y_max < 0 & A_length >= B_length),
+           d < LENGTH_DIFF_THRESHOLD,
+           Y_A <= X_YSCORE_THRESHOLD) %>%
+    select(ctgA) %>%
+    unlist() %>% as.character()
+  # ctgB filter
+  v.X.B = df.PURGE_DUPS %>%
+    filter((Y_A > Y_B & (Y_diff >= Y_DIFF_THRESHOLD | Y_max > 0)) | 
+             (Y_diff < Y_DIFF_THRESHOLD & Y_max < 0 & A_length < B_length),
+           d < LENGTH_DIFF_THRESHOLD,
+           Y_A <= X_YSCORE_THRESHOLD) %>%
+    # unnest ctgB set and compare each to Y_A 
+    select(Y_A, l.ctgB, l.ctgB_Y) %>% 
+    unnest(cols = c(l.ctgB, l.ctgB_Y)) %>%
+    filter(l.ctgB_Y <= Y_A + Y_DIFF_THRESHOLD,
+           l.ctgB_Y <= X_YSCORE_THRESHOLD) %>%
+    select(l.ctgB) %>%
+    unlist() %>% as.character()
+  
+  # Y ctgs
+  # ctgA filter
+  v.Y.A = df.PURGE_DUPS %>%
+    filter((Y_A > Y_B & (Y_diff >= Y_DIFF_THRESHOLD | Y_max > 0)) | 
+             (Y_diff < Y_DIFF_THRESHOLD & Y_max < 0 & A_length < B_length),
+           d < LENGTH_DIFF_THRESHOLD) %>%
+    select(ctgA) %>%
+    unlist() %>% as.character()
+  # ctgB filter 
+  v.Y.B = c( # combines full sets that match plus individual Bctgs where Y_B > Y_A+Y_DIFF_THRESH
+    df.PURGE_DUPS %>% 
+      filter((Y_A <= Y_B & (Y_diff >= Y_DIFF_THRESHOLD | Y_max > 0)) | 
+               (Y_diff < Y_DIFF_THRESHOLD & Y_max < 0 & A_length > B_length),
+             d < LENGTH_DIFF_THRESHOLD) %>%
+      select(l.ctgB) %>%
+      unlist() %>% as.character(),
+    # identical to v.X.B filter except flipped inequality after unnesting
+    df.PURGE_DUPS %>%
+      filter((Y_A > Y_B & (Y_diff >= Y_DIFF_THRESHOLD | Y_max > 0)) | 
+               (Y_diff < Y_DIFF_THRESHOLD & Y_max < 0 & A_length < B_length),
+             d < LENGTH_DIFF_THRESHOLD,
+             Y_A <= X_YSCORE_THRESHOLD) %>%
+      # unnest ctgB set and compare each to Y_A 
+      select(Y_A, l.ctgB, l.ctgB_Y) %>% 
+      unnest(cols = c(l.ctgB, l.ctgB_Y)) %>%
+      filter(l.ctgB_Y > Y_A + Y_DIFF_THRESHOLD) %>%
+      select(l.ctgB) %>%
+      unlist() %>% as.character()
+  )
+  
+  return(list(
+    X = c(v.X.A, v.X.B),
+    Y = c(v.Y.A, v.Y.B)
+  ))
+}
+
+
+# function to take a df.REPHASE with hap and phase columns, produce paired summary plots (pre and post rephase):
+#   seqlength-weighted Yscore violin plots
+#   total bp lengths
+#   medians, means, and significance test
+# REQUIRES: cowplot::plot_grid 
+#           grid::unit.pmax
+#           scales:comma
+#           tidyverse
+plot_phase_result = function(DF.REPHASE, SPP_TAG,
+                             Y_VAR = "Yscore_all", 
+                             WEIGHT_VAR = "seqlength",
+                             ROUND_BY = 1000,
+                             PRE_GROUPING = "hap", 
+                             POST_GROUPING = "phase"){
+  
+  # lengths and weighted Y mean of pre/post phases
+  df.PHASE_LENGTHS = cbind(
+    DF.REPHASE %>% group_by(!!sym(PRE_GROUPING)) %>% 
+      summarise(bp_pre = sum(!!sym(WEIGHT_VAR)),
+                Yval_pre = weighted.mean(!!sym(Y_VAR), !!sym(WEIGHT_VAR)),
+                n_pre = n()),
+    DF.REPHASE %>% group_by(!!sym(POST_GROUPING)) %>% 
+      summarise(bp_post = sum(!!sym(WEIGHT_VAR)),
+                Yval_post = weighted.mean(!!sym(Y_VAR), !!sym(WEIGHT_VAR)),
+                n_post = n())
+  )
+  
+  # weight data (repeat rows by WEIGHT_VAR/ROUND_BY)
+  df.REPHASE_WEIGHTED = DF.REPHASE %>%
+    select(any_of(c(Y_VAR, WEIGHT_VAR, PRE_GROUPING, POST_GROUPING))) %>%
+    uncount(round( !!sym(WEIGHT_VAR) / ROUND_BY )) %>%
+    # join to Yval averages for mapping to violin fill
+    left_join(df.PHASE_LENGTHS %>% select(!!sym(PRE_GROUPING), Yval_pre), by = setNames(PRE_GROUPING, PRE_GROUPING)) %>%
+    left_join(df.PHASE_LENGTHS %>% select(!!sym(POST_GROUPING), Yval_post), by = setNames(POST_GROUPING, POST_GROUPING))
+  
+  # Y axis limits
+  Y_LIMS = c(min(df.REPHASE_WEIGHTED %>% select(!!sym(Y_VAR)) %>% unlist %>% as.numeric)*1.05,
+             max(df.REPHASE_WEIGHTED %>% select(!!sym(Y_VAR)) %>% unlist %>% as.numeric)) * 1.2
+  
+  
+  # add total bps to plot label
+  v.PRE_LABS = DF.REPHASE %>% select(!!sym(PRE_GROUPING)) %>% unlist %>% factor %>% levels
+  p1.X_LABS = paste0(v.PRE_LABS, "\n", 
+                     scales::comma(df.PHASE_LENGTHS$bp_pre), "bp\n", 
+                     scales::comma(df.PHASE_LENGTHS$n_pre), " ctgs")
+  v.POST_LABS = DF.REPHASE %>% select(!!sym(POST_GROUPING)) %>% unlist %>% factor %>% levels
+  p2.X_LABS = paste0(v.POST_LABS, "\n", 
+                     scales::comma(df.PHASE_LENGTHS$bp_post), "bp\n", 
+                     scales::comma(df.PHASE_LENGTHS$n_post), " ctgs")
+  
+  # plot for pre-rephase haps
+  p1 = ggplot(df.REPHASE_WEIGHTED, 
+              aes(x = !!sym(PRE_GROUPING), 
+                  y = !!sym(Y_VAR),
+                  fill = Yval_pre)) +
+    geom_violin(trim = FALSE, alpha = 1) +
+    # same gradient as dotplot_yscore()
+    scale_fill_gradientn(colours =  c("#B2182B", "#FDB863", "#2727F5"),
+                          values = scales::rescale(c(-4, 0, 4)),
+                          limits = c(-4, 4),
+                          oob = scales::squish) + 
+    geom_text(data = df.PHASE_LENGTHS,
+              aes(x = !!sym(PRE_GROUPING),
+                  y = Y_LIMS[1],
+                  label = round(Yval_pre, 2),
+                  color = Yval_pre),
+              fontface = "bold",
+              inherit.aes = F,
+              size = 4) +
+    scale_color_gradientn(colours =  c("#B2182B", "#FDB863", "#2727F5"),
+                         values = scales::rescale(c(-4, 0, 4)),
+                         limits = c(-4, 4),
+                         oob = scales::squish) + 
+    theme_bw() +
+    theme(legend.position = "none") + # both plots use same fill legend
+    labs(y = paste0("contig ", Y_VAR, " densities (weighted by seq lengths)"),
+         x = "original phasing") +
+    scale_x_discrete(labels = p1.X_LABS) +
+    coord_cartesian(ylim = Y_LIMS)
+  p2 = ggplot(df.REPHASE_WEIGHTED, 
+              aes(x = !!sym(POST_GROUPING), 
+                  y = !!sym(Y_VAR),
+                  fill = Yval_post)) +
+    geom_violin(trim = FALSE, alpha = 1) + 
+    scale_fill_gradientn(name = sprintf("%s\n (weighted mean)", Y_VAR),
+                         colours =  c("#B2182B", "#FDB863", "#2727F5"),
+                          values = scales::rescale(c(-4, 0, 4)),
+                          limits = c(-4, 4),
+                          oob = scales::squish) + 
+    geom_text(data = df.PHASE_LENGTHS,
+              aes(x = !!sym(POST_GROUPING),
+                  y = Y_LIMS[1],
+                  label = round(Yval_post, 2),
+                  color = Yval_post),
+              fontface = "bold",
+              inherit.aes = F,
+              size = 4) +
+    scale_color_gradientn(guide = "none",
+                          colours =  c("#B2182B", "#FDB863", "#2727F5"),
+                          values = scales::rescale(c(-4, 0, 4)),
+                          limits = c(-4, 4),
+                          oob = scales::squish) + 
+    theme_bw() + 
+    scale_x_discrete(labels = p2.X_LABS) +
+    theme(axis.text.y = element_blank(), axis.title.y = element_blank(), # both plots use same Y axis
+          legend.title = element_text(angle = 90, vjust = 1, hjust = 0.5)) +
+    labs(x = "rephased") +
+    coord_cartesian(ylim = Y_LIMS)
+  
+  # want the inner panels to be same width, which is tricky with variable axis and legends
+  legend_yval = get_legend(p2)
+  
+  # rescale subplots with dropped p2 legend
+  g1 = ggplotGrob(p1)
+  g2 = ggplotGrob(p2 + theme(legend.position = "none"))
+  # In ggplotGrob, columns 4 and 5 are the panel area
+  max_panel_width <- grid::unit.pmax(g1$widths[4:5], g2$widths[4:5])
+  g1$widths[4:5] <- max_panel_width
+  g2$widths[4:5] <- max_panel_width
+
+  # Combine plots
+  p = plot_grid(g1, g2, legend_yval,
+            nrow = 1, rel_widths = c(1,1,0.4))
+  
+  # add species tag label up top
+  ggdraw() +
+    draw_label(SPP_TAG, fontface = "bold",
+               x = 0.5, y = 0.98) +
+    draw_plot(p, y = 0, height = 0.95)
+  
+}
+
+
+
 
 

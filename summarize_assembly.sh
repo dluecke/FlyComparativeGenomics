@@ -139,7 +139,7 @@ fi
 
 # completeness stats file, only proceed if single file found
 if [ "$(compgen -G $MERQURY_DIR/*.completeness.stats | wc -l)" -eq 1 ]; then
-    MERQURY_COMPLETENESS="$MERQURY_DIR"/*.completeness.stats
+    MERQURY_COMPLETENESS=("$MERQURY_DIR"/*.completeness.stats)
 else
     echo "ERROR: Expected single completeness.stats file in $MERQURY_DIR, found $(compgen -G "$MERQURY_DIR"/*.completeness.stats | wc -l)" >&2
     exit 1
@@ -179,7 +179,7 @@ IN_CHR_DEC=$(grep "PctInChroms" "$PCT_CHRS" | awk '{print $NF}')
 IN_CHR_PCT=$(printf "%.2f" $(echo "$IN_CHR_DEC * 100" | bc -l))
 # Stats from merqury files (take first line to be safe)
 QV_FULL=$(awk '{print $4}' "${MERQURY_QV_FILES[0]}" | head -n1)
-COMPLETENESS=$(awk '{print $5}' "$MERQURY_COMPLETENESS" | head -n1)
+COMPLETENESS=$(awk '{print $5}' "${MERQURY_COMPLETENESS[0]}" | head -n1)
 # Depth average weighted by length
 DEPTH_AVG=$(awk '{TotalLen+=$2; depthXlen+=$2*$3} END {printf "%.2f", depthXlen/TotalLen}' $DEPTH_BY_SCAF)
 N_MAPPED_READS=$(grep -m1 "reads mapped:" "$HIFI_ALN_STATS" | awk '{print $NF}')

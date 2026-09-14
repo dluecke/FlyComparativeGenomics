@@ -137,10 +137,10 @@ make_df.sexbias <- function(FILE_SCAF_NMASKED, L_INFILES){
     lapply(sex, function(FILE){
       # call normalize_depth() function from above while reading file
       df.vari <- read.csv(FILE, header = F, row.names = 1, 
-                          col.names = c('scaffold','n_variants'))
+                          col.names = c('scaffold','n_variants','length'))
       sample_nvari <- data.frame(
         unmasked = DF_SCAFFOLDS$unmasked,
-        n_variants = df.vari[rownames(DF_SCAFFOLDS),],
+        n_variants = df.vari[rownames(DF_SCAFFOLDS),]$n_variants,
         row.names = row.names(DF_SCAFFOLDS)
       ) %>% arrange(desc(unmasked))
       # still set unobserved scaffolds to "no variants"
@@ -156,13 +156,13 @@ make_df.sexbias <- function(FILE_SCAF_NMASKED, L_INFILES){
   
   # wide DF to collect all values by scaffold
   # sample depth data
-  DF_DEPTH_WIDE <- DF_DEPTH %>% select(-sex, -unmasked, -n_sites) %>% 
-    pivot_wider(names_from = sample, 
+  DF_DEPTH_WIDE <- DF_DEPTH %>% select(-unmasked, -n_sites) %>% 
+    pivot_wider(names_from = c(sex,sample), 
                 values_from = c(avg_raw_depth, avg_unmask_depth, avg_norm_depth)) %>% 
     as.data.frame()
   # sample variant data
-  DF_NVARI_WIDE <- DF_NVARI %>% select(-sex, -unmasked) %>%
-    pivot_wider(names_from = sample,
+  DF_NVARI_WIDE <- DF_NVARI %>% select(-unmasked) %>%
+    pivot_wider(names_from = c(sex,sample),
                 values_from = c(n_variants, fr_var)) %>%
     as.data.frame()
   # list of depth statistics by sex
@@ -247,9 +247,9 @@ make_df.sexbias_NoReps <- function(l.IN_FILES){
   IN_DEPTHM <- read.table(l.IN_FILES$depth_m, header = F, row.names = 1, 
                           col.names = c('scaffold', 'n_sites', 'depth'))
   IN_NVARIF <- read.csv(l.IN_FILES$varnt_f, header = F, row.names = 1, 
-                        col.names = c('scaffold','n_variants'))
+                        col.names = c('scaffold','n_variants','n_sites'))
   IN_NVARIM <- read.csv(l.IN_FILES$varnt_m, header = F, row.names = 1, 
-                        col.names = c('scaffold','n_variants'))
+                        col.names = c('scaffold','n_variants','n_sites'))
   # scaffolds ordered by length
   SCAFFOLDS <- NMASKED$scaffold
   # start output df ordered by scaffold length
@@ -260,8 +260,8 @@ make_df.sexbias_NoReps <- function(l.IN_FILES){
                         mean_depth.female = IN_DEPTHF[SCAFFOLDS,]$depth,
                         nsitesM = IN_DEPTHM[SCAFFOLDS,]$n_sites,
                         mean_depth.male = IN_DEPTHM[SCAFFOLDS,]$depth,
-                        mean_nVar.female = IN_NVARIF[SCAFFOLDS,],
-                        mean_nVar.male = IN_NVARIM[SCAFFOLDS,],
+                        mean_nVar.female = IN_NVARIF[SCAFFOLDS,]$n_variants,
+                        mean_nVar.male = IN_NVARIM[SCAFFOLDS,]$n_variants,
                         row.names = SCAFFOLDS)
   # treat missing values as 0
   SEXBIAS[is.na(SEXBIAS)] = 0
@@ -430,6 +430,9 @@ make_df.DepthWindows <- function(INFILE_DEPTH, INFILE_NMASKED,
   return(DF.DEPTH)
 }
 
+# wrapper for make_df.DepthWindow
+# takes list of depth windows L$SEX$SAMPLE
+# returns list of df.DepthWindow including sex and sample columns
 make_l.df.DepthWindows <- function(LIST_INFILE_DEPTH, INFILE_NMASKED,
                                   AVG_CLIP_PCTILE = 0){
   # lists for reps and sex per file
@@ -510,10 +513,11 @@ make_df.WindowPlots <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED){
   return(PLOTDF)
 }
 
-PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS = T,
-                             NORMALIZED = T,
+PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED = 0, 
+                             DROP_OUTLIERS = T, OUTLIER_SDX = 3,
+                             NORMALIZED = T, Y_LAB = NULL,
                              POOL_N = 1, # can pool windows to speed up plotting
-                             ASSEMBLY_NAME, WINDOW_LABEL,
+                             ASSEMBLY_NAME, WINDOW_LABEL = "100kb",
                              SPAN=0.4, ALPHA=0.05, 
                              Y_MIN='auto', Y_MAX='auto', FLIP_SCAF_LAB = F){
   # get dataframe for plotting
@@ -522,17 +526,17 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
   # call outliers based on normalized depth even when plotting raw depth
   if( DROP_OUTLIERS ){
     PLOTDF <- PLOTDF  %>% group_by(scaffold, rep) %>% 
-      filter(!(abs(depth_norm - median(depth_norm)) > 2*sd(depth_norm)) 
+      filter(!(abs(depth_norm - median(depth_norm)) > OUTLIER_SDX*sd(depth_norm)) 
              | n() == 1) # keep single observations (were getting dropped since sd NA)
   }
   
   if(NORMALIZED){
     PLOTDF$depth_plot = PLOTDF$depth_norm
-    Y_LAB = "normalized depth"
+    if(is.null(Y_LAB)){ Y_LAB = "normalized depth" }
   } else {
     # unnormalized but still accounting for N vs true 0s
     PLOTDF$depth_plot = PLOTDF$depth_w0s
-    Y_LAB = "read depth"
+    if(is.null(Y_LAB)){ Y_LAB = "read depth" }
   }
   
   if( POOL_N > 1 ){
@@ -569,8 +573,8 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
   } else {
     ANNO_Y = Y_MIN
     ANNO_ANGLE = 0
-    ANNO_HJUST = -0.1
-    ANNO_VJUST = 1
+    ANNO_HJUST = -0.05
+    ANNO_VJUST = 0.2
   }
   
   # get names and x-positions for scaffold annotation
@@ -607,8 +611,8 @@ PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, DROP_OUTLIERS =
 }
 
 
-PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED, 
-                               ASSEMBLY_NAME, WINDOW_LABEL,
+PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED = 0, 
+                               ASSEMBLY_NAME, WINDOW_LABEL = "100kb",
                                SITE_TYPE_LAB = 'variant', # generic site type
                                POOL_N = 1,
                                SPAN=0.4, ALPHA=0.05, 
@@ -650,8 +654,8 @@ PlotVariantWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED,
   } else {
     ANNO_Y = Y_MIN
     ANNO_ANGLE = 0
-    ANNO_HJUST = -0.1
-    ANNO_VJUST = 1
+    ANNO_HJUST = -0.05
+    ANNO_VJUST = 0.2
   }
   
   # get names and x-positions for scaffold annotation
