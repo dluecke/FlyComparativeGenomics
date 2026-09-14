@@ -178,8 +178,8 @@ N_CHRS=$(grep "ChromNumber" "$PCT_CHRS" | awk '{print $NF}')
 IN_CHR_DEC=$(grep "PctInChroms" "$PCT_CHRS" | awk '{print $NF}')
 IN_CHR_PCT=$(printf "%.2f" $(echo "$IN_CHR_DEC * 100" | bc -l))
 # Stats from merqury files (take first line to be safe)
-QV_FULL=$(awk '{print $4}' "${MERQURY_QV_FILES[0]}" | head -n1)
-COMPLETENESS=$(awk '{print $5}' "${MERQURY_COMPLETENESS[0]}" | head -n1)
+QV_FULL=$(awk '{printf "%.2f", $4}' "${MERQURY_QV_FILES[0]}" | head -n1)
+COMPLETENESS=$(awk '{printf "%.2f", $5}' "${MERQURY_COMPLETENESS[0]}" | head -n1)
 # Depth average weighted by length
 DEPTH_AVG=$(awk '{TotalLen+=$2; depthXlen+=$2*$3} END {printf "%.2f", depthXlen/TotalLen}' $DEPTH_BY_SCAF)
 N_MAPPED_READS=$(grep -m1 "reads mapped:" "$HIFI_ALN_STATS" | awk '{print $NF}')
@@ -275,12 +275,12 @@ for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
     chr_gc_content=$(grep -m1 "GC content" "$chr_file" | awk '{print $NF}')
     # depth_by_scaffold has chromosome names in column 1
-    chr_depth_avg=$(grep "$chr_name" "$DEPTH_BY_SCAF" | awk '{print $NF}')
+    chr_depth_avg=$(grep "$chr_name" "$DEPTH_BY_SCAF" | awk '{printf "%.2f", $NF}')
     # longer qv file has chromosome names in column 1
     if [ "$skip_chr_qv" = true ]; then
         chr_qv="unknown"
     else
-        chr_qv=$(grep "$chr_name" "${MERQURY_QV_FILES[1]}" | awk '{print $4}')
+        chr_qv=$(grep "$chr_name" "${MERQURY_QV_FILES[1]}" | awk '{printf "%.2f", $4}')
     fi
 
     # Append to OUTFILE_CHRS
