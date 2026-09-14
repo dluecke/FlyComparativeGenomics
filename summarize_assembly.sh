@@ -225,24 +225,24 @@ fi
 
 # here-document to report variables directly in CSV format
 cat <<EOF >"$OUTFILE_FULL"
-Total length (unmasked length), ${TOTAL_BP} bp (${UNMASKED_BP} bp)
-N scaffolds, ${N_SCAFFOLDS}
-Scaffold N50 (L50), ${SCAFFOLD_N50} (${SCAFFOLD_L50})
-N contigs, ${N_CONTIGS}
-Contig N50 (L50), ${CONTIG_N50} (${CONTIG_L50})
-N gaps, ${N_GAPS}
-Gap length (average), ${GAPS_BP} bp (${AVG_GAP_BP} bp)
-N chromosomes (% total length), ${N_CHRS} (${IN_CHR_PCT}%)
-GC content, ${GC_PCT}%
-Average HiFi coverage (N mapped reads), ${DEPTH_AVG} (${N_MAPPED_READS} reads)
-Quality value (QV), ${QV_FULL}
-Kmer completeness, ${COMPLETENESS}
+Total length (unmasked length),${TOTAL_BP} bp (${UNMASKED_BP} bp)
+N scaffolds,${N_SCAFFOLDS}
+Scaffold N50 (L50),${SCAFFOLD_N50} (${SCAFFOLD_L50})
+N contigs,${N_CONTIGS}
+Contig N50 (L50),${CONTIG_N50} (${CONTIG_L50})
+N gaps,${N_GAPS}
+Gap length (average),${GAPS_BP} bp (${AVG_GAP_BP} bp)
+N chromosomes (% total length),${N_CHRS} (${IN_CHR_PCT}%)
+GC content,${GC_PCT}%
+Average HiFi coverage (N mapped reads),${DEPTH_AVG} (${N_MAPPED_READS} reads)
+Quality value (QV),${QV_FULL}
+Kmer completeness,${COMPLETENESS}
 BUSCO results:
 EOF
 # loop through BUSCO_RESULTS array, write each lineage and summary to CSV (replacing , with ; in one line summary)
 for lineage_name in "${!BUSCO_RESULTS[@]}"; do
     result=$(echo "${BUSCO_RESULTS[$lineage_name]}" | tr ',' ';')
-    echo "$lineage_name, $result"
+    echo "$lineage_name,$result"
 done >> "$OUTFILE_FULL"
 
 
