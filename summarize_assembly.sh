@@ -268,7 +268,7 @@ for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     # stats in gfastats output
     chr_name=$(basename "$chr_file" | sed 's/.*-\(.*\)\.gfastats/\1/')
     chr_length=$(grep -m1 "Total scaffold length" "$chr_file" | awk '{print $NF}')
-    chr_masked_bp=$(grep -m1 "soft-masked bases" "$GFASTATS_ASM" | awk '{print $NF}')
+    chr_masked_bp=$(grep -m1 "soft-masked bases" "$chr_file" | awk '{print $NF}')
     chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
     chr_unmasked_bp=$(echo $chr_length - $chr_masked_bp - $chr_gap_length | bc)
     chr_n_contigs=$(grep -m1 "contigs" "$chr_file" | awk '{print $NF}')
