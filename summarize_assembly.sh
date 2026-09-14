@@ -162,7 +162,8 @@ OUTFILE_CHRS="${ASM_TAG}-CHRS_assembly_summary.csv"
 # Searches based on gfastats output syntax
 TOTAL_BP=$(grep -m1 "Total scaffold length" "$GFASTATS_ASM" | awk '{print $NF}')
 MASKED_BP=$(grep -m1 "soft-masked bases" "$GFASTATS_ASM" | awk '{print $NF}')
-UNMASKED_BP=$(echo $TOTAL_BP - $MASKED_BP | bc)
+GAPS_BP=$(grep -m1 "Total gap length" "$GFASTATS_ASM" | awk '{print $NF}')
+UNMASKED_BP=$(echo $TOTAL_BP - $MASKED_BP - $GAPS_BP | bc)
 N_SCAFFOLDS=$(grep -m1 "scaffolds" "$GFASTATS_ASM" | awk '{print $NF}')
 SCAFFOLD_N50=$(grep -m1 "Scaffold N50" "$GFASTATS_ASM" | awk '{print $NF}')
 SCAFFOLD_L50=$(grep -m1 "Scaffold L50" "$GFASTATS_ASM" | awk '{print $NF}')
@@ -170,7 +171,6 @@ N_CONTIGS=$(grep -m1 "contigs" "$GFASTATS_ASM" | awk '{print $NF}')
 CONTIG_N50=$(grep -m1 "Contig N50" "$GFASTATS_ASM" | awk '{print $NF}')
 CONTIG_L50=$(grep -m1 "Contig L50" "$GFASTATS_ASM" | awk '{print $NF}')
 N_GAPS=$(grep -m1 "gaps in scaffolds" "$GFASTATS_ASM" | awk '{print $NF}')
-GAPS_BP=$(grep -m1 "Total gap length" "$GFASTATS_ASM" | awk '{print $NF}')
 AVG_GAP_BP=$(grep -m1 "Average gap length" "$GFASTATS_ASM" | awk '{print $NF}')
 GC_PCT=$(grep -m1 "GC content" "$GFASTATS_ASM" | awk '{print $NF}')
 # pct_chrs.txt stat, convert to rounded percent same as GC_PCT
@@ -234,7 +234,7 @@ N gaps,${N_GAPS}
 Gap length (average),${GAPS_BP} bp (${AVG_GAP_BP} bp)
 N chromosomes (% total length),${N_CHRS} (${IN_CHR_PCT}%)
 GC content,${GC_PCT}%
-Average HiFi coverage (N mapped reads),${DEPTH_AVG} (${N_MAPPED_READS} reads)
+Average HiFi depth (N mapped reads),${DEPTH_AVG} (${N_MAPPED_READS} reads)
 Quality value (QV),${QV_FULL}
 Kmer completeness,${COMPLETENESS}
 BUSCO results:
@@ -261,18 +261,20 @@ else
 fi
 
 # Header row
-echo "Chromosome,Length (unmasked),N contigs,Contig N50 (L50),N gaps (Gap length),GC content,Average HiFi coverage,Quality value (QV)" > "$OUTFILE_CHRS"
+echo "Chromosome,total bp (unmasked),N contigs,Contig N50 (L50),N gaps (Gap bp),GC%,HiFi depth,QV" > "$OUTFILE_CHRS"
 
 # loop through by-chromosome gfastats files, extract stats, and append to OUTFILE_CHRS
 for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     # stats in gfastats output
     chr_name=$(basename "$chr_file" | sed 's/.*-\(.*\)\.gfastats/\1/')
     chr_length=$(grep -m1 "Total scaffold length" "$chr_file" | awk '{print $NF}')
+    chr_masked_bp=$(grep -m1 "soft-masked bases" "$GFASTATS_ASM" | awk '{print $NF}')
+    chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
+    chr_unmasked_bp=$(echo $chr_length - $chr_masked_bp - $chr_gap_length | bc)
     chr_n_contigs=$(grep -m1 "contigs" "$chr_file" | awk '{print $NF}')
     chr_contig_n50=$(grep -m1 "Contig N50" "$chr_file" | awk '{print $NF}')
     chr_contig_l50=$(grep -m1 "Contig L50" "$chr_file" | awk '{print $NF}')
     chr_n_gaps=$(grep -m1 "gaps in scaffolds" "$chr_file" | awk '{print $NF}')
-    chr_gap_length=$(grep -m1 "Total gap length" "$chr_file" | awk '{print $NF}')
     chr_gc_content=$(grep -m1 "GC content" "$chr_file" | awk '{print $NF}')
     # depth_by_scaffold has chromosome names in column 1
     chr_depth_avg=$(grep "$chr_name" "$DEPTH_BY_SCAF" | awk '{printf "%.2f", $NF}')
@@ -284,5 +286,5 @@ for chr_file in "${GFASTATS_CHR_FILES[@]}"; do
     fi
 
     # Append to OUTFILE_CHRS
-    echo "${chr_name},${chr_length},${chr_n_contigs},${chr_contig_n50} (${chr_contig_l50}),${chr_n_gaps} (${chr_gap_length}),${chr_gc_content},${chr_depth_avg},${chr_qv}" >> "$OUTFILE_CHRS"
+    echo "${chr_name},${chr_length} (${chr_unmasked_bp}),${chr_n_contigs},${chr_contig_n50} (${chr_contig_l50}),${chr_n_gaps} (${chr_gap_length}),${chr_gc_content},${chr_depth_avg},${chr_qv}" >> "$OUTFILE_CHRS"
 done
