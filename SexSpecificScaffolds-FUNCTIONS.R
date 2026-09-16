@@ -461,20 +461,23 @@ make_l.df.DepthWindows <- function(LIST_INFILE_DEPTH, INFILE_NMASKED,
 #  and find variant frequencies per unmasked bp
 make_df.VariantWindows <- function(INFILE_VARIANT, INFILE_NMASKED){
   # read in csv with total and masked bases per window, calculate unmasked per window
-  DF.NMASKED <- read.csv(INFILE_NMASKED, header = F, row.names = 1, 
+  DF.NMASKED <- read.csv(INFILE_NMASKED, header = F,
                          col.names = c('window', 'total', 'masked'))
   DF.NMASKED$unmasked <- DF.NMASKED$total - DF.NMASKED$masked
   
   # read in tsv with variant site count per window 
-  DF.VARIANT <- read.csv(INFILE_VARIANT, sep = '\t',
-                       col.names = c('scaffold', 'position',
-                                     'window', 'n_variants'))
-  # add unmasked and total lengths for each window from NMASKED df
-  DF.VARIANT$unmasked <- DF.NMASKED[DF.VARIANT$window,]$unmasked
-  DF.VARIANT$total <- DF.NMASKED[DF.VARIANT$window,]$total
+  DF.VAR_IN <- read.csv(INFILE_VARIANT, sep = '\t',
+                        col.names = c('scaffold', 'position',
+                                      'window', 'n_variants'))
+  # join NMASK and VARIANT, fill empty rows in DF.VAR (no variant windows not reported)
+  DF.VARIANT = left_join(DF.NMASKED, DF.VAR_IN) %>% 
+    mutate(scaffold = str_split(window, ":", simplify = T)[,1],
+           position = str_split(window, ":", simplify = T)[,2],
+           # missing windows in DF.VAR_IN due to no variants found, fill 0s
+           n_variants = if_else(is.na(n_variants), 0, n_variants))
   # frequency variant sites per window
   DF.VARIANT <- DF.VARIANT %>% mutate(fr_var = n_variants / unmasked)
-
+  
   return(DF.VARIANT)
 }
 
