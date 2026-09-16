@@ -472,7 +472,7 @@ make_df.VariantWindows <- function(INFILE_VARIANT, INFILE_NMASKED){
   # join NMASK and VARIANT, fill empty rows in DF.VAR (no variant windows not reported)
   DF.VARIANT = left_join(DF.NMASKED, DF.VAR_IN) %>% 
     mutate(scaffold = str_split(window, ":", simplify = T)[,1],
-           position = str_split(window, ":", simplify = T)[,2],
+           position = str_split(window, ":", simplify = T)[,2] %>% as.numeric(),
            # missing windows in DF.VAR_IN due to no variants found, fill 0s
            n_variants = if_else(is.na(n_variants), 0, n_variants))
   # frequency variant sites per window
@@ -516,7 +516,7 @@ make_df.WindowPlots <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED){
   return(PLOTDF)
 }
 
-PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED = 0, 
+PlotDepthWindows <- function(DF_WINDOWS, SEQ_LIST, MIN_UNMASKED = 1000, 
                              DROP_OUTLIERS = T, OUTLIER_SDX = 3,
                              NORMALIZED = T, Y_LAB = NULL,
                              POOL_N = 1, # can pool windows to speed up plotting
