@@ -73,6 +73,6 @@ done
       --arg fragmented "$fragmented" \
       --arg missing "$missing" \
       --arg count "$count" \
-      '[$filename, $lineage, $complete, $single, $duplicated, $fragmented, $missing, $count] | @csv'
+      '[$filename, $lineage, $complete, $single, $duplicated, $fragmented, $missing, $count] | join(",")'
   done
 } > "$output_csv"
