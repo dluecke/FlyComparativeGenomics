@@ -38,13 +38,15 @@ fi
 
 # write primer fasta, empirically seen in SequelIIe_r64312e_20230809_195524_CmacIsoSeq data
 if [ ! -f IsoSeqX_3p.fa ]; then
-    echo -e ">IsoSeqX_3p\AAGCAGTGGTATCAACGCAGAGTAC" > IsoSeqX_3p.fa
+    echo -e ">IsoSeqX_3p\nAAGCAGTGGTATCAACGCAGAGTAC" > IsoSeqX_3p.fa
 fi
 
 # lima to remove primers
 echo "running lima to remove primers"
-echo "CMD: lima --num-threads 16 $IN_BAM IsoSeqX_3p.fa ${FILE_PREFIX}_trimmed.bam"
-lima --num-threads 16 $IN_BAM IsoSeqX_3p.fa ${FILE_PREFIX}_trimmed.bam
+#echo "CMD: lima --num-threads 16 $IN_BAM IsoSeqX_3p.fa ${FILE_PREFIX}_trimmed.bam"
+#lima --num-threads 16 $IN_BAM IsoSeqX_3p.fa ${FILE_PREFIX}_trimmed.bam
+echo "CMD: lima --num-threads 16 $IN_BAM IsoSeq_v2_primers_12.fasta ${FILE_PREFIX}_trimmed.bam"
+lima --num-threads 16 $IN_BAM IsoSeq_v2_primers_12.fasta ${FILE_PREFIX}_trimmed.bam
 
 # isoseq refine to get full-length non-chimeric reads
 echo "running isoseq refine to get full-length non-chimeric reads"
