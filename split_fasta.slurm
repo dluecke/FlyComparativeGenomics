@@ -11,6 +11,7 @@
 #SBATCH --output="std/split_fasta-%j-%N.out" # job standard output file (%j replaced by job id)
 #SBATCH --error="std/split_fasta-%j-%N.err" # job standard error file (%j replaced by job id)
 
+# split multifasta into individual fastas for large scaffolds and a single multifasta for the remaining smaller scaffolds
 # USAGE: sbatch path/to/split_fasta.slurm ASSEMBLY.fasta
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
