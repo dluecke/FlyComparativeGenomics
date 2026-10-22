@@ -47,7 +47,7 @@ N_HITS=9 # number of regions to align
 # can either filter by max percent identity then take longest hits
 MAX_ID=95 # percent identity max for divergence windows
 # or filter by minimum hit length then take lowest identity
-MIN_HIT_LENGTH=7500 # shortest hit length for alignment seed
+MIN_HIT_LENGTH=10000 # shortest hit length for alignment seed
 MUSCLE_SLURM=~/FlyComparativeGenomics/muscle.slurm
 
 # report overview of analysis
@@ -214,9 +214,9 @@ while read HIT; do
     # add assembly info to sequence names and concatenate into single fasta
     WINDOW_FASTA=DivergedWindow$(printf "%02d" $i).fa
     echo -e "Combining into single multifasta $WINDOW_FASTA and submitting to $MUSCLE_SLURM."
-    sed "s/scaffold/${ASM_Het1%.*}-scaffold/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > $WINDOW_FASTA
-    sed "s/scaffold/${ASM_Het2%.*}-scaffold/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> $WINDOW_FASTA
-    sed "s/scaffold/${ASM_HomP%.*}-scaffold/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> $WINDOW_FASTA
+    sed "s/${FOCAL_SCAF}/${ASM_Het1%.*}-${FOCAL_SCAF}/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > $WINDOW_FASTA
+    sed "s/${FOCAL_SCAF}/${ASM_Het2%.*}-${FOCAL_SCAF}/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> $WINDOW_FASTA
+    sed "s/${FOCAL_SCAF}/${ASM_HomP%.*}-${FOCAL_SCAF}/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> $WINDOW_FASTA
 
     # submit alignment job to SLURM
     sbatch $MUSCLE_SLURM $WINDOW_FASTA
