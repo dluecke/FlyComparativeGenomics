@@ -3,9 +3,10 @@
 # RunPbmm2-VPGRU.sh runs PacBio tool for HiFi read minimap2 alignment
 
 usage() { 
-    echo "USAGE: $0 [-h|-o|-s|-p|-d|-v|-q|-t] ASSEMBLY.FASTA HIFI.FOFN"
+    echo "USAGE: $0 [-h|-o|-r|-s|-p|-d|-v|-q|-t] ASSEMBLY.FASTA HIFI.FOFN"
     echo "  HIFI.fofn file of file names, bam|fa|fasta|fa.gz|fq|fastq|fq.gz"
     echo "  -o STRING output prefix for BAM file, default ASSEMBLY.HIFI.align"
+    echo "  -r FLAG run with ISOSEQ preset"
     echo "  -s FLAG output SAM file"
     echo "  -p FLAG output PAF file (implies -s)"
     echo "  -d FLAG output depth table via samtools depth"
@@ -37,6 +38,7 @@ GITLOC=$(dirname $0)
 # default run parameters
 OUT_PREFIX="${ASM_FN%%.f*a}.${HIFI_FN%.fofn}.align"
 SLURM_QUEUE="ceres"
+PRESET="HIFI"
 SAM_OUT="" # empty string won't trigger SAM out section
 PAF_OUT="" # empty string won't trigger PAF out section
 GET_DEPTH=""
@@ -44,8 +46,11 @@ CALL_VARS=""
 N_THREAD=32
 
 # get options, including call usage if -h flag
-while getopts ":hspdvo:q:t:" arg; do
+while getopts ":hrspdvo:q:t:" arg; do
     case $arg in
+        r) # flag for ISOSEQ preset
+            PRESET="ISOSEQ"
+            ;;
         s) # flag for SAM out
             SAM_OUT="sam"
             ;;
@@ -108,7 +113,9 @@ sbatch --job-name="pbmm2-${OUT_PREFIX}" \
     -n ${N_THREAD} \
     -o "pbmm2.${OUT_PREFIX}.%j.%N.stdout" \
     -e "pbmm2.${OUT_PREFIX}.%j.%N.stderr" \
-    --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},N_THREAD=${N_THREAD},SLURM_QUEUE=${SLURM_QUEUE},\
-OUT_PREFIX=${OUT_PREFIX},SAM_OUT=${SAM_OUT},PAF_OUT=${PAF_OUT},GET_DEPTH=${GET_DEPTH},CALL_VARS=${CALL_VARS},GITLOC=${GITLOC} \
+    --export=ALL,ASM_FASTA=${ASM_FASTA},HIFI_FOFN=${HIFI_FOFN},\
+PRESET=${PRESET},N_THREAD=${N_THREAD},SLURM_QUEUE=${SLURM_QUEUE},\
+OUT_PREFIX=${OUT_PREFIX},SAM_OUT=${SAM_OUT},PAF_OUT=${PAF_OUT},\
+GET_DEPTH=${GET_DEPTH},CALL_VARS=${CALL_VARS},GITLOC=${GITLOC} \
     ${GITLOC}/VPGRU-pbmm2_TEMPLATE.slurm
 
