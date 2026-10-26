@@ -184,42 +184,50 @@ while read HIT; do
     # extract region from het1
     S1=$((S_Het1 - PAD_Het1))
     E1=$((E_Het1 + PAD_Het1))
-    echo -e "Extracting region $i from $ASM_Het1."
-    echo -e "Command:\n\
- samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa"\
- -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1"
-    samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa" \
-        -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1
+#     echo -e "Extracting region $i from $ASM_Het1."
+#     echo -e "Command:\n\
+#  samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa"\
+#  -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1"
+#     samtools faidx -o "${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa" \
+#         -r <(echo "${FOCAL_SCAF}:$S1-$E1") $ASM_Het1
 
     # extract region from het2
     S2=$((S_Het2 - PAD_Het2))
     E2=$((E_Het2 + PAD_Het2))
-    echo -e "Extracting region $i from $ASM_Het2."
-    echo -e "Command:\n\
- samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa"\
- -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2"
-    samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa" \
-        -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2
+#     echo -e "Extracting region $i from $ASM_Het2."
+#     echo -e "Command:\n\
+#  samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa"\
+#  -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2"
+#     samtools faidx -o "${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa" \
+#         -r <(echo "${FOCAL_SCAF}:$S2-$E2") $ASM_Het2
 
     # extract region from homP
     SP=$((S_HomP - PAD_HomP))
     EP=$((E_HomP + PAD_HomP))
-    echo -e "Extracting region $i from $ASM_HomP."
-    echo -e "Command:\n\
- samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa"\
- -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP"
-    samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa" \
-        -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP
+#     echo -e "Extracting region $i from $ASM_HomP."
+#     echo -e "Command:\n\
+#  samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa"\
+#  -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP"
+#     samtools faidx -o "${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa" \
+#         -r <(echo "${FOCAL_SCAF}:$SP-$EP") $ASM_HomP
     
-    # add assembly info to sequence names and concatenate into single fasta
-    WINDOW_FASTA=DivergedWindow$(printf "%02d" $i).fa
-    echo -e "Combining into single multifasta $WINDOW_FASTA and submitting to $MUSCLE_SLURM."
-    sed "s/${FOCAL_SCAF}/${ASM_Het1%.*}-${FOCAL_SCAF}/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > $WINDOW_FASTA
-    sed "s/${FOCAL_SCAF}/${ASM_Het2%.*}-${FOCAL_SCAF}/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> $WINDOW_FASTA
-    sed "s/${FOCAL_SCAF}/${ASM_HomP%.*}-${FOCAL_SCAF}/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> $WINDOW_FASTA
+#     # add assembly info to sequence names and concatenate into single fasta
+#     WINDOW_FASTA=DivergedWindow$(printf "%02d" $i).fa
+#     echo -e "Combining into single multifasta $WINDOW_FASTA and submitting to $MUSCLE_SLURM."
+#     sed "s/${FOCAL_SCAF}/${ASM_Het1%.*}-${FOCAL_SCAF}/" ${ASM_Het1%.*}-${FOCAL_SCAF}-${S1}to${E1}.fa > $WINDOW_FASTA
+#     sed "s/${FOCAL_SCAF}/${ASM_Het2%.*}-${FOCAL_SCAF}/" ${ASM_Het2%.*}-${FOCAL_SCAF}-${S2}to${E2}.fa >> $WINDOW_FASTA
+#     sed "s/${FOCAL_SCAF}/${ASM_HomP%.*}-${FOCAL_SCAF}/" ${ASM_HomP%.*}-${FOCAL_SCAF}-${SP}to${EP}.fa >> $WINDOW_FASTA
 
-    # submit alignment job to SLURM
-    sbatch $MUSCLE_SLURM $WINDOW_FASTA
+#     # submit alignment job to SLURM
+#     sbatch $MUSCLE_SLURM $WINDOW_FASTA
 
+# debugging, report intermediate values
+    echo -e "Region $i: Het1 S=$S1 E=$E1, Het2 S=$S2 E=$E2, HomP S=$SP E=$EP"
+    echo -e "ClosestOut_S1=$ClosestOut_S1, ClosestOut_S2=$ClosestOut_S2, ClosestOut_SP=$ClosestOut_SP"
+    echo -e "ClosestOut_E1=$ClosestOut_E1, ClosestOut_E2=$ClosestOut_E2, ClosestOut_EP=$ClosestOut_EP"
+    echo -e "PAD_Het1=$PAD_Het1, PAD_Het2=$PAD_Het2, PAD_HomP=$PAD_HomP"
+    echo -e "S_Het1=$S_Het1, E_Het1=$E_Het1, L_Het1=$L_Het1"
+    echo -e "S_Het2=$S_Het2, E_Het2=$E_Het2, L_Het2=$L_Het2"
+    echo -e "S_HomP=$S_HomP, E_HomP=$E_HomP, L_HomP=$L_HomP\n\n"
     ((i+=1))
 done < $COORDS_Het1vsHet2.seedhits
