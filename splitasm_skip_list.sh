@@ -38,7 +38,7 @@ sort $IN_ASM.fai -nr -k2,2 | \
 seqtk subseq $IN_ASM ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.list \
   > ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.fa
 
-ragtag.py splitasm -o ${IN_ASM_FN%.*}.${SKIP_LIST_FN%.*}_contigs.agp \
+ragtag.py splitasm -o ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_contigs.agp \
   ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_scaf_to_split.fa \
   > ${IN_ASM_FN%.*}.non${SKIP_LIST_FN%.*}_contigs.fa
 
